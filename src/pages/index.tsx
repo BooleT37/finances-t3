@@ -6,6 +6,7 @@ import { signIn, signOut, useSession } from "next-auth/react";
 
 import { api } from "~/utils/api";
 
+// eslint-disable-next-line mobx/missing-observer
 const Home: NextPage = () => {
   const hello = api.example.hello.useQuery({ text: "from tRPC" });
 
@@ -59,6 +60,7 @@ const Home: NextPage = () => {
 
 export default Home;
 
+// eslint-disable-next-line mobx/missing-observer
 const AuthShowcase: React.FC = () => {
   const { data: sessionData } = useSession();
 

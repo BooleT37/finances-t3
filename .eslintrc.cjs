@@ -18,8 +18,12 @@ const config = {
   parserOptions: {
     project: path.join(__dirname, "tsconfig.json"),
   },
-  plugins: ["@typescript-eslint"],
-  extends: ["next/core-web-vitals", "plugin:@typescript-eslint/recommended"],
+  plugins: ["@typescript-eslint", "mobx"],
+  extends: [
+    "next/core-web-vitals",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:mobx/recommended",
+  ],
   rules: {
     "@typescript-eslint/consistent-type-imports": [
       "warn",
@@ -29,6 +33,16 @@ const config = {
       },
     ],
     "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+    "mobx/exhaustive-make-observable": "off",
+    "@typescript-eslint/strict-boolean-expressions": [
+      "warn",
+      {
+        allowString: true,
+        allowNullableString: true,
+        allowAny: true,
+        allowNullableBoolean: true,
+      },
+    ],
   },
 };
 

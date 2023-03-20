@@ -5,6 +5,7 @@ import {
   publicProcedure,
   protectedProcedure,
 } from "~/server/api/trpc";
+import { prisma } from "~/server/db";
 
 export const exampleRouter = createTRPCRouter({
   hello: publicProcedure
@@ -15,8 +16,8 @@ export const exampleRouter = createTRPCRouter({
       };
     }),
 
-  getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.example.findMany();
+  getCategories: publicProcedure.query(() => {
+    return prisma.category.findMany();
   }),
 
   getSecretMessage: protectedProcedure.query(() => {
