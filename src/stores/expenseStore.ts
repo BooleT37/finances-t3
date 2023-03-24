@@ -256,7 +256,7 @@ class ExpenseStore implements DataLoader<ApiExpense[]> {
       }
     });
 
-    const interim = from.clone();
+    let interim = from.clone();
     const allCategoriesIds =
       categoriesIds.length === 0
         ? categories.getAll().map((c) => c.id)
@@ -275,7 +275,7 @@ class ExpenseStore implements DataLoader<ApiExpense[]> {
           monthEntry[categoryId] = 0;
         }
       }
-      interim.add(1, "month");
+      interim = interim.add(1, "month");
     }
 
     const data: DynamicsDataMonth[] = Object.values(dict)

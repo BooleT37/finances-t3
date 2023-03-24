@@ -70,9 +70,9 @@ export default class Subscription {
   }
 
   get nextDate(): Dayjs {
-    const date = this.firstDate.clone();
+    let date = this.firstDate.clone();
     while (date.isBefore(today, "day")) {
-      date.add(this.period, "months");
+      date = date.add(this.period, "months");
     }
     return date;
   }
@@ -101,17 +101,17 @@ export default class Subscription {
 
   isInMonth(month: number, year: number): boolean {
     const date = dayjs().year(year).month(month);
-    const iDate = this.firstDate.clone();
+    let iDate = this.firstDate.clone();
     while (iDate.isBefore(date, "month")) {
-      iDate.add(this.period, "months");
+      iDate = iDate.add(this.period, "months");
     }
     return date.isSame(iDate, "month");
   }
 
   firstDateInInterval(startDate: Dayjs, endDate: Dayjs): Dayjs | null {
-    const iDate = this.firstDate.clone();
+    let iDate = this.firstDate.clone();
     while (iDate.isBefore(startDate, "day")) {
-      iDate.add(this.period, "months");
+      iDate = iDate.add(this.period, "months");
     }
     if (iDate.isBetween(startDate, endDate, "day", "[]")) {
       return iDate;
