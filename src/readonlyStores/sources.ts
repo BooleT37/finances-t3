@@ -1,8 +1,20 @@
-import Source from "~/models/Source";
+import { type Source as ApiSource } from "@prisma/client";
+import { adaptSourceFromApi } from "~/adapters/source/sourceFromApi";
+import type Source from "~/models/Source";
+import { type DataLoader } from "~/stores/DataLoader";
 import type { Option } from "~/types/types";
+import { trpc } from "~/utils/api";
 
-class Sources {
+class Sources implements DataLoader<ApiSource[]> {
   private sources: Source[] = [];
+
+  async loadData() {
+    return trpc.sources.getAll.query();
+  }
+
+  init(sources: ApiSource[]): void {
+    this.sources = sources.map(adaptSourceFromApi);
+  }
 
   getAll(): Source[] {
     return this.sources;
@@ -18,10 +30,6 @@ class Sources {
       throw new Error(`Cannot find source with the id ${id}`);
     }
     return source;
-  }
-
-  set(sources: Source[]): void {
-    this.sources = sources.map((s) => new Source(s.id, s.name));
   }
 
   get asOptions(): Option[] {

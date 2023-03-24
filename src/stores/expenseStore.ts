@@ -24,6 +24,7 @@ import { type TableData } from "../models/Expense";
 import type Subscription from "../models/Subscription";
 import sources from "../readonlyStores/sources";
 import costToString from "../utils/costToString";
+import { type DataLoader } from "./DataLoader";
 import savingSpendingStore from "./savingSpendingStore";
 import subscriptionStore from "./subscriptionStore";
 
@@ -34,11 +35,20 @@ interface SubscriptionForPeriod {
 
 const today = dayjs();
 
-class ExpenseStore {
+class ExpenseStore implements DataLoader<ApiExpense[]> {
   public expenses = observable.array<Expense>();
 
   constructor() {
     makeAutoObservable(this);
+  }
+
+  async loadData() {
+    return trpc.expense.getAll.query();
+  }
+
+  init(expenses: ApiExpense[]) {
+    this.expenses.replace(expenses.map(adaptExpenseFromApi));
+    this.fillPersonalExpenses(expenses);
   }
 
   get expensesByCategoryId(): Record<string, Expense[]> {
@@ -154,12 +164,6 @@ class ExpenseStore {
       }
     }
     throw new Error(`Can't find spending by category id ${id}`);
-  }
-
-  async fetchAll() {
-    const expenses = await trpc.expense.getAll.query();
-    this.expenses.replace(expenses.map(adaptExpenseFromApi));
-    this.fillPersonalExpenses(expenses);
   }
 
   get totalMonths(): number {

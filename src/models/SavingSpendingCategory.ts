@@ -4,16 +4,23 @@ import type { RecordType } from "~/types/savingSpending/RecordType";
 import type { Option } from "~/types/types";
 import roundCost from "~/utils/roundCost";
 import expenseStore from "../stores/expenseStore";
-import NewSavingSpendingCategory from "./NewSavingSpendingCategory";
+import type NewSavingSpendingCategory from "./NewSavingSpendingCategory";
 
-export default class SavingSpendingCategory extends NewSavingSpendingCategory {
+export default class SavingSpendingCategory
+  implements NewSavingSpendingCategory
+{
   id: number;
+  name: string;
+  forecast: number;
+  comment: string;
 
   constructor(id: number, name: string, forecast: number, comment: string) {
-    super(name, forecast, comment);
     makeAutoObservable(this);
 
     this.id = id;
+    this.name = name;
+    this.forecast = forecast;
+    this.comment = comment;
   }
 
   get asTableRecord(): RecordType {

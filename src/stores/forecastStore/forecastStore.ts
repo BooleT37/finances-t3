@@ -2,26 +2,36 @@ import { default as sum } from "lodash/sum";
 import { makeAutoObservable, observable } from "mobx";
 import { computedFn } from "mobx-utils";
 import { adaptForecastFromApi } from "~/adapters/forecast/forecastFromApi";
-import { trpc } from "~/utils/api";
 import { MONTH_DATE_FORMAT } from "~/utils/constants";
 import countUniqueMonths from "~/utils/countUniqueMonths";
 import roundCost from "~/utils/roundCost";
 
-import type Category from "../../models/Category";
-import { CATEGORY_IDS } from "../../models/Category";
-import Forecast from "../../models/Forecast";
-import categories from "../../readonlyStores/categories";
-import { negateIf } from "../../utils/negateIf";
+import type { Forecast as ApiForecast } from "@prisma/client";
+import type Category from "~/models/Category";
+import { CATEGORY_IDS } from "~/models/Category";
+import Forecast from "~/models/Forecast";
+import categories from "~/readonlyStores/categories";
+import { trpc } from "~/utils/api";
+import { negateIf } from "~/utils/negateIf";
+import { type DataLoader } from "../DataLoader";
 import expenseStore from "../expenseStore";
 import subscriptionStore from "../subscriptionStore";
 import { type ForecastTableItem } from "./types";
 import { avgForNonEmpty, getPreviousMonth } from "./utils";
 
-class ForecastStore {
+class ForecastStore implements DataLoader<ApiForecast[]> {
   public forecasts = observable.array<Forecast>();
 
   constructor() {
     makeAutoObservable(this);
+  }
+
+  async loadData() {
+    return trpc.forecast.getAll.query();
+  }
+
+  init(forecasts: ApiForecast[]) {
+    this.forecasts.replace(forecasts.map(adaptForecastFromApi));
   }
 
   find(year: number, month: number, category: Category) {
@@ -255,11 +265,6 @@ class ForecastStore {
       );
     }
   );
-
-  async fetchAll() {
-    const forecasts = await trpc.forecast.getAll.query();
-    this.forecasts.replace(forecasts.map(adaptForecastFromApi));
-  }
 
   // async changeForecastSum(
   //   category: Category,

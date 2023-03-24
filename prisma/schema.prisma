@@ -68,7 +68,7 @@ model Category {
   expenses      Expense[]
   subcategories Subcategory[]
   Subscriptions Subscription[]
-  Forecast      Forecast[]
+  forecast      Forecast[]
 }
 
 model Source {

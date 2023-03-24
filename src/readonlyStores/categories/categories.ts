@@ -1,27 +1,42 @@
-import { CategoryJson } from "../../api/categoryApi";
-import { SubcategoryJson } from "../../api/subcategoryApi";
-import Category from "../../models/Category";
-import Subcategory from "../../models/Subcategory";
-import type { Option } from "../../types";
+import { type inferRouterOutputs } from "@trpc/server";
+import { adaptCategoryFromApi } from "~/adapters/category/categoryFromApi";
+import type Category from "~/models/Category";
+import { type AppRouter } from "~/server/api/root";
+import { type DataLoader } from "~/stores/DataLoader";
+import type { Option } from "~/types/types";
+import { trpc } from "~/utils/api";
 import {
   sortAllCategories,
   sortExpenseCategories,
-  sortIncomeCategories
+  sortIncomeCategories,
 } from "./categoriesOrder";
 
 // The categories are NOT mutable!
 // Having it like this makes using them much more easy
-class Categories {
-  private categories: Category[];
-  public expenseCategories: Category[];
-  public generalExpenseCategories: Category[]; // not personal and not savings
-  public personalExpensesCategories: Category[];
-  public incomeCategories: Category[];
-  public savingsCategories: Category[];
-  public incomeCategoriesNames: string[];
-  public options: Option[];
-  public expenseOptions: Option[];
-  public incomeOptions: Option[];
+class Categories
+  implements DataLoader<inferRouterOutputs<AppRouter>["categories"]["getAll"]>
+{
+  private categories: Category[] = [];
+  public expenseCategories: Category[] = [];
+  public generalExpenseCategories: Category[] = []; // not personal and not savings
+  public personalExpensesCategories: Category[] = [];
+  public incomeCategories: Category[] = [];
+  public savingsCategories: Category[] = [];
+  public incomeCategoriesNames: string[] = [];
+  public options: Option[] = [];
+  public expenseOptions: Option[] = [];
+  public incomeOptions: Option[] = [];
+
+  async loadData() {
+    return trpc.categories.getAll.query();
+  }
+
+  init(categories: inferRouterOutputs<AppRouter>["categories"]["getAll"]) {
+    this.categories = categories
+      .map(adaptCategoryFromApi)
+      .sort((c1, c2) => sortAllCategories(c1.shortname, c2.shortname));
+    this.calculateDerivations();
+  }
 
   getAll(): Category[] {
     return this.categories;
@@ -49,18 +64,6 @@ class Categories {
       throw new Error(`Cannot find category with id ${id}`);
     }
     return category;
-  }
-
-  fromJson(json: CategoryJson[], subcategories: SubcategoryJson[]) {
-    this.categories = json
-      .map(
-        (c) => {
-          const subcategoriesModels = subcategories.filter(s => s.category_id === c.id).map(s => new Subcategory(s.id, s.name))
-          return new Category(c.id, c.name, c.shortname, c.is_income, c.is_continuous, subcategoriesModels)
-        }
-      )
-      .sort((c1, c2) => sortAllCategories(c1.shortname, c2.shortname));
-    this.calculateDerivations();
   }
 
   calculateDerivations() {

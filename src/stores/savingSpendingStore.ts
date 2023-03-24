@@ -1,3 +1,4 @@
+import { type inferRouterOutputs } from "@trpc/server";
 import dayjs, { type Dayjs } from "dayjs";
 import sum from "lodash/sum";
 import { makeAutoObservable, observable, runInAction } from "mobx";
@@ -7,14 +8,19 @@ import {
   adaptSavingSpendingToUpdateInput,
 } from "~/adapters/savingSpending/savingSpendingToApi";
 import type SavingSpendingEditing from "~/models/SavingSpendingEditing";
+import { type AppRouter } from "~/server/api/root";
 import type { Option } from "~/types/types";
 import { trpc } from "~/utils/api";
 import { SAVINGS_DATE_LS_KEY, SAVINGS_LS_KEY } from "~/utils/constants";
 import { CATEGORY_IDS } from "../models/Category";
 import type SavingSpending from "../models/SavingSpending";
+import { type DataLoader } from "./DataLoader";
 import expenseStore from "./expenseStore";
 
-class SavingSpendingStore {
+class SavingSpendingStore
+  implements
+    DataLoader<inferRouterOutputs<AppRouter>["savingSpending"]["getAll"]>
+{
   savingSpendings = observable.array<SavingSpending>();
   initialSavings: number;
   initialSavingsDate: Dayjs | null;
@@ -33,8 +39,13 @@ class SavingSpendingStore {
         : null;
   }
 
-  async fetchAll() {
-    const savingSpendings = await trpc.savingSpending.getAll.query();
+  async loadData() {
+    return trpc.savingSpending.getAll.query();
+  }
+
+  init(
+    savingSpendings: inferRouterOutputs<AppRouter>["savingSpending"]["getAll"]
+  ) {
     this.savingSpendings.replace(
       savingSpendings.map(adaptSavingSpendingFromApi)
     );

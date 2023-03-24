@@ -1,3 +1,4 @@
+import type { Subscription as ApiSubscription } from "@prisma/client";
 import { groupBy } from "lodash";
 import { makeAutoObservable, observable, toJS } from "mobx";
 import { adaptSubscriptionFromApi } from "~/adapters/subscription/subscriptionFromApi";
@@ -5,6 +6,7 @@ import { trpc } from "~/utils/api";
 import type Category from "../models/Category";
 import type Subscription from "../models/Subscription";
 import { type SubscriptionFormValues } from "../models/Subscription";
+import { type DataLoader } from "./DataLoader";
 import { type SubscriptionsItem } from "./forecastStore/types";
 
 const subscriptionToItem = (subscription: Subscription): SubscriptionsItem => ({
@@ -12,15 +14,18 @@ const subscriptionToItem = (subscription: Subscription): SubscriptionsItem => ({
   name: subscription.name,
 });
 
-class SubscriptionStore {
+class SubscriptionStore implements DataLoader<ApiSubscription[]> {
   subscriptions = observable.array<Subscription>();
 
   constructor() {
     makeAutoObservable(this);
   }
 
-  async fetchAll() {
-    const subscriptions = await trpc.sub.getAll.query();
+  async loadData() {
+    return trpc.sub.getAll.query();
+  }
+
+  init(subscriptions: ApiSubscription[]) {
     this.subscriptions.replace(subscriptions.map(adaptSubscriptionFromApi));
   }
 

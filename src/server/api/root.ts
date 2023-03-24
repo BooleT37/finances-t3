@@ -1,7 +1,9 @@
 import { createTRPCRouter } from "~/server/api/trpc";
+import { categoriesRouter } from "./routers/categoriesRouter";
 import { expenseRouter } from "./routers/expenseRouter";
 import { forecastRouter } from "./routers/forecastRouter";
 import { savingSpendingRouter } from "./routers/savingSpendingRouter";
+import { sourcesRouter } from "./routers/sourcesRouter";
 import { subscriptionRouter } from "./routers/subscriptionRouter";
 
 /**
@@ -10,10 +12,12 @@ import { subscriptionRouter } from "./routers/subscriptionRouter";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
+  categories: categoriesRouter,
   expense: expenseRouter,
-  sub: subscriptionRouter,
-  savingSpending: savingSpendingRouter,
   forecast: forecastRouter,
+  savingSpending: savingSpendingRouter,
+  sources: sourcesRouter,
+  sub: subscriptionRouter,
 });
 
 // export type definition of API

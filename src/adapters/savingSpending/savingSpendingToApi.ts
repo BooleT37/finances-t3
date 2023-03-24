@@ -1,5 +1,5 @@
 import { type Prisma } from "@prisma/client";
-import NewSavingSpendingCategory from "~/models/NewSavingSpendingCategory";
+import type NewSavingSpendingCategory from "~/models/NewSavingSpendingCategory";
 import SavingSpendingCategory from "~/models/SavingSpendingCategory";
 import type SavingSpendingEditing from "~/models/SavingSpendingEditing";
 
@@ -34,8 +34,7 @@ export function adaptSavingSpendingToUpdateInput(
 ): Prisma.SavingSpendingUpdateInput {
   const { categories } = savingSpending;
   const newCategories = categories.filter(
-    (c): c is NewSavingSpendingCategory =>
-      c instanceof NewSavingSpendingCategory
+    (c): c is NewSavingSpendingCategory => !("id" in c)
   );
   const oldCategories = categories.filter(
     (c): c is SavingSpendingCategory => c instanceof SavingSpendingCategory

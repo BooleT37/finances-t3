@@ -1,14 +1,10 @@
-import {
-  type SavingSpending as ApiSavingSpending,
-  type SavingSpendingCategory as ApiSavingSpendingCategory,
-} from "@prisma/client";
+import { type inferRouterOutputs } from "@trpc/server";
 import SavingSpending from "~/models/SavingSpending";
 import SavingSpendingCategory from "~/models/SavingSpendingCategory";
+import { type AppRouter } from "~/server/api/root";
 
 export function adaptSavingSpendingFromApi(
-  savingSpending: ApiSavingSpending & {
-    categories: ApiSavingSpendingCategory[];
-  }
+  savingSpending: inferRouterOutputs<AppRouter>["savingSpending"]["getAll"][number]
 ) {
   return new SavingSpending(
     savingSpending.id,
