@@ -20,10 +20,15 @@ import { type ForecastTableItem } from "./types";
 import { avgForNonEmpty, getPreviousMonth } from "./utils";
 
 class ForecastStore implements DataLoader<ApiForecast[]> {
+  public dataLoaded = false;
   public forecasts = observable.array<Forecast>();
 
   constructor() {
     makeAutoObservable(this);
+  }
+
+  setDataLoaded(dataLoaded: boolean): void {
+    this.dataLoaded = dataLoaded;
   }
 
   async loadData() {

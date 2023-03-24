@@ -16,6 +16,7 @@ import {
 class Categories
   implements DataLoader<inferRouterOutputs<AppRouter>["categories"]["getAll"]>
 {
+  public dataLoaded = false;
   private categories: Category[] = [];
   public expenseCategories: Category[] = [];
   public generalExpenseCategories: Category[] = []; // not personal and not savings
@@ -36,6 +37,10 @@ class Categories
       .map(adaptCategoryFromApi)
       .sort((c1, c2) => sortAllCategories(c1.shortname, c2.shortname));
     this.calculateDerivations();
+  }
+
+  setDataLoaded(dataLoaded: boolean): void {
+    this.dataLoaded = dataLoaded;
   }
 
   getAll(): Category[] {

@@ -21,6 +21,7 @@ class SavingSpendingStore
   implements
     DataLoader<inferRouterOutputs<AppRouter>["savingSpending"]["getAll"]>
 {
+  public dataLoaded = false;
   savingSpendings = observable.array<SavingSpending>();
   initialSavings: number;
   initialSavingsDate: Dayjs | null;
@@ -37,6 +38,10 @@ class SavingSpendingStore
       typeof window !== "undefined" && localStorage[SAVINGS_DATE_LS_KEY]
         ? dayjs(localStorage.getItem(SAVINGS_DATE_LS_KEY))
         : null;
+  }
+
+  setDataLoaded(dataLoaded: boolean): void {
+    this.dataLoaded = dataLoaded;
   }
 
   async loadData() {

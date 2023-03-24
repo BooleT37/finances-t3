@@ -36,10 +36,15 @@ interface SubscriptionForPeriod {
 const today = dayjs();
 
 class ExpenseStore implements DataLoader<ApiExpense[]> {
+  public dataLoaded = false;
   public expenses = observable.array<Expense>();
 
   constructor() {
     makeAutoObservable(this);
+  }
+
+  setDataLoaded(dataLoaded: boolean): void {
+    this.dataLoaded = dataLoaded;
   }
 
   async loadData() {

@@ -15,10 +15,15 @@ const subscriptionToItem = (subscription: Subscription): SubscriptionsItem => ({
 });
 
 class SubscriptionStore implements DataLoader<ApiSubscription[]> {
+  public dataLoaded = false;
   subscriptions = observable.array<Subscription>();
 
   constructor() {
     makeAutoObservable(this);
+  }
+
+  setDataLoaded(dataLoaded: boolean): void {
+    this.dataLoaded = dataLoaded;
   }
 
   async loadData() {

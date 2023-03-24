@@ -6,10 +6,15 @@ import type { Option } from "~/types/types";
 import { trpc } from "~/utils/api";
 
 class Sources implements DataLoader<ApiSource[]> {
+  public dataLoaded = false;
   private sources: Source[] = [];
 
   async loadData() {
     return trpc.sources.getAll.query();
+  }
+
+  setDataLoaded(dataLoaded: boolean): void {
+    this.dataLoaded = dataLoaded;
   }
 
   init(sources: ApiSource[]): void {
