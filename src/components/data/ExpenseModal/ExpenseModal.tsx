@@ -38,19 +38,19 @@ function expenseToFormValues(expense: Expense): FormValues {
       ? String((expense.personalExpense.cost ?? 0) + (expense.cost ?? 0))
       : String(expense.cost),
     category: expense.category.id ?? null,
-    subcategory: expense.subcategory?.id ?? null,
+    subcategory: expense.subcategory?.id ?? undefined,
     name: expense.name || "",
-    personalExpCategoryId: expense.personalExpense?.category.id ?? null,
+    personalExpCategoryId: expense.personalExpense?.category.id ?? undefined,
     personalExpSpent: String(expense.personalExpense?.cost ?? ""),
     date: expense.date,
-    source: expense.source?.id ?? null,
-    subscription: expense.subscription?.id ?? null,
+    source: expense.source?.id ?? undefined,
+    subscription: expense.subscription?.id ?? undefined,
     savingSpendingId: expense.savingSpending
       ? expense.savingSpending.spending.id
-      : null,
+      : undefined,
     savingSpendingCategoryId: expense.savingSpending
       ? expense.savingSpending.category.id
-      : null,
+      : undefined,
   };
 }
 
@@ -61,8 +61,8 @@ const ModalStyled = styled(Modal)`
 `;
 
 interface Props {
-  startDate: Dayjs | null;
-  endDate: Dayjs | null;
+  startDate: Dayjs | undefined;
+  endDate: Dayjs | undefined;
 
   onSubmit(expense: Expense): void;
 }
@@ -93,16 +93,16 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
   const INITIAL_VALUES: FormValues = React.useMemo(
     () => ({
       cost: "",
-      subscription: null,
-      category: null,
-      subcategory: null,
+      subscription: undefined,
+      category: undefined,
+      subcategory: undefined,
       name: "",
-      personalExpCategoryId: null,
+      personalExpCategoryId: undefined,
       personalExpSpent: "",
       date: today.isBetween(startDate, endDate) ? today : startDate,
       source: lastSource,
-      savingSpendingId: null,
-      savingSpendingCategoryId: null,
+      savingSpendingId: undefined,
+      savingSpendingCategoryId: undefined,
     }),
     [endDate, startDate, lastSource]
   );
@@ -113,7 +113,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
       .then(
         action(async (values) => {
           // auto set the first saving spending category if it's the only one
-          if (values.savingSpendingId !== null) {
+          if (values.savingSpendingId !== undefined) {
             const { categories } = savingSpendingStore.getById(
               values.savingSpendingId
             );
@@ -125,14 +125,14 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
           form.resetFields();
           form.setFieldsValue({ source: values.source });
           if (!hasPersonalExp) {
-            values.personalExpCategoryId = null;
+            values.personalExpCategoryId = undefined;
             values.personalExpSpent = "0";
           }
           const expense = await insertExpense(values as ValidatedFormValues);
           runInAction(() => {
             if (addMore.value) {
               expenseModalViewModel.lastExpenseId = expense.id;
-              expenseModalViewModel.expenseId = null;
+              expenseModalViewModel.expenseId = undefined;
               form.setFieldsValue({ date: values.date });
             } else {
               expenseModalViewModel.close(values.source);
@@ -186,29 +186,21 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
     }
   };
 
-  const sourcesOptions = React.useMemo(() => {
-    const options = sources.asOptions;
-    options.unshift({ value: null, label: "Нет источника" });
-    return options;
-  }, []);
-
-  const savingSpendingOptions = React.useMemo(() => {
-    const options = savingSpendingStore.asOptions.slice();
-    options.unshift({ value: null, label: "Нет события" });
-    return options;
-  }, []);
-
-  const sourceId: number | null = Form.useWatch("source", form) ?? null;
-  const categoryId: number | null = Form.useWatch("category", form) ?? null;
-  const savingSpendingId: number | null =
-    Form.useWatch("savingSpendingId", form) ?? null;
+  const sourceId: number | undefined =
+    Form.useWatch("source", form) ?? undefined;
+  const categoryId: number | undefined =
+    Form.useWatch("category", form) ?? undefined;
+  const savingSpendingId: number | undefined =
+    Form.useWatch("savingSpendingId", form) ?? undefined;
   const currentCategory =
-    categoryId !== null ? categories.getById(categoryId) : null;
+    categoryId !== undefined ? categories.getById(categoryId) : undefined;
   const sourceExtra =
-    sourceId === null ? null : <SourceLastExpenses sourceId={sourceId} />;
+    sourceId === undefined ? undefined : (
+      <SourceLastExpenses sourceId={sourceId} />
+    );
 
   const savingSpendingCategoryOptions = React.useMemo(() => {
-    if (savingSpendingId === null) {
+    if (savingSpendingId === undefined) {
       return [];
     }
     return savingSpendingStore.categoriesAsOptions(savingSpendingId);
@@ -228,10 +220,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
   }));
 
   const handleValuesChange = (changedValues: Partial<FormValues>) => {
-    if (
-      changedValues.subscription !== null &&
-      changedValues.subscription !== undefined
-    ) {
+    if (changedValues.subscription !== undefined) {
       const subscription = subscriptionStore.getJsById(
         changedValues.subscription
       );
@@ -256,22 +245,21 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
       });
     }
     runInAction(() => {
-      if (
-        changedValues.savingSpendingId !== null &&
-        changedValues.savingSpendingId !== undefined
-      ) {
+      if (changedValues.savingSpendingId !== undefined) {
         const { categories } = savingSpendingStore.getById(
           changedValues.savingSpendingId
         );
         form.setFieldsValue({
           savingSpendingCategoryId:
-            categories.length === 1 && categories[0] ? categories[0].id : null,
+            categories.length === 1 && categories[0]
+              ? categories[0].id
+              : undefined,
         });
       }
     });
-    if (changedValues.savingSpendingId === null) {
+    if (changedValues.savingSpendingId === undefined) {
       form.setFieldsValue({
-        savingSpendingCategoryId: null,
+        savingSpendingCategoryId: undefined,
       });
     }
   };
@@ -281,7 +269,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
       const currentName = form.getFieldValue("name") as FormValues["name"];
       form.setFieldsValue({
         category: categoryId,
-        personalExpCategoryId: null,
+        personalExpCategoryId: undefined,
         personalExpSpent: "0",
         name: currentCategory
           ? currentName
@@ -293,12 +281,6 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
     },
     [currentCategory, form]
   );
-
-  const subcategories = currentCategory
-    ? [{ value: null, label: "Нет подкатегории" } as Option].concat(
-        currentCategory.subcategories.map((s) => s.asOption)
-      )
-    : [];
 
   return (
     <ModalStyled
@@ -403,9 +385,12 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
           label="Подкатегория"
         >
           <Select
-            options={subcategories}
+            options={
+              currentCategory?.subcategories.map((s) => s.asOption) ?? []
+            }
             placeholder="Выберите подкатегорию"
             style={{ width: 250 }}
+            allowClear
           />
         </Form.Item>
         <Form.Item
@@ -420,9 +405,10 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
           ]}
         >
           <Select
-            options={savingSpendingOptions}
+            options={savingSpendingStore.asOptions}
             placeholder="Не указано"
             style={{ width: 250 }}
+            allowClear
           />
         </Form.Item>
         {categoryId === CATEGORY_IDS.fromSavings &&
@@ -438,7 +424,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
               ]}
             >
               <Select
-                disabled={savingSpendingId === null}
+                disabled={savingSpendingId === undefined}
                 options={savingSpendingCategoryOptions}
                 placeholder="Выберите категорию"
                 style={{ width: 250 }}
@@ -449,14 +435,10 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
         {subscriptionOptions.length > 0 && (
           <Form.Item name="subscription" label="Подписка">
             <Select
-              options={[
-                {
-                  label: "Не указана",
-                  value: null,
-                } as Option,
-              ].concat(subscriptionOptions)}
+              options={subscriptionOptions}
               placeholder="Не указана"
               style={{ width: 250 }}
+              allowClear
             />
           </Form.Item>
         )}
@@ -467,7 +449,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
         >
           <CostInput />
         </Form.Item>
-        {(categoryId === null ||
+        {(categoryId === undefined ||
           ![
             PersonalExpCategoryIds.Alexey,
             PersonalExpCategoryIds.Lena,
@@ -500,9 +482,10 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
         </Form.Item>
         <Form.Item name="source" label="Источник" extra={sourceExtra}>
           <Select
-            options={sourcesOptions}
+            options={sources.asOptions}
             placeholder="Не указано"
             style={{ width: 150 }}
+            allowClear
           />
         </Form.Item>
       </Form>

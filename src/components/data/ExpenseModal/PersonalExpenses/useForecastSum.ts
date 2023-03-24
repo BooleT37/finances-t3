@@ -6,14 +6,14 @@ import expenseStore from "~/stores/expenseStore";
 import forecastStore from "~/stores/forecastStore";
 
 export const useForecastSum = (
-  date: Dayjs | null,
-  categoryId: PersonalExpCategoryIds | null
+  date: Dayjs | undefined,
+  categoryId: PersonalExpCategoryIds | undefined
 ) => {
-  if (categoryId === null) {
+  if (categoryId === undefined) {
     return undefined;
   }
   const forecast =
-    date && categoryId !== null
+    date && categoryId !== undefined
       ? forecastStore.find(
           date.year(),
           date.month(),

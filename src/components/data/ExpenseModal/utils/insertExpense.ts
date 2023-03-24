@@ -16,16 +16,15 @@ export default async function insertExpense(
     parseFloat(values.cost),
     values.date,
     category,
-    values.subcategory === null
+    values.subcategory === undefined
       ? null
       : category.findSubcategoryById(values.subcategory),
     values.name,
     null,
-    values.source !== null ? sources.getById(values.source) : null,
-    values.subscription === null
+    values.source !== undefined ? sources.getById(values.source) : null,
+    values.subscription === undefined
       ? null
       : subscriptionStore.getById(values.subscription),
-    values.savingSpendingCategoryId === null ||
     values.savingSpendingCategoryId === undefined
       ? null
       : expenseStore.getSavingSpendingByCategoryId(
@@ -44,7 +43,7 @@ export default async function insertExpense(
       );
     }
     // if there are personal expenses
-    if (values.personalExpCategoryId !== null) {
+    if (values.personalExpCategoryId !== undefined) {
       // if there were personal expenses in the modifying expense
       if (modifyingExpense.personalExpense) {
         const modifyingPe = modifyingExpense.personalExpense;
@@ -62,7 +61,7 @@ export default async function insertExpense(
             parseFloat(values.personalExpSpent),
             modifyingPe.date,
             category,
-            values.subcategory === null
+            values.subcategory === undefined
               ? null
               : category.findSubcategoryById(values.subcategory),
             generatePersonalExpenseName({
@@ -84,7 +83,7 @@ export default async function insertExpense(
           parseFloat(values.personalExpSpent),
           values.date,
           category,
-          values.subcategory === null
+          values.subcategory === undefined
             ? null
             : category.findSubcategoryById(values.subcategory),
           generatePersonalExpenseName({
@@ -110,14 +109,14 @@ export default async function insertExpense(
       }
     }
   } else {
-    if (values.personalExpCategoryId !== null) {
+    if (values.personalExpCategoryId !== undefined) {
       const category = categories.getById(values.personalExpCategoryId);
       const personalExpense = new Expense(
         -1,
         parseFloat(values.personalExpSpent),
         values.date,
         category,
-        values.subcategory === null
+        values.subcategory === undefined
           ? null
           : category.findSubcategoryById(values.subcategory),
         generatePersonalExpenseName({

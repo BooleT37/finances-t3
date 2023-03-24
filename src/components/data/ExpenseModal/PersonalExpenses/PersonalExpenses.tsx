@@ -20,11 +20,11 @@ const PersonalExpenses: React.FC<Props> = ({ form, onTransferAll }) => {
   const date = Form.useWatch("date", form);
   const forecastSum = useForecastSum(date, categoryId);
 
-  const extra = forecastSum !== undefined ? `Макс: ${forecastSum}` : null;
+  const extra = forecastSum !== undefined ? `Макс: ${forecastSum}` : undefined;
   const exceeds = forecastSum !== undefined && parseFloat(spent) > forecastSum;
 
   const handleTransferAllClick = useCallback(() => {
-    if (categoryId !== null) {
+    if (categoryId !== undefined) {
       onTransferAll(categoryId);
     }
   }, [categoryId, onTransferAll]);

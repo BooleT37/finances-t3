@@ -6,7 +6,7 @@ class ExpenseModalViewModel {
   visible = false;
   expenseId: number | null = null;
   lastExpenseId: number | null = null;
-  lastSource: number | null = null;
+  lastSource: number | undefined = undefined;
 
   constructor() {
     makeAutoObservable(this);
@@ -29,7 +29,7 @@ class ExpenseModalViewModel {
     this.visible = true;
   }
 
-  close(source: number | null): void {
+  close(source: number | undefined): void {
     this.lastSource = source;
     this.expenseId = null;
     this.visible = false;
