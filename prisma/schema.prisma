@@ -5,24 +5,28 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator zod {
+  provider = "prisma-zod-generator"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  @db.Text
-  access_token       String?  @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?  @db.Text
-  session_state      String?
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -47,10 +51,90 @@ model User {
   sessions      Session[]
 }
 
+model Subcategory {
+  id         Int       @id @default(autoincrement())
+  name       String
+  category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId Int?
+  expenses   Expense[]
+}
+
 model Category {
-  id             Int     @id @default(autoincrement())
-  name           String  @unique
-  is_income      Boolean
-  is_continuous  Boolean
-  shortname      String @db.VarChar(16)
+  id            Int            @id @default(autoincrement())
+  name          String         @unique
+  isIncome      Boolean        @default(false)
+  isContinuous  Boolean        @default(false)
+  shortname     String         @db.VarChar(16)
+  expenses      Expense[]
+  subcategories Subcategory[]
+  Subscriptions Subscription[]
+  Forecast      Forecast[]
+}
+
+model Source {
+  id            Int            @id @default(autoincrement())
+  name          String
+  subscriptions Subscription[]
+  expenses      Expense[]
+}
+
+model SavingSpendingCategory {
+  id               Int             @id @default(autoincrement())
+  name             String
+  forecast         Float
+  comment          String
+  savingSpending   SavingSpending? @relation(fields: [savingSpendingId], references: [id], onDelete: Cascade)
+  savingSpendingId Int?
+  expenses         Expense[]
+}
+
+model SavingSpending {
+  id         Int                      @id @default(autoincrement())
+  name       String
+  completed  Boolean
+  categories SavingSpendingCategory[]
+}
+
+model Subscription {
+  id         Int       @id @default(autoincrement())
+  name       String
+  cost       Float
+  category   Category  @relation(fields: [categoryId], references: [id])
+  period     Int       @db.SmallInt
+  firstDate  DateTime  @db.Date
+  source     Source?   @relation(fields: [sourceId], references: [id])
+  active     Boolean
+  categoryId Int
+  sourceId   Int?
+  Expenses   Expense[]
+}
+
+model Expense {
+  id                       Int                     @id @default(autoincrement())
+  name                     String
+  cost                     Float
+  date                     DateTime                @db.Date
+  category                 Category                @relation(fields: [categoryId], references: [id])
+  categoryId               Int
+  subcategory              Subcategory?            @relation(fields: [subcategoryId], references: [id])
+  personalExpense          Expense?                @relation("personalExpenseLink", fields: [personalExpenseId], references: [id])
+  parentExpense            Expense?                @relation("personalExpenseLink")
+  personalExpenseId        Int?                    @unique
+  source                   Source?                 @relation(fields: [sourceId], references: [id])
+  sourceId                 Int?
+  subscription             Subscription?           @relation(fields: [subscriptionId], references: [id])
+  subscriptionId           Int?
+  savingSpendingCategory   SavingSpendingCategory? @relation(fields: [savingSpendingCategoryId], references: [id])
+  savingSpendingCategoryId Int?
+  subcategoryId            Int?
+}
+
+model Forecast {
+  id         Int      @id @default(autoincrement())
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
+  month      Int      @db.SmallInt
+  year       Int      @db.SmallInt
+  sum        Int      @db.SmallInt
+  comment    String
 }

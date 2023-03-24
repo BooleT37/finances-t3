@@ -32,7 +32,10 @@ const config = {
         fixStyle: "inline-type-imports",
       },
     ],
-    "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      { argsIgnorePattern: "^_", ignoreRestSiblings: true },
+    ],
     "mobx/exhaustive-make-observable": "off",
     "@typescript-eslint/strict-boolean-expressions": [
       "warn",

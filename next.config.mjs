@@ -18,5 +18,18 @@ const config = {
     locales: ["en"],
     defaultLocale: "en",
   },
+  async redirects() {
+    return [
+      {
+        source: "/",
+        destination: "/data",
+        permanent: true,
+      },
+    ];
+  },
+  compiler: {
+    // Enables the styled-components SWC transform
+    styledComponents: true,
+  },
 };
 export default config;

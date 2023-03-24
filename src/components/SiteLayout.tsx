@@ -27,12 +27,12 @@ function getItem(
 }
 
 const items: ItemType[] = [
-  getItem("Данные", "/screens/data", <TableOutlined />),
-  getItem("Траты из сбережений", "/screens/saving-spendings", <BankOutlined />),
-  getItem("Статистика", "/screens/statistics", <LineChartOutlined />),
-  getItem("Планирование", "/screens/planning", <CalendarOutlined />),
-  getItem("Подписки", "/screens/subscriptions", <DollarOutlined />),
-  getItem("Настройки", "/screens/settings", <SettingOutlined />),
+  getItem("Данные", "/data", <TableOutlined />),
+  getItem("Траты из сбережений", "/saving-spendings", <BankOutlined />),
+  getItem("Статистика", "/statistics", <LineChartOutlined />),
+  getItem("Планирование", "/planning", <CalendarOutlined />),
+  getItem("Подписки", "/subscriptions", <DollarOutlined />),
+  getItem("Настройки", "/settings", <SettingOutlined />),
 ];
 
 /* eslint-disable mobx/missing-observer */
