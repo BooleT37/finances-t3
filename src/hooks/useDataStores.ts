@@ -25,7 +25,7 @@ export function useDataStores(...stores: DataLoader<unknown>[]) {
           store.init(datum[index]);
         }
       });
-      setDataLoaded(true);
+      setDataLoaded(stores.every((store) => store.dataLoaded));
     })();
   }, [stores]);
   return { dataLoaded };
