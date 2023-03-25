@@ -1,9 +1,9 @@
 import { type IAggFuncParams } from "ag-grid-enterprise";
 import { type CostCol, type TableData } from "~/models/Expense";
 import categories from "~/readonlyStores/categories";
+import { type AggCostCol } from "~/types/data";
 import roundCost from "~/utils/roundCost";
 import { type DataTableContext } from "../../DataScreen";
-import { type AggCostCol } from "../../models";
 
 export default function costAggFunc(
   params: IAggFuncParams<TableData, CostCol>

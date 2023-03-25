@@ -61,8 +61,8 @@ const ModalStyled = styled(Modal)`
 `;
 
 interface Props {
-  startDate: Dayjs | undefined;
-  endDate: Dayjs | undefined;
+  startDate: Dayjs | null;
+  endDate: Dayjs | null;
 
   onSubmit(expense: Expense): void;
 }
@@ -99,7 +99,9 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
       name: "",
       personalExpCategoryId: undefined,
       personalExpSpent: "",
-      date: today.isBetween(startDate, endDate) ? today : startDate,
+      date: today.isBetween(startDate, endDate)
+        ? today
+        : startDate ?? undefined,
       source: lastSource,
       savingSpendingId: undefined,
       savingSpendingCategoryId: undefined,

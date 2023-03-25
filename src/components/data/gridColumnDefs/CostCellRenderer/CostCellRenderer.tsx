@@ -1,9 +1,9 @@
 import React from "react";
 import TotalCostCellView from "~/components/TotalCostCellView";
 import { type CostCol } from "~/models/Expense";
+import { type AggCostCol } from "~/types/data";
 import costToString from "~/utils/costToString";
 import roundCost from "~/utils/roundCost";
-import { type AggCostCol } from "../../models";
 import { isAggCostCol } from "../utils";
 import CostCellView from "./CostCellView";
 
