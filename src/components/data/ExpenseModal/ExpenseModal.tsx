@@ -132,7 +132,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
           runInAction(() => {
             if (addMore.value) {
               expenseModalViewModel.lastExpenseId = expense.id;
-              expenseModalViewModel.expenseId = undefined;
+              expenseModalViewModel.expenseId = null;
               form.setFieldsValue({ date: values.date });
             } else {
               expenseModalViewModel.close(values.source);

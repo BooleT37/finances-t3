@@ -2,7 +2,7 @@ import type { Expense as ApiExpense } from "@prisma/client";
 import assert from "assert";
 import dayjs, { type Dayjs } from "dayjs";
 import { groupBy, sum } from "lodash";
-import { makeAutoObservable, observable, toJS } from "mobx";
+import { makeAutoObservable, observable, runInAction, toJS } from "mobx";
 import { computedFn } from "mobx-utils";
 import { adaptExpenseFromApi } from "~/adapters/expense/expenseFromApi";
 import {
@@ -106,17 +106,15 @@ class ExpenseStore implements DataLoader<ApiExpense[]> {
     return rows;
   }
 
-  nextId(): number {
-    return Math.max(...this.expenses.map((e) => e.id)) + 1;
-  }
-
   async add(expense: Expense): Promise<Expense> {
-    expense.id = this.nextId();
-    this.expenses.push(expense);
     const response = await trpc.expense.create.mutate(
       adaptExpenseToCreateInput(expense)
     );
-    return adaptExpenseFromApi(response);
+    const adaptedExpense = adaptExpenseFromApi(response);
+    runInAction(() => {
+      this.expenses.push(adaptedExpense);
+    });
+    return adaptedExpense;
   }
 
   async modify(expense: Expense): Promise<Expense> {

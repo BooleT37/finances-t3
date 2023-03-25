@@ -1,3 +1,4 @@
+import { runInAction } from "mobx";
 import Expense from "~/models/Expense";
 import categories from "~/readonlyStores/categories";
 import sources from "~/readonlyStores/sources";
@@ -116,9 +117,7 @@ export default async function insertExpense(
         parseFloat(values.personalExpSpent),
         values.date,
         category,
-        values.subcategory === undefined
-          ? null
-          : category.findSubcategoryById(values.subcategory),
+        null,
         generatePersonalExpenseName({
           category: categories.getById(values.category).name,
           name: values.name,
@@ -127,8 +126,10 @@ export default async function insertExpense(
         null
       );
       newExpense.cost = (newExpense.cost ?? 0) - (personalExpense.cost ?? 0);
-      newExpense.personalExpense = personalExpense;
-      await expenseStore.add(personalExpense);
+      const addedPersonalExpense = await expenseStore.add(personalExpense);
+      runInAction(() => {
+        newExpense.personalExpense = addedPersonalExpense;
+      });
     }
     await expenseStore.add(newExpense);
   }
