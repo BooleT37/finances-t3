@@ -17,6 +17,7 @@ import { trpc } from "~/utils/api";
 import { DATE_FORMAT, MONTH_DATE_FORMAT } from "~/utils/constants";
 import countUniqueMonths from "~/utils/countUniqueMonths";
 import roundCost from "~/utils/roundCost";
+import { getTempId } from "~/utils/tempId";
 import type Category from "../models/Category";
 import { CATEGORY_IDS } from "../models/Category";
 import type Expense from "../models/Expense";
@@ -397,7 +398,7 @@ class ExpenseStore implements DataLoader<ApiExpense[]> {
         isUpcomingSubscription: true,
       },
       date: firstDate.format(DATE_FORMAT),
-      id: 0,
+      id: getTempId(),
       isUpcomingSubscription: true,
       name: subscription.name,
     }));
