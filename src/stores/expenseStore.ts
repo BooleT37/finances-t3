@@ -36,7 +36,7 @@ interface SubscriptionForPeriod {
 
 const today = dayjs();
 
-class ExpenseStore implements DataLoader<ApiExpense[]> {
+export class ExpenseStore implements DataLoader<ApiExpense[]> {
   public dataLoaded = false;
   public expenses = observable.array<Expense>();
 

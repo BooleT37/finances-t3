@@ -17,7 +17,7 @@ import type SavingSpending from "../models/SavingSpending";
 import { type DataLoader } from "./DataLoader";
 import expenseStore from "./expenseStore";
 
-class SavingSpendingStore
+export class SavingSpendingStore
   implements
     DataLoader<inferRouterOutputs<AppRouter>["savingSpending"]["getAll"]>
 {

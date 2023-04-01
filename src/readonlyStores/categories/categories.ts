@@ -13,7 +13,7 @@ import {
 
 // The categories are NOT mutable!
 // Having it like this makes using them much more easy
-class Categories
+export class Categories
   implements DataLoader<inferRouterOutputs<AppRouter>["categories"]["getAll"]>
 {
   public dataLoaded = false;

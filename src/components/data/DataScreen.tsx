@@ -19,7 +19,6 @@ import { type TableData } from "~/models/Expense";
 import expenseStore from "~/stores/expenseStore";
 import forecastStore from "~/stores/forecastStore";
 import { DATE_FORMAT, MONTH_DATE_FORMAT } from "~/utils/constants";
-import { DataScreenDataFetcher } from "./DataScreenDataFetcher";
 import ExpenseModal from "./ExpenseModal";
 import expenseModalViewModel from "./ExpenseModal/expenseModalViewModel";
 import autoGroupColumnDef from "./gridColumnDefs/autoGroupColumnDef";

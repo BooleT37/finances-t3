@@ -5,7 +5,7 @@ import { type DataLoader } from "~/stores/DataLoader";
 import type { Option } from "~/types/types";
 import { trpc } from "~/utils/api";
 
-class Sources implements DataLoader<ApiSource[]> {
+export class Sources implements DataLoader<ApiSource[]> {
   public dataLoaded = false;
   private sources: Source[] = [];
 

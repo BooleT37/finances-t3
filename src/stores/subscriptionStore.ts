@@ -14,7 +14,7 @@ const subscriptionToItem = (subscription: Subscription): SubscriptionsItem => ({
   name: subscription.name,
 });
 
-class SubscriptionStore implements DataLoader<ApiSubscription[]> {
+export class SubscriptionStore implements DataLoader<ApiSubscription[]> {
   public dataLoaded = false;
   subscriptions = observable.array<Subscription>();
 

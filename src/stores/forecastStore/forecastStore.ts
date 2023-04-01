@@ -19,7 +19,7 @@ import subscriptionStore from "../subscriptionStore";
 import { type ForecastTableItem } from "./types";
 import { avgForNonEmpty, getPreviousMonth } from "./utils";
 
-class ForecastStore implements DataLoader<ApiForecast[]> {
+export class ForecastStore implements DataLoader<ApiForecast[]> {
   public dataLoaded = false;
   public forecasts = observable.array<Forecast>();
 

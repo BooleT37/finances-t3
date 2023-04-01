@@ -1,14 +1,19 @@
 import { useEffect, useState } from "react";
-import { type DataLoader } from "~/stores/DataLoader";
+import type { DataLoader } from "~/stores/DataLoader";
+import type { Stores } from "./types";
 
-export function useDataStores(...stores: DataLoader<unknown>[]) {
+export function useDataStores(stores: Stores) {
   const [dataLoaded, setDataLoaded] = useState(false);
+
+  const storesList = Object.values(stores).filter(
+    (store): store is DataLoader => !!store
+  );
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     (async () => {
       const datum = await Promise.all(
-        stores.map(async (store) => {
+        storesList.map(async (store) => {
           if (store.dataLoaded) {
             return;
           }
@@ -17,13 +22,13 @@ export function useDataStores(...stores: DataLoader<unknown>[]) {
           return data;
         })
       );
-      stores.map((store, index) => {
+      storesList.map((store, index) => {
         if (datum[index]) {
           store.init(datum[index]);
         }
       });
-      setDataLoaded(stores.every((store) => store.dataLoaded));
+      setDataLoaded(storesList.every((store) => store.dataLoaded));
     })();
-  }, [stores]);
+  }, [storesList]);
   return { dataLoaded };
 }
