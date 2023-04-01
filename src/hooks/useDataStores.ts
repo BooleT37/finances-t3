@@ -1,20 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { type DataLoader } from "~/stores/DataLoader";
 
 export function useDataStores(...stores: DataLoader<unknown>[]) {
   const [dataLoaded, setDataLoaded] = useState(false);
-  // have to use refs here, because freaking react 18 calls useEffect twice in dev
-  const loadingState = useRef<boolean[]>(stores.map(() => false));
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     (async () => {
       const datum = await Promise.all(
-        stores.map(async (store, index) => {
-          if (store.dataLoaded || loadingState.current[index]) {
+        stores.map(async (store) => {
+          if (store.dataLoaded) {
             return;
           }
-          loadingState.current[index] = true;
           const data = await store.loadData();
           store.setDataLoaded(true);
           return data;
