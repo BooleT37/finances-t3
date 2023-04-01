@@ -335,11 +335,4 @@ const DataScreen = observer(function DataScreen() {
   );
 });
 
-// eslint-disable-next-line mobx/missing-observer
-const DataScreenWithFetcher = () => (
-  <DataScreenDataFetcher>
-    <DataScreen />
-  </DataScreenDataFetcher>
-);
-
-export default DataScreenWithFetcher;
+export default DataScreen;

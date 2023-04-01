@@ -36,4 +36,16 @@ export const savingSpendingRouter = createTRPCRouter({
       // all categories are also removed via "onUpdate: cascade"!
       ctx.prisma.savingSpending.delete({ where: { id } })
     ),
+  toggle: publicProcedure
+    .input(z.object({ id: z.number(), completed: z.boolean() }))
+    .mutation(({ input: { completed, id }, ctx }) =>
+      ctx.prisma.savingSpending.update({
+        data: {
+          completed,
+        },
+        where: {
+          id,
+        },
+      })
+    ),
 });

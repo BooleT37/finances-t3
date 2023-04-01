@@ -1,6 +1,5 @@
 import { type Prisma } from "@prisma/client";
 import type NewSavingSpendingCategory from "~/models/NewSavingSpendingCategory";
-import SavingSpendingCategory from "~/models/SavingSpendingCategory";
 import type SavingSpendingEditing from "~/models/SavingSpendingEditing";
 
 function adaptNewSavingSpendingCategoryToCreateManyInput(
@@ -32,23 +31,16 @@ export function adaptSavingSpendingToCreateInput(
 export function adaptSavingSpendingToUpdateInput(
   savingSpending: SavingSpendingEditing
 ): Prisma.SavingSpendingUpdateInput {
-  const { categories } = savingSpending;
-  const newCategories = categories.filter(
-    (c): c is NewSavingSpendingCategory => !("id" in c)
-  );
-  const oldCategories = categories.filter(
-    (c): c is SavingSpendingCategory => c instanceof SavingSpendingCategory
-  );
+  const { newCategories, editedCategories, removedCategories } = savingSpending;
   return {
     name: savingSpending.name,
-    completed: savingSpending.completed,
     categories: {
       createMany: {
         data: newCategories.map(
           adaptNewSavingSpendingCategoryToCreateManyInput
         ),
       },
-      update: oldCategories.map((category) => ({
+      update: editedCategories.map((category) => ({
         data: {
           name: category.name,
           forecast: category.forecast,
@@ -60,8 +52,7 @@ export function adaptSavingSpendingToUpdateInput(
       })),
       deleteMany: {
         id: {
-          // TODO check, will it also remove just created categories??
-          notIn: oldCategories.map((c) => c.id),
+          in: removedCategories.map((c) => c.id),
         },
       },
     },

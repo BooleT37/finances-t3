@@ -1,106 +1,59 @@
+import { isEqual } from "lodash";
 import { makeAutoObservable } from "mobx";
 import type NewSavingSpendingCategory from "./NewSavingSpendingCategory";
-import type SavingSpendingCategory from "./SavingSpendingCategory";
+import SavingSpendingCategory from "./SavingSpendingCategory";
 
 export default class SavingSpendingEditing {
   id: number;
   name: string;
-  completed: boolean;
   categories: (SavingSpendingCategory | NewSavingSpendingCategory)[];
+  initialCategories: SavingSpendingCategory[];
 
   constructor(
     id: number,
     name: string,
-    completed: boolean,
+    initialCategories: SavingSpendingCategory[],
     categories: (SavingSpendingCategory | NewSavingSpendingCategory)[]
   ) {
     makeAutoObservable(this);
 
     this.id = id;
     this.name = name;
-    this.completed = completed;
+    this.initialCategories = initialCategories;
     this.categories = categories;
   }
 
-  // changeName(name: string) {
-  //   this.name = name;
-  // }
+  get newCategories() {
+    return this.categories.filter(
+      (category): category is NewSavingSpendingCategory => !("id" in category)
+    );
+  }
 
-  // editCategory(category: SavingSpendingCategory) {
-  //   const index = this.categories.findIndex((c) => c.id === category.id);
-  //   if (index === -1) {
-  //     throw new Error(`Can't find category by id ${category.id}`);
-  //   }
-  //   this.categories[index] = category;
-  // }
+  get editedCategories() {
+    return this.categories.filter(
+      (category): category is SavingSpendingCategory => {
+        if (!(category instanceof SavingSpendingCategory)) {
+          return false;
+        }
+        const initialCategory = this.initialCategories.find(
+          ({ id }) => category.id === id
+        );
+        if (!initialCategory) {
+          throw new Error(
+            `Can't find an initial category for category ${category.name}. Can't figure out if it was edited`
+          );
+        }
+        return isEqual(initialCategory, category);
+      }
+    );
+  }
 
-  // clone() {
-  //   return new SavingSpending(
-  //     this.id,
-  //     this.name,
-  //     this.completed,
-  //     this.categories.slice()
-  //   );
-  // }
-
-  // getCategoryById(id: number) {
-  //   const found = this.categories.find((c) => c.id === id);
-  //   if (!found) {
-  //     throw new Error(`Can't find category by id ${id}`);
-  //   }
-
-  //   return found;
-  // }
-
-  // async persistCategories(categories: SavingSpendingCategory[]) {
-  //   const categoriesToSave: SavingSpendingCategory[] = [];
-  //   const categoriesToUpdate: SavingSpendingCategory[] = [];
-  //   const categoriesToDelete: SavingSpendingCategory[] = [];
-
-  //   for (const category of categories) {
-  //     if (isTempId(category.id)) {
-  //       categoriesToSave.push(category);
-  //     } else {
-  //       const currentCategory = this.getCategoryById(category.id);
-  //       if (!currentCategory.isSame(category)) {
-  //         categoriesToUpdate.push(category);
-  //       }
-  //     }
-  //   }
-
-  //   for (const category of this.categories) {
-  //     if (!categories.find((c) => c.id === category.id)) {
-  //       categoriesToDelete.push(category);
-  //     }
-  //   }
-  //   this.categories = categories;
-
-  //   const id = this.id;
-
-  //   for (const category of categoriesToSave) {
-  //     await category.save(id);
-  //   }
-
-  //   for (const category of categoriesToUpdate) {
-  //     await category.update(id);
-  //   }
-
-  //   for (const category of categoriesToDelete) {
-  //     await category.delete();
-  //   }
-  // }
-
-  // get asOption(): Option {
-  //   return {
-  //     value: this.id,
-  //     label: this.name,
-  //     disabled: this.completed,
-  //   };
-  // }
-
-  // // async toggle(completed: boolean) {
-  // //   this.completed = completed;
-
-  // //   api.savingSpending.toggle({ completed }, { id: this.id });
-  // // }
+  get removedCategories(): SavingSpendingCategory[] {
+    return this.initialCategories.filter(
+      ({ id }) =>
+        !this.categories.some(
+          (c) => c instanceof SavingSpendingCategory && c.id === id
+        )
+    );
+  }
 }
