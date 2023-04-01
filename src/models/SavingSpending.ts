@@ -1,5 +1,6 @@
 import { makeAutoObservable, observable } from "mobx";
 import type { Option } from "~/types/types";
+import { trpc } from "~/utils/api";
 import type SavingSpendingCategory from "./SavingSpendingCategory";
 
 export default class SavingSpending {
@@ -14,12 +15,12 @@ export default class SavingSpending {
     completed: boolean,
     categories: SavingSpendingCategory[]
   ) {
-    makeAutoObservable(this);
-
     this.id = id;
     this.name = name;
     this.completed = completed;
     this.categories.replace(categories);
+
+    makeAutoObservable(this);
   }
 
   changeName(name: string) {
@@ -52,44 +53,6 @@ export default class SavingSpending {
     return found;
   }
 
-  // async persistCategories(categories: SavingSpendingCategory[]) {
-  //   const categoriesToSave: SavingSpendingCategory[] = [];
-  //   const categoriesToUpdate: SavingSpendingCategory[] = [];
-  //   const categoriesToDelete: SavingSpendingCategory[] = [];
-
-  //   for (const category of categories) {
-  //     if (isTempId(category.id)) {
-  //       categoriesToSave.push(category);
-  //     } else {
-  //       const currentCategory = this.getCategoryById(category.id);
-  //       if (!currentCategory.isSame(category)) {
-  //         categoriesToUpdate.push(category);
-  //       }
-  //     }
-  //   }
-
-  //   for (const category of this.categories) {
-  //     if (!categories.find((c) => c.id === category.id)) {
-  //       categoriesToDelete.push(category);
-  //     }
-  //   }
-  //   this.categories = categories;
-
-  //   const id = this.id;
-
-  //   for (const category of categoriesToSave) {
-  //     await category.save(id);
-  //   }
-
-  //   for (const category of categoriesToUpdate) {
-  //     await category.update(id);
-  //   }
-
-  //   for (const category of categoriesToDelete) {
-  //     await category.delete();
-  //   }
-  // }
-
   get asOption(): Option {
     return {
       value: this.id,
@@ -98,9 +61,9 @@ export default class SavingSpending {
     };
   }
 
-  // async toggle(completed: boolean) {
-  //   this.completed = completed;
+  async toggle(completed: boolean) {
+    this.completed = completed;
 
-  //   api.savingSpending.toggle({ completed }, { id: this.id });
-  // }
+    await trpc.savingSpending.toggle.mutate({ id: this.id, completed });
+  }
 }
