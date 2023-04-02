@@ -135,6 +135,8 @@ model Forecast {
   categoryId Int
   month      Int      @db.SmallInt
   year       Int      @db.SmallInt
-  sum        Int      @db.SmallInt
-  comment    String
+  sum        Int      @db.SmallInt @default(0)
+  comment    String   @default("")
+
+  @@unique([categoryId, month, year])
 }

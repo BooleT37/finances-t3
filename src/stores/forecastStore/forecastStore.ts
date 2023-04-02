@@ -1,14 +1,19 @@
-import { default as sum } from "lodash/sum";
+import sum from "lodash/sum";
 import { makeAutoObservable, observable } from "mobx";
 import { computedFn } from "mobx-utils";
 import { adaptForecastFromApi } from "~/adapters/forecast/forecastFromApi";
-import { MONTH_DATE_FORMAT } from "~/utils/constants";
+import {
+  MONTH_DATE_FORMAT,
+  PE_SUM_DEFAULT,
+  PE_SUM_LS_KEY,
+} from "~/utils/constants";
 import countUniqueMonths from "~/utils/countUniqueMonths";
 import roundCost from "~/utils/roundCost";
 
 import type { Forecast as ApiForecast } from "@prisma/client";
+import { adaptForecastToCreateInput } from "~/adapters/forecast/forecastToApi";
 import type Category from "~/models/Category";
-import { CATEGORY_IDS } from "~/models/Category";
+import { CATEGORY_IDS, type PersonalExpCategoryIds } from "~/models/Category";
 import Forecast from "~/models/Forecast";
 import categories from "~/readonlyStores/categories";
 import { trpc } from "~/utils/api";
@@ -271,91 +276,108 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
     }
   );
 
-  // async changeForecastSum(
-  //   category: Category,
-  //   month: number,
-  //   year: number,
-  //   sum: number
-  // ): Promise<Response> {
-  //   const forecast = this.forecasts.find(
-  //     (f) =>
-  //       f.category.id === category.id && f.month === month && f.year === year
-  //   );
-  //   if (forecast) {
-  //     forecast.sum = sum;
-  //     return api.forecast.modify(
-  //       { sum },
-  //       { category_id: category.id, month, year }
-  //     );
-  //   } else {
-  //     this.forecasts.push(new Forecast(category, month, year, sum, ""));
-  //     return api.forecast.create({
-  //       category_id: category.id,
-  //       month,
-  //       year,
-  //       sum,
-  //     });
-  //   }
-  // }
+  async changeForecastSum(
+    category: Category,
+    month: number,
+    year: number,
+    sum: number
+  ): Promise<Forecast> {
+    const forecast = this.forecasts.find(
+      (f) =>
+        f.category.id === category.id && f.month === month && f.year === year
+    );
+    const potentiallyNewForecast = new Forecast(category, month, year, sum, "");
+    if (forecast) {
+      forecast.sum = sum;
+    } else {
+      this.forecasts.push(new Forecast(category, month, year, sum, ""));
+    }
+    const response = await trpc.forecast.upsert.mutate({
+      where: {
+        categoryId_month_year: {
+          categoryId: category.id,
+          month,
+          year,
+        },
+      },
+      create: adaptForecastToCreateInput(potentiallyNewForecast),
+      update: {
+        sum,
+      },
+    });
+    return adaptForecastFromApi(response);
+  }
 
-  // async changeForecastComment(
-  //   category: Category,
-  //   month: number,
-  //   year: number,
-  //   comment: string
-  // ): Promise<Response> {
-  //   const forecast = this.forecasts.find(
-  //     (f) =>
-  //       f.category.id === category.id && f.month === month && f.year === year
-  //   );
-  //   if (forecast) {
-  //     forecast.comment = comment;
-  //     return api.forecast.modify(
-  //       { comment },
-  //       { category_id: category.id, month, year }
-  //     );
-  //   } else {
-  //     this.forecasts.push(new Forecast(category, month, year, 0, comment));
-  //     return api.forecast.create({
-  //       category_id: category.id,
-  //       month,
-  //       year,
-  //       sum: 0,
-  //       comment,
-  //     });
-  //   }
-  // }
+  async changeForecastComment(
+    category: Category,
+    month: number,
+    year: number,
+    comment: string
+  ): Promise<Forecast> {
+    const forecast = this.forecasts.find(
+      (f) =>
+        f.category.id === category.id && f.month === month && f.year === year
+    );
+    const potentiallyNewForecast = new Forecast(
+      category,
+      month,
+      year,
+      0,
+      comment
+    );
+    if (forecast) {
+      forecast.comment = comment;
+    } else {
+      this.forecasts.push(potentiallyNewForecast);
+    }
+    const response = await trpc.forecast.upsert.mutate({
+      where: {
+        categoryId_month_year: {
+          categoryId: category.id,
+          month,
+          year,
+        },
+      },
+      create: adaptForecastToCreateInput(potentiallyNewForecast),
+      update: {
+        comment,
+      },
+    });
+    return adaptForecastFromApi(response);
+  }
 
-  // async transferPersonalExpense(
-  //   categoryId: PersonalExpCategoryIds,
-  //   month: number,
-  //   year: number
-  // ): Promise<Response | undefined> {
-  //   const peSumInLs = localStorage.getItem(PE_SUM_LS_KEY);
-  //   const peSum = peSumInLs ? parseInt(peSumInLs) : PE_SUM_DEFAULT;
-  //   const category = categories.getById(categoryId);
-  //   const { month: prevMonth, year: prevYear } = getPreviousMonth(month, year);
-  //   const prevMonthForecast = this.find(prevYear, prevMonth, category);
-  //   if (!prevMonthForecast) {
-  //     alert("Сначала заполните прогноз за прошлый месяц!");
-  //     return;
-  //   }
-  //   const prevMonthSpends = roundCost(
-  //     lodashSum(
-  //       expenseStore.expenses
-  //         .filter(
-  //           (e) =>
-  //             e.date.month() === prevMonth &&
-  //             e.date.year() === prevYear &&
-  //             e.category.id === categoryId
-  //         )
-  //         .map((e) => e.cost)
-  //     )
-  //   );
+  async transferPersonalExpense(
+    categoryId: PersonalExpCategoryIds,
+    month: number,
+    year: number
+  ): Promise<Forecast | undefined> {
+    const peSumInLs = localStorage.getItem(PE_SUM_LS_KEY);
+    const peSum = peSumInLs ? parseInt(peSumInLs) : PE_SUM_DEFAULT;
+    const category = categories.getById(categoryId);
+    const { month: prevMonth, year: prevYear } = getPreviousMonth(month, year);
+    const prevMonthForecast = this.find(prevYear, prevMonth, category);
+    if (!prevMonthForecast) {
+      alert("Сначала заполните прогноз за прошлый месяц!");
+      return;
+    }
+    const prevMonthSpends = roundCost(
+      sum(
+        expenseStore.expenses
+          .filter(
+            (e) =>
+              e.date.month() === prevMonth &&
+              e.date.year() === prevYear &&
+              e.category.id === categoryId
+          )
+          .map((e) => e.cost)
+      )
+    );
 
-  //   const sum = roundCost(prevMonthForecast.sum - prevMonthSpends + peSum);
-  //   return this.changeForecastSum(category, month, year, sum);
-  // }
+    const correctedSum = roundCost(
+      prevMonthForecast.sum - prevMonthSpends + peSum
+    );
+    return this.changeForecastSum(category, month, year, correctedSum);
+  }
 }
 
 const forecastStore = new ForecastStore();
