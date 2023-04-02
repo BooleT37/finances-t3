@@ -25,7 +25,7 @@ interface Props {
 // eslint-disable-next-line mobx/missing-observer
 const CostsListModal: React.FC<Props> = (props) => {
   const {
-    open: visible,
+    open,
     title,
     includeComment,
     editingValue,
@@ -43,7 +43,7 @@ const CostsListModal: React.FC<Props> = (props) => {
   return (
     <Modal
       title={editingValue ? title.editing : title.adding}
-      open={visible}
+      open={open}
       onCancel={() => props.onClose()}
       okText={editingValue ? "Сохранить" : "Добавить"}
       onOk={handleOk}

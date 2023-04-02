@@ -10,18 +10,19 @@ interface Props {
   children: React.ReactNode;
 }
 
-export const DataFetcher: React.FC<Props> = observer(
-  function DataScreenDataFetcher({ stores, children }) {
-    const { dataLoaded } = useDataStores(stores);
+export const DataFetcher: React.FC<Props> = observer(function DataFetcher({
+  stores,
+  children,
+}) {
+  const { dataLoaded } = useDataStores(stores);
 
-    if (!dataLoaded) {
-      return (
-        <SpinWrapper>
-          <Spin size="large" tip="Загрузка финансов..." />
-        </SpinWrapper>
-      );
-    }
-
-    return <>{children}</>;
+  if (!dataLoaded) {
+    return (
+      <SpinWrapper>
+        <Spin size="large" tip="Загрузка финансов..." />
+      </SpinWrapper>
+    );
   }
-);
+
+  return <>{children}</>;
+});
