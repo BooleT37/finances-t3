@@ -2,13 +2,13 @@ import { MoneyCollectOutlined } from "@ant-design/icons";
 import { Tooltip } from "antd";
 import { sum } from "lodash";
 import React, { useCallback } from "react";
-import type { SubscriptionsItem } from "~/stores/forecastStore/types";
+import { type ForecastSubscriptionsItem } from "~/types/forecast/forecastTypes";
 import costToString from "~/utils/costToString";
 import roundCost from "~/utils/roundCost";
 import { List, TooltipContainer } from "./SubscriptionsTooltip.styled";
 
 interface Props {
-  items: SubscriptionsItem[];
+  items: ForecastSubscriptionsItem[];
   onClick(totalCost: number): void;
 }
 

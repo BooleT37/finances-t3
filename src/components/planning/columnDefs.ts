@@ -10,8 +10,8 @@ import { sortAllCategories } from "~/readonlyStores/categories/categoriesOrder";
 import {
   type ForecastSum,
   type ForecastTableItem,
-  type SubscriptionsItem,
 } from "~/stores/forecastStore/types";
+import type { ForecastSubscriptionsItem } from "~/types/forecast/forecastTypes";
 import costToString from "~/utils/costToString";
 import CostCellRenderer from "./CostCellRenderer";
 import LastMonthCellRenderer from "./LastMonthCellRenderer";
@@ -22,7 +22,7 @@ const costValueFormatter = ({ value }: { value: number }): string =>
 
 export interface ForecastSumFromEdit {
   value: number;
-  subscriptions: SubscriptionsItem[];
+  subscriptions: ForecastSubscriptionsItem[];
 }
 
 const columnDefs: (

@@ -1,16 +1,14 @@
+import type { ForecastSubscriptionsItem } from "~/types/forecast/forecastTypes";
+
 export interface MonthSpendings {
   spendings: number;
   diff: number;
   isIncome: boolean;
 }
-export interface SubscriptionsItem {
-  cost: number;
-  name: string;
-}
 
 export interface ForecastSum {
   value: number | null;
-  subscriptions: SubscriptionsItem[];
+  subscriptions: ForecastSubscriptionsItem[];
 }
 
 export interface ForecastTableItem {

@@ -1,15 +1,21 @@
 import type { Subscription as ApiSubscription } from "@prisma/client";
 import { groupBy } from "lodash";
-import { makeAutoObservable, observable, toJS } from "mobx";
+import { makeAutoObservable, observable, runInAction, toJS } from "mobx";
 import { adaptSubscriptionFromApi } from "~/adapters/subscription/subscriptionFromApi";
+import {
+  adaptSubscriptionToCreateInput,
+  adaptSubscriptionToUpdateInput,
+} from "~/adapters/subscription/subscriptionToApi";
+import type { ForecastSubscriptionsItem } from "~/types/forecast/forecastTypes";
 import { trpc } from "~/utils/api";
 import type Category from "../models/Category";
 import type Subscription from "../models/Subscription";
 import { type SubscriptionFormValues } from "../models/Subscription";
 import { type DataLoader } from "./DataLoader";
-import { type SubscriptionsItem } from "./forecastStore/types";
 
-const subscriptionToItem = (subscription: Subscription): SubscriptionsItem => ({
+const subscriptionToItem = (
+  subscription: Subscription
+): ForecastSubscriptionsItem => ({
   cost: subscription.cost,
   name: subscription.name,
 });
@@ -90,58 +96,48 @@ export class SubscriptionStore implements DataLoader<ApiSubscription[]> {
     return groupBy(this.activeSubscriptions, "category.name");
   }
 
-  // async add(subscription: Subscription): Promise<void> {
-  //   subscription.active = true;
-  //   this.subscriptions.push(subscription);
-  //   const { id } = await api.subscription.add({
-  //     name: subscription.name,
-  //     cost: subscription.cost,
-  //     currency: Currency.Eur,
-  //     category_id: subscription.category.id,
-  //     period: subscription.period,
-  //     first_date: subscription.firstDate.format(DATE_SERVER_FORMAT),
-  //     active: subscription.active,
-  //     source_id: subscription.source?.id ?? null,
-  //   });
-  //   subscription.id = id;
-  // }
+  async add(subscription: Subscription): Promise<void> {
+    subscription.active = true;
+    this.subscriptions.push(subscription);
+    const { id } = await trpc.sub.create.mutate(
+      adaptSubscriptionToCreateInput(subscription)
+    );
+    runInAction(() => {
+      subscription.id = id;
+    });
+  }
 
-  // *modify(subscription: Subscription): Generator<Promise<Response>> {
-  //   const foundIndex = this.subscriptions.findIndex(
-  //     (e) => e.id === subscription.id
-  //   );
-  //   if (foundIndex !== -1) {
-  //     this.subscriptions[foundIndex] = subscription;
-  //     yield api.subscription.modify({
-  //       id: subscription.id,
-  //       name: subscription.name,
-  //       cost: subscription.cost,
-  //       currency: Currency.Eur,
-  //       category_id: subscription.category.id,
-  //       period: subscription.period,
-  //       first_date: subscription.firstDate.format(DATE_SERVER_FORMAT),
-  //       active: subscription.active,
-  //       source_id: subscription.source?.id ?? null,
-  //     });
-  //   } else {
-  //     throw new Error(`Can't find subscription with id ${subscription.id}`);
-  //   }
-  // }
+  *modify(subscription: Subscription): Generator<Promise<Subscription>> {
+    const foundIndex = this.subscriptions.findIndex(
+      (e) => e.id === subscription.id
+    );
+    if (foundIndex !== -1) {
+      this.subscriptions[foundIndex] = subscription;
+      yield trpc.sub.update
+        .mutate({
+          id: subscription.id,
+          data: adaptSubscriptionToUpdateInput(subscription),
+        })
+        .then(adaptSubscriptionFromApi);
+    } else {
+      throw new Error(`Can't find subscription with id ${subscription.id}`);
+    }
+  }
 
-  // *delete(id: number): Generator<Promise<Response>> {
-  //   const foundIndex = this.subscriptions.findIndex((e) => e.id === id);
-  //   if (foundIndex === -1) {
-  //     return;
-  //   }
-  //   this.subscriptions.splice(foundIndex, 1);
-  //   yield api.subscription.delete(id);
-  // }
+  *delete(id: number): Generator<Promise<Subscription>> {
+    const foundIndex = this.subscriptions.findIndex((e) => e.id === id);
+    if (foundIndex === -1) {
+      return;
+    }
+    this.subscriptions.splice(foundIndex, 1);
+    yield trpc.sub.delete.mutate({ id }).then(adaptSubscriptionFromApi);
+  }
 
   getSubscriptionsForForecast(
     month: number,
     year: number,
     category: Category | null
-  ): SubscriptionsItem[] {
+  ): ForecastSubscriptionsItem[] {
     return this.activeSubscriptions
       .filter(
         (subscription) =>
