@@ -1,76 +1,109 @@
-import { InfoCircleOutlined } from "@ant-design/icons";
-import { Col, Row, Tooltip } from "antd";
-import dayjs from "dayjs";
-import React, { useEffect } from "react";
-import styled from "styled-components";
-import savingSpendingStore from "~/stores/savingSpendingStore";
 import {
-  DATE_FORMAT,
-  DATE_SERVER_FORMAT,
-  PE_SUM_DEFAULT,
-  PE_SUM_LS_KEY,
-  SAVINGS_DATE_LS_KEY,
-  SAVINGS_LS_KEY,
-} from "~/utils/constants";
+  CheckOutlined,
+  DeleteOutlined,
+  InfoCircleOutlined,
+  LoadingOutlined,
+} from "@ant-design/icons";
+import { Button, Col, Row, Space, Tooltip } from "antd";
+import { debounce } from "lodash";
+import { observer } from "mobx-react";
+import React, { useCallback, useMemo } from "react";
+import styled from "styled-components";
+import userSettingsStore from "~/stores/userSettingsStore";
+import { DATE_FORMAT } from "~/utils/constants";
 import { CostInput } from "../CostInput";
 
 const Wrapper = styled.div`
-  width: 540px;
+  width: 600px;
 `;
 
 const Info = styled.div`
   color: #777;
 `;
 
-const today = dayjs();
+const SettingsScreen: React.FC = observer(function SettingsScreen() {
+  const {
+    pePerMonth: savedPeSum,
+    savings: savedSavings,
+    setPePerMonth: setSavedPeSum,
+    setSavings: setSavedSavings,
+    removeSavings,
+  } = userSettingsStore;
+  const [peSum, setPeSum] = React.useState(savedPeSum);
+  const [savings, setSavings] = React.useState(savedSavings?.sum ?? 0);
 
-// eslint-disable-next-line mobx/missing-observer
-const SettingsScreen: React.FC = () => {
-  const [peSum, setPeSum] = React.useState(() => {
-    const peSumInLs = localStorage.getItem(PE_SUM_LS_KEY);
-    return peSumInLs ? peSumInLs : PE_SUM_DEFAULT.toString();
-  });
-  const [savings, setSavings] = React.useState(() => {
-    const lsValue = localStorage.getItem(SAVINGS_LS_KEY);
-    if (!lsValue) {
-      return "0";
-    }
-    return lsValue;
-  });
-  const [savingsDate, setSavingsDate] = React.useState(() => {
-    const lsValue = localStorage.getItem(SAVINGS_DATE_LS_KEY);
-    if (!lsValue) {
-      return null;
-    }
-    return dayjs(lsValue);
-  });
+  const setSavedPeSumIfChanged = useCallback(
+    (newPeSum: number) => {
+      if (newPeSum !== savedPeSum) {
+        void setSavedPeSum(newPeSum);
+      }
+    },
+    [savedPeSum, setSavedPeSum]
+  );
 
-  const handleSavingsChange = (value: string | null) => {
-    if (value === null) {
-      return;
-    }
-    setSavings(value);
-    setSavingsDate(today);
-  };
+  const debouncedSetSavedPeSum = useMemo(
+    () => debounce(setSavedPeSumIfChanged, 1000),
+    [setSavedPeSumIfChanged]
+  );
 
-  useEffect(() => {
-    localStorage.setItem(PE_SUM_LS_KEY, peSum);
-  }, [peSum]);
+  const handlePeSumChange = useCallback(
+    (value: string | null) => {
+      if (value === null) {
+        return;
+      }
+      const numberValue = parseFloat(value);
+      setPeSum(numberValue);
+      debouncedSetSavedPeSum(numberValue);
+    },
+    [debouncedSetSavedPeSum]
+  );
 
-  useEffect(() => {
-    localStorage.setItem(SAVINGS_LS_KEY, String(savings));
-    savingSpendingStore.setInitialSavings(parseFloat(savings));
-  }, [savings]);
+  const setSavedSavingsIfChanged = useCallback(
+    (newSavings: number) => {
+      if (newSavings !== savedSavings?.sum) {
+        void setSavedSavings(newSavings);
+      }
+    },
+    [savedSavings?.sum, setSavedSavings]
+  );
 
-  useEffect(() => {
-    if (savingsDate) {
-      localStorage.setItem(
-        SAVINGS_DATE_LS_KEY,
-        savingsDate.format(DATE_SERVER_FORMAT)
-      );
-      savingSpendingStore.setInitialSavingsDate(savingsDate);
-    }
-  }, [savingsDate]);
+  const debouncedSetSavedSavings = useMemo(
+    () => debounce(setSavedSavingsIfChanged),
+    [setSavedSavingsIfChanged]
+  );
+
+  const handleSavingsChange = useCallback(
+    (value: string | null) => {
+      if (value === null) {
+        return;
+      }
+      const numberValue = parseFloat(value);
+      setSavings(numberValue);
+      debouncedSetSavedSavings(numberValue);
+    },
+    [debouncedSetSavedSavings]
+  );
+
+  const handleAddSavings = useCallback(() => {
+    setSavings(0);
+    void setSavedSavings(0);
+  }, [setSavedSavings]);
+
+  const handleRemoveSavings = useCallback(() => {
+    setSavings(0);
+    void removeSavings();
+  }, [removeSavings]);
+
+  const peSumIcon = useMemo(
+    () => (peSum === savedPeSum ? <CheckOutlined /> : <LoadingOutlined />),
+    [peSum, savedPeSum]
+  );
+
+  const savingsIcon = useMemo(
+    () =>
+      savings === savedSavings?.sum ? <CheckOutlined /> : <LoadingOutlined />,
+    [savedSavings?.sum, savings]
+  );
 
   return (
     <Wrapper>
@@ -78,37 +111,51 @@ const SettingsScreen: React.FC = () => {
         <Col span={9}>Персональные расходы/мес</Col>
         <Col>
           <CostInput
-            value={peSum}
-            onChange={(e) => {
-              if (e !== null) {
-                setPeSum(e);
-              }
-            }}
+            value={String(peSum)}
+            onChange={handlePeSumChange}
+            addonAfter={peSumIcon}
           />
         </Col>
       </Row>
       <Row align="middle" style={{ padding: "8px 0" }}>
         <Col span={9}>Сбережения</Col>
         <Col span={6}>
-          <CostInput value={savings} onChange={handleSavingsChange} />
+          {savedSavings ? (
+            <CostInput
+              value={String(savings)}
+              onChange={handleSavingsChange}
+              addonAfter={savingsIcon}
+            />
+          ) : (
+            <Button type="link" onClick={handleAddSavings}>
+              Добавить
+            </Button>
+          )}
         </Col>
         <Col>
-          {savingsDate && (
+          {savedSavings?.date && (
             <Info>
-              <Tooltip
-                title={`Текущая сумма сбережений отображается на странице "Траты из сбережений".
+              <Space>
+                <Tooltip
+                  title={`Текущая сумма сбережений отображается на странице "Траты из сбережений".
                   Она рассчитывается на основе расходов с категориями "В сбережения" и "Из сбережений", сделанных после начальной даты`}
-              >
-                <InfoCircleOutlined />
-              </Tooltip>
-              &nbsp;Изменено&nbsp;
-              {savingsDate.format(DATE_FORMAT)}
+                >
+                  <InfoCircleOutlined />
+                </Tooltip>
+                &nbsp;Изменено&nbsp;
+                {savedSavings.date.format(DATE_FORMAT)}
+                <Button
+                  type="text"
+                  onClick={handleRemoveSavings}
+                  icon={<DeleteOutlined />}
+                />
+              </Space>
             </Info>
           )}
         </Col>
       </Row>
     </Wrapper>
   );
-};
+});
 
 export default SettingsScreen;

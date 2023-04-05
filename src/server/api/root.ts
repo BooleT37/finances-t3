@@ -5,6 +5,7 @@ import { forecastRouter } from "./routers/forecastRouter";
 import { savingSpendingRouter } from "./routers/savingSpendingRouter";
 import { sourcesRouter } from "./routers/sourcesRouter";
 import { subscriptionRouter } from "./routers/subscriptionRouter";
+import { userSettingsRouter } from "./routers/userSettingsRouter";
 
 /**
  * This is the primary router for your server.
@@ -18,6 +19,7 @@ export const appRouter = createTRPCRouter({
   savingSpending: savingSpendingRouter,
   sources: sourcesRouter,
   sub: subscriptionRouter,
+  userSettings: userSettingsRouter,
 });
 
 // export type definition of API

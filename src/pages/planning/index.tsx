@@ -10,6 +10,7 @@ import expenseStore from "~/stores/expenseStore";
 import forecastStore from "~/stores/forecastStore";
 import savingSpendingStore from "~/stores/savingSpendingStore";
 import subscriptionStore from "~/stores/subscriptionStore";
+import userSettingsStore from "~/stores/userSettingsStore";
 
 const { Title } = Typography;
 
@@ -20,6 +21,7 @@ const stores: Stores = {
   subscriptionStore,
   savingSpendingStore,
   expenseStore,
+  userSettingsStore,
 };
 
 const PlanningPage = observer(function PlanningPage() {

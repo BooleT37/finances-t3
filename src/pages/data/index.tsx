@@ -26,6 +26,7 @@ const stores: Stores = {
   subscriptionStore,
   savingSpendingStore,
   expenseStore,
+  userSettingsStore: false,
 };
 
 const DataPage = observer(function DataPage() {

@@ -29,6 +29,7 @@ const stores: Stores = {
   savingSpendingStore,
   expenseStore,
   forecastStore: false,
+  userSettingsStore: false,
 };
 
 /* eslint-disable mobx/missing-observer */

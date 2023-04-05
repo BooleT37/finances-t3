@@ -2,11 +2,7 @@ import sum from "lodash/sum";
 import { makeAutoObservable, observable } from "mobx";
 import { computedFn } from "mobx-utils";
 import { adaptForecastFromApi } from "~/adapters/forecast/forecastFromApi";
-import {
-  MONTH_DATE_FORMAT,
-  PE_SUM_DEFAULT,
-  PE_SUM_LS_KEY,
-} from "~/utils/constants";
+import { MONTH_DATE_FORMAT } from "~/utils/constants";
 import countUniqueMonths from "~/utils/countUniqueMonths";
 import roundCost from "~/utils/roundCost";
 
@@ -21,6 +17,7 @@ import { negateIf } from "~/utils/negateIf";
 import { type DataLoader } from "../DataLoader";
 import expenseStore from "../expenseStore";
 import subscriptionStore from "../subscriptionStore";
+import userSettingsStore from "../userSettingsStore";
 import { type ForecastTableItem } from "./types";
 import { avgForNonEmpty, getPreviousMonth } from "./utils";
 
@@ -351,8 +348,7 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
     month: number,
     year: number
   ): Promise<Forecast | undefined> {
-    const peSumInLs = localStorage.getItem(PE_SUM_LS_KEY);
-    const peSum = peSumInLs ? parseInt(peSumInLs) : PE_SUM_DEFAULT;
+    const { pePerMonth } = userSettingsStore;
     const category = categories.getById(categoryId);
     const { month: prevMonth, year: prevYear } = getPreviousMonth(month, year);
     const prevMonthForecast = this.find(prevYear, prevMonth, category);
@@ -374,7 +370,7 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
     );
 
     const correctedSum = roundCost(
-      prevMonthForecast.sum - prevMonthSpends + peSum
+      prevMonthForecast.sum - prevMonthSpends + pePerMonth
     );
     return this.changeForecastSum(category, month, year, correctedSum);
   }

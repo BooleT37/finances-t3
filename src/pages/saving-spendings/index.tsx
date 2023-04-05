@@ -12,6 +12,7 @@ import sourcesStore from "~/readonlyStores/sources";
 import expenseStore from "~/stores/expenseStore";
 import savingSpendingStore from "~/stores/savingSpendingStore";
 import subscriptionStore from "~/stores/subscriptionStore";
+import userSettingsStore from "~/stores/userSettingsStore";
 
 const { Title } = Typography;
 
@@ -25,6 +26,7 @@ const stores: Stores = {
   subscriptionStore,
   savingSpendingStore,
   expenseStore,
+  userSettingsStore,
   forecastStore: false,
 };
 

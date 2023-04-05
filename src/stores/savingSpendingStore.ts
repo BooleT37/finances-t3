@@ -1,5 +1,4 @@
 import { type inferRouterOutputs } from "@trpc/server";
-import dayjs, { type Dayjs } from "dayjs";
 import sum from "lodash/sum";
 import { makeAutoObservable, observable, runInAction } from "mobx";
 import { adaptSavingSpendingFromApi } from "~/adapters/savingSpending/savingSpendingFromApi";
@@ -11,11 +10,11 @@ import type SavingSpendingEditing from "~/models/SavingSpendingEditing";
 import { type AppRouter } from "~/server/api/root";
 import type { Option } from "~/types/types";
 import { trpc } from "~/utils/api";
-import { SAVINGS_DATE_LS_KEY, SAVINGS_LS_KEY } from "~/utils/constants";
 import { CATEGORY_IDS } from "../models/Category";
 import type SavingSpending from "../models/SavingSpending";
 import { type DataLoader } from "./DataLoader";
 import expenseStore from "./expenseStore";
+import userSettingsStore from "./userSettingsStore";
 
 export class SavingSpendingStore
   implements
@@ -23,21 +22,9 @@ export class SavingSpendingStore
 {
   public dataLoaded = false;
   savingSpendings = observable.array<SavingSpending>();
-  initialSavings: number;
-  initialSavingsDate: Dayjs | null;
 
   constructor() {
     makeAutoObservable(this);
-
-    this.initialSavings = parseFloat(
-      typeof window !== "undefined"
-        ? localStorage.getItem(SAVINGS_LS_KEY) ?? "0"
-        : "0"
-    );
-    this.initialSavingsDate =
-      typeof window !== "undefined" && localStorage[SAVINGS_DATE_LS_KEY]
-        ? dayjs(localStorage.getItem(SAVINGS_DATE_LS_KEY))
-        : null;
   }
 
   setDataLoaded(dataLoaded: boolean): void {
@@ -110,7 +97,8 @@ export class SavingSpendingStore
   }
 
   get currentSpendings(): number | null {
-    if (!this.initialSavingsDate) {
+    const { savings } = userSettingsStore;
+    if (!savings) {
       return null;
     }
 
@@ -128,24 +116,14 @@ export class SavingSpendingStore
       sum(
         toSavingsExpenses
           .concat(fromSavingsExpenses)
-          .filter((expense) =>
-            expense.date.isSameOrAfter(this.initialSavingsDate, "date")
-          )
+          .filter((expense) => expense.date.isSameOrAfter(savings.date, "date"))
           .map((expense) =>
             expense.category.id === CATEGORY_IDS.fromSavings
               ? -(expense.cost ?? 0)
               : expense.cost
           )
-      ) + this.initialSavings
+      ) + savings.sum
     );
-  }
-
-  setInitialSavings(savings: number) {
-    this.initialSavings = savings;
-  }
-
-  setInitialSavingsDate(date: Dayjs) {
-    this.initialSavingsDate = date;
   }
 }
 

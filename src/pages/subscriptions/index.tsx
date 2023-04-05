@@ -17,6 +17,7 @@ const stores: Stores = {
   forecastStore: false,
   savingSpendingStore: false,
   expenseStore: false,
+  userSettingsStore: false,
 };
 
 // eslint-disable-next-line mobx/missing-observer
