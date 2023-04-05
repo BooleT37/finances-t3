@@ -1,12 +1,11 @@
 import { Typography } from "antd";
-import { type GetServerSideProps } from "next";
 import React from "react";
 import { DataFetcher, type Stores } from "~/components/DataFetcher";
 import SettingsScreen from "~/components/settings/SettingsScreen";
 import SiteContent from "~/components/SiteContent";
 import WhiteHeader from "~/components/WhiteHeader";
-import { getServerAuthSession } from "~/server/auth";
 import userSettingsStore from "~/stores/userSettingsStore";
+import { protectedPageProps } from "~/utils/protectedPageProps";
 
 const { Title } = Typography;
 
@@ -20,24 +19,7 @@ const stores: Stores = {
   userSettingsStore,
 };
 
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const session = await getServerAuthSession(ctx);
-
-  if (!session) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
-    };
-  }
-
-  return {
-    props: {
-      session,
-    },
-  };
-};
+export const getServerSideProps = protectedPageProps;
 
 // eslint-disable-next-line mobx/missing-observer
 const SettingsPage: React.FC = () => {

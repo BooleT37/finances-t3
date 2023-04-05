@@ -4,6 +4,7 @@ import type { ExpenseStore } from "~/stores/expenseStore";
 import type { ForecastStore } from "~/stores/forecastStore";
 import type { SavingSpendingStore } from "~/stores/savingSpendingStore";
 import type { SubscriptionStore } from "~/stores/subscriptionStore";
+import type { UserSettingsStore } from "~/stores/userSettingsStore";
 
 export interface Stores {
   categoriesStore: Categories | false;
@@ -12,4 +13,5 @@ export interface Stores {
   subscriptionStore: SubscriptionStore | false;
   savingSpendingStore: SavingSpendingStore | false;
   expenseStore: ExpenseStore | false;
+  userSettingsStore: UserSettingsStore | false;
 }

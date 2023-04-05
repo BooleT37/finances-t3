@@ -7,6 +7,7 @@ import WhiteHeader from "~/components/WhiteHeader";
 import categoriesStore from "~/readonlyStores/categories";
 import sourcesStore from "~/readonlyStores/sources";
 import subscriptionStore from "~/stores/subscriptionStore";
+import { protectedPageProps } from "~/utils/protectedPageProps";
 
 const { Title } = Typography;
 
@@ -19,6 +20,8 @@ const stores: Stores = {
   expenseStore: false,
   userSettingsStore: false,
 };
+
+export const getServerSideProps = protectedPageProps;
 
 // eslint-disable-next-line mobx/missing-observer
 const SubscriptionsPage: React.FC = function SubscriptionsPage() {

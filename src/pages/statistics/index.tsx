@@ -12,6 +12,7 @@ import sourcesStore from "~/readonlyStores/sources";
 import expenseStore from "~/stores/expenseStore";
 import savingSpendingStore from "~/stores/savingSpendingStore";
 import subscriptionStore from "~/stores/subscriptionStore";
+import { protectedPageProps } from "~/utils/protectedPageProps";
 
 const YearReviewCta = styled.div`
   font-size: 16px;
@@ -31,6 +32,8 @@ const stores: Stores = {
   forecastStore: false,
   userSettingsStore: false,
 };
+
+export const getServerSideProps = protectedPageProps;
 
 /* eslint-disable mobx/missing-observer */
 const StatisticsScreen: React.FC = () => {

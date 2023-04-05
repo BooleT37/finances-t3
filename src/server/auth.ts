@@ -1,13 +1,14 @@
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { type GetServerSidePropsContext } from "next";
 import {
   getServerSession,
-  type NextAuthOptions,
   type DefaultSession,
+  type NextAuthOptions,
 } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
+import { trpc } from "~/utils/api";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -36,6 +37,12 @@ declare module "next-auth" {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authOptions: NextAuthOptions = {
+  debug: true,
+  events: {
+    signIn: async ({ user }) => {
+      await trpc.userSettings.createIfNotExist.mutate({ userId: user.id });
+    },
+  },
   callbacks: {
     session({ session, user }) {
       if (session.user) {

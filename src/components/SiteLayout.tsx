@@ -3,14 +3,17 @@ import {
   CalendarOutlined,
   DollarOutlined,
   LineChartOutlined,
+  LogoutOutlined,
   SettingOutlined,
   TableOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu } from "antd";
+import { Layout, Menu, Spin } from "antd";
 import type { ItemType } from "antd/lib/menu/hooks/useItems";
+import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import React from "react";
 import { useRouter } from "next/router";
+import React, { useEffect } from "react";
+import { SpinWrapper } from "./SpinWrapper";
 
 const { Content, Sider } = Layout;
 
@@ -33,12 +36,41 @@ const items: ItemType[] = [
   getItem("Планирование", "/planning", <CalendarOutlined />),
   getItem("Подписки", "/subscriptions", <DollarOutlined />),
   getItem("Настройки", "/settings", <SettingOutlined />),
+  {
+    key: "divider",
+    type: "divider",
+  },
+  {
+    key: "logout",
+    icon: <LogoutOutlined />,
+    label: "Выйти",
+    onClick: () => {
+      void signOut();
+    },
+  },
 ];
 
 /* eslint-disable mobx/missing-observer */
 const SiteLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { status } = useSession();
   const [collapsed, setCollapsed] = React.useState(false);
   const router = useRouter();
+
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    if (!session) {
+      void signIn(undefined, { callbackUrl: router.asPath });
+    }
+  }, [router, session]);
+
+  if (status === "loading") {
+    return (
+      <SpinWrapper>
+        <Spin size="large" tip="Авторизация..." />
+      </SpinWrapper>
+    );
+  }
 
   return (
     <Layout style={{ minHeight: "100vh" }}>

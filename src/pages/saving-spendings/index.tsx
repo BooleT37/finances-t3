@@ -13,6 +13,7 @@ import expenseStore from "~/stores/expenseStore";
 import savingSpendingStore from "~/stores/savingSpendingStore";
 import subscriptionStore from "~/stores/subscriptionStore";
 import userSettingsStore from "~/stores/userSettingsStore";
+import { protectedPageProps } from "~/utils/protectedPageProps";
 
 const { Title } = Typography;
 
@@ -29,6 +30,8 @@ const stores: Stores = {
   userSettingsStore,
   forecastStore: false,
 };
+
+export const getServerSideProps = protectedPageProps;
 
 const SavingSpendingsPage: React.FC = observer(function SavingSpendingsPage() {
   return (

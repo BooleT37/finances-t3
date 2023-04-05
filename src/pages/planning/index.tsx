@@ -11,6 +11,7 @@ import forecastStore from "~/stores/forecastStore";
 import savingSpendingStore from "~/stores/savingSpendingStore";
 import subscriptionStore from "~/stores/subscriptionStore";
 import userSettingsStore from "~/stores/userSettingsStore";
+import { protectedPageProps } from "~/utils/protectedPageProps";
 
 const { Title } = Typography;
 
@@ -23,6 +24,8 @@ const stores: Stores = {
   expenseStore,
   userSettingsStore,
 };
+
+export const getServerSideProps = protectedPageProps;
 
 const PlanningPage = observer(function PlanningPage() {
   return (
