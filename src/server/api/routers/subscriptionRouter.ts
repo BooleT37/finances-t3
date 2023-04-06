@@ -1,32 +1,36 @@
 import {
-  SubscriptionCreateInputObjectSchema,
-  SubscriptionUpdateInputObjectSchema,
+  SubscriptionCreateWithoutUserInputObjectSchema,
+  SubscriptionUpdateWithoutUserInputObjectSchema,
 } from "prisma/generated/schemas";
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { connectUser, filterByUser } from "~/server/api/utils/linkCurrentUser";
 
 export const subscriptionRouter = createTRPCRouter({
-  getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.subscription.findMany();
+  getAll: protectedProcedure.query(({ ctx }) => {
+    return ctx.prisma.subscription.findMany(filterByUser(ctx));
   }),
-  toggle: publicProcedure
+  toggle: protectedProcedure
     .input(z.object({ id: z.number(), active: z.boolean() }))
     .mutation(({ ctx, input: { active, id } }) =>
       ctx.prisma.subscription.update({ data: { active }, where: { id } })
     ),
-  create: publicProcedure
-    .input(SubscriptionCreateInputObjectSchema)
+  create: protectedProcedure
+    .input(SubscriptionCreateWithoutUserInputObjectSchema)
     .mutation(({ ctx, input }) =>
-      ctx.prisma.subscription.create({ data: input })
+      ctx.prisma.subscription.create({ data: { ...input, ...connectUser } })
     ),
-  update: publicProcedure
+  update: protectedProcedure
     .input(
-      z.object({ id: z.number(), data: SubscriptionUpdateInputObjectSchema })
+      z.object({
+        id: z.number(),
+        data: SubscriptionUpdateWithoutUserInputObjectSchema,
+      })
     )
     .mutation(({ ctx, input: { data, id } }) =>
       ctx.prisma.subscription.update({ data, where: { id } })
     ),
-  delete: publicProcedure
+  delete: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(({ ctx, input: { id } }) =>
       ctx.prisma.subscription.delete({ where: { id } })

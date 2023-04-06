@@ -7,7 +7,6 @@ import countUniqueMonths from "~/utils/countUniqueMonths";
 import roundCost from "~/utils/roundCost";
 
 import type { Forecast as ApiForecast } from "@prisma/client";
-import { adaptForecastToCreateInput } from "~/adapters/forecast/forecastToApi";
 import type Category from "~/models/Category";
 import { CATEGORY_IDS, type PersonalExpCategoryIds } from "~/models/Category";
 import Forecast from "~/models/Forecast";
@@ -283,24 +282,16 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
       (f) =>
         f.category.id === category.id && f.month === month && f.year === year
     );
-    const potentiallyNewForecast = new Forecast(category, month, year, sum, "");
     if (forecast) {
       forecast.sum = sum;
     } else {
       this.forecasts.push(new Forecast(category, month, year, sum, ""));
     }
     const response = await trpc.forecast.upsert.mutate({
-      where: {
-        categoryId_month_year: {
-          categoryId: category.id,
-          month,
-          year,
-        },
-      },
-      create: adaptForecastToCreateInput(potentiallyNewForecast),
-      update: {
-        sum,
-      },
+      categoryId: category.id,
+      month,
+      year,
+      sum,
     });
     return adaptForecastFromApi(response);
   }
@@ -328,17 +319,10 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
       this.forecasts.push(potentiallyNewForecast);
     }
     const response = await trpc.forecast.upsert.mutate({
-      where: {
-        categoryId_month_year: {
-          categoryId: category.id,
-          month,
-          year,
-        },
-      },
-      create: adaptForecastToCreateInput(potentiallyNewForecast),
-      update: {
-        comment,
-      },
+      categoryId: category.id,
+      month,
+      year,
+      comment,
     });
     return adaptForecastFromApi(response);
   }

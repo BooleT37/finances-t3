@@ -1,27 +1,35 @@
 import {
-  SavingSpendingCreateInputObjectSchema,
-  SavingSpendingUpdateInputObjectSchema,
+  SavingSpendingCreateWithoutUserInputObjectSchema,
+  SavingSpendingUpdateWithoutUserInputObjectSchema,
 } from "prisma/generated/schemas";
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { connectUser, filterByUser } from "~/server/api/utils/linkCurrentUser";
 
 export const savingSpendingRouter = createTRPCRouter({
-  getAll: publicProcedure.query(({ ctx }) => {
+  getAll: protectedProcedure.query(({ ctx }) => {
     return ctx.prisma.savingSpending.findMany({
+      ...filterByUser(ctx),
       include: { categories: true },
     });
   }),
-  create: publicProcedure
-    .input(SavingSpendingCreateInputObjectSchema)
+  create: protectedProcedure
+    .input(SavingSpendingCreateWithoutUserInputObjectSchema)
     .mutation(({ input, ctx }) =>
       ctx.prisma.savingSpending.create({
-        data: input,
+        data: {
+          ...input,
+          ...connectUser(ctx),
+        },
         include: { categories: true },
       })
     ),
-  update: publicProcedure
+  update: protectedProcedure
     .input(
-      z.object({ id: z.number(), data: SavingSpendingUpdateInputObjectSchema })
+      z.object({
+        id: z.number(),
+        data: SavingSpendingUpdateWithoutUserInputObjectSchema,
+      })
     )
     .mutation(({ input: { data, id }, ctx }) =>
       ctx.prisma.savingSpending.update({
@@ -30,13 +38,13 @@ export const savingSpendingRouter = createTRPCRouter({
         include: { categories: true },
       })
     ),
-  delete: publicProcedure
+  delete: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(({ input: { id }, ctx }) =>
       // all categories are also removed via "onUpdate: cascade"!
       ctx.prisma.savingSpending.delete({ where: { id } })
     ),
-  toggle: publicProcedure
+  toggle: protectedProcedure
     .input(z.object({ id: z.number(), completed: z.boolean() }))
     .mutation(({ input: { completed, id }, ctx }) =>
       ctx.prisma.savingSpending.update({
