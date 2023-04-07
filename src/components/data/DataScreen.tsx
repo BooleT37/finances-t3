@@ -295,6 +295,7 @@ const DataScreen = observer(function DataScreen() {
               defaultColDef={{
                 menuTabs: ["generalMenuTab"],
               }}
+              groupAllowUnbalanced
               columnDefs={columnDefs}
               getRowId={({ data }) => data.id.toString()}
               context={{
