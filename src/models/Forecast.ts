@@ -1,5 +1,5 @@
 import { makeAutoObservable } from "mobx";
-import Category from "./Category";
+import type Category from "./Category";
 
 class Forecast {
   constructor(

@@ -1,4 +1,4 @@
-import { ColDef } from "ag-grid-enterprise";
+import type { ColDef } from "ag-grid-enterprise";
 
 const autoGroupColumnDef: ColDef = {
   field: "name",
