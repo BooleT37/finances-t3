@@ -1,12 +1,15 @@
 interface Params {
-  name?: string,
-  category?: string
+  name?: string;
+  category: string;
 }
 
-export default function generatePersonalExpenseName({ category, name}: Params): string {
+export default function generatePersonalExpenseName({
+  category,
+  name,
+}: Params): string {
   if (name) {
-    return `За '${name}'`
+    return `За '${name}'`;
   }
 
-  return `За категорию '${category}'`
+  return `За категорию '${category}'`;
 }
