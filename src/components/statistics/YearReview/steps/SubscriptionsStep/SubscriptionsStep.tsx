@@ -2,7 +2,6 @@ import { Checkbox, Space, Typography } from "antd";
 import { groupBy, sum } from "lodash";
 import { observer } from "mobx-react";
 import { useState } from "react";
-import { CATEGORY_IDS } from "~/models/Category";
 import categories from "~/readonlyStores/categories";
 import expenseStore from "~/stores/expenseStore";
 import subscriptionStore from "~/stores/subscriptionStore";
@@ -23,13 +22,13 @@ export const SubscriptionsStep: React.FC = observer(
     const { activeSubscriptions } = subscriptionStore;
     const thisYearExpenses = expenses.filter(
       (e) =>
-        (rentShown || e.category.id !== CATEGORY_IDS.rent) &&
+        (rentShown || e.category.type !== "RENT") &&
         e.date.year() === 2022 &&
         e.subscription != null
     );
 
     const filteredActiveSubscriptions = activeSubscriptions.filter(
-      (s) => rentShown || s.category.id !== CATEGORY_IDS.rent
+      (s) => rentShown || s.category.type !== "RENT"
     );
 
     const thisYearDataByCategories: SubscriptionDatum[] = Object.entries(

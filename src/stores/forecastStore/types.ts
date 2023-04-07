@@ -1,3 +1,4 @@
+import { CategoryType } from "@prisma/client";
 import type { ForecastSubscriptionsItem } from "~/types/forecast/forecastTypes";
 
 export interface MonthSpendings {
@@ -15,6 +16,7 @@ export interface ForecastTableItem {
   category: string;
   categoryId: number;
   categoryShortname: string;
+  categoryType: CategoryType | null;
   average: number;
   monthsWithSpendings: string;
   lastMonth: MonthSpendings;

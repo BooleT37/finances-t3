@@ -6,7 +6,7 @@ import { AgChartsReact } from "ag-charts-react";
 import dayjs from "dayjs";
 import { range, sum } from "lodash";
 import { observer } from "mobx-react";
-import { CATEGORY_IDS } from "~/models/Category";
+import categories from "~/readonlyStores/categories";
 import expenseStore from "~/stores/expenseStore";
 import costToString from "~/utils/costToString";
 import roundCost from "~/utils/roundCost";
@@ -20,12 +20,13 @@ interface BarDatum {
 export const SavingsPerMonthChart: React.FC = observer(
   function MostSpendingsStep() {
     const { expensesByCategoryIdForYear } = expenseStore;
+    const { toSavingsCategory, fromSavingsCategory } = categories;
 
     const savingsExpenses =
-      expensesByCategoryIdForYear(2022)[CATEGORY_IDS.toSavings.toString()];
+      expensesByCategoryIdForYear(2022)[toSavingsCategory.id.toString()];
 
     const spendingsExpenses =
-      expensesByCategoryIdForYear(2022)[CATEGORY_IDS.fromSavings.toString()];
+      expensesByCategoryIdForYear(2022)[fromSavingsCategory.id.toString()];
 
     if (!savingsExpenses || !spendingsExpenses) {
       return null;

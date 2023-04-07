@@ -7,10 +7,10 @@ import {
   adaptSavingSpendingToUpdateInput,
 } from "~/adapters/savingSpending/savingSpendingToApi";
 import type SavingSpendingEditing from "~/models/SavingSpendingEditing";
+import categories from "~/readonlyStores/categories";
 import { type AppRouter } from "~/server/api/root";
 import type { Option } from "~/types/types";
 import { trpc } from "~/utils/api";
-import { CATEGORY_IDS } from "../models/Category";
 import type SavingSpending from "../models/SavingSpending";
 import { type DataLoader } from "./DataLoader";
 import expenseStore from "./expenseStore";
@@ -102,14 +102,16 @@ export class SavingSpendingStore
       return null;
     }
 
+    const { fromSavingsCategory, toSavingsCategory } = categories;
+
     const toSavingsExpenses =
-      CATEGORY_IDS.toSavings in expenseStore.expensesByCategoryId
-        ? expenseStore.expensesByCategoryId[CATEGORY_IDS.toSavings] ?? []
+      toSavingsCategory.id in expenseStore.expensesByCategoryId
+        ? expenseStore.expensesByCategoryId[toSavingsCategory.id] ?? []
         : [];
 
     const fromSavingsExpenses =
-      CATEGORY_IDS.fromSavings in expenseStore.expensesByCategoryId
-        ? expenseStore.expensesByCategoryId[CATEGORY_IDS.fromSavings] ?? []
+      fromSavingsCategory.id in expenseStore.expensesByCategoryId
+        ? expenseStore.expensesByCategoryId[fromSavingsCategory.id] ?? []
         : [];
 
     return (
@@ -118,7 +120,7 @@ export class SavingSpendingStore
           .concat(fromSavingsExpenses)
           .filter((expense) => expense.date.isSameOrAfter(savings.date, "date"))
           .map((expense) =>
-            expense.category.id === CATEGORY_IDS.fromSavings
+            expense.category.type === "FROM_SAVINGS"
               ? -(expense.cost ?? 0)
               : expense.cost
           )

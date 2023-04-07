@@ -2,7 +2,7 @@ import { Divider, Form, Select, Space, type FormInstance } from "antd";
 import Link from "antd/lib/typography/Link";
 import React, { useCallback } from "react";
 import { CostInput } from "~/components/CostInput";
-import { CATEGORY_IDS, type PersonalExpCategoryIds } from "~/models/Category";
+import { PersonalExpCategoryIdsRename } from "~/models/Category";
 import { type FormValues } from "../models";
 import { useForecastSum } from "./useForecastSum";
 
@@ -10,7 +10,7 @@ const { Option } = Select;
 
 interface Props {
   form: FormInstance<FormValues>;
-  onTransferAll(categoryId: PersonalExpCategoryIds): void;
+  onTransferAll(categoryId: number): void;
 }
 
 // eslint-disable-next-line mobx/missing-observer
@@ -37,8 +37,8 @@ const PersonalExpenses: React.FC<Props> = ({ form, onTransferAll }) => {
         rules={[{ required: true, message: "Выберите, чьи деньги" }]}
       >
         <Select style={{ width: 130 }}>
-          <Option value={CATEGORY_IDS.personal.Alexey}>Алексей</Option>
-          <Option value={CATEGORY_IDS.personal.Lena}>Лена</Option>
+          <Option value={PersonalExpCategoryIdsRename.Alexey}>Алексей</Option>
+          <Option value={PersonalExpCategoryIdsRename.Lena}>Лена</Option>
         </Select>
       </Form.Item>
       <Form.Item

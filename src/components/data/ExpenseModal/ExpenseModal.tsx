@@ -14,10 +14,9 @@ import dayjs, { type Dayjs } from "dayjs";
 import { action, reaction, runInAction } from "mobx";
 import { observer, useLocalObservable } from "mobx-react";
 import type { BaseSelectRef } from "rc-select";
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { CostInput } from "~/components/CostInput";
-import { CATEGORY_IDS, PersonalExpCategoryIds } from "~/models/Category";
 import type Expense from "~/models/Expense";
 import categories from "~/readonlyStores/categories";
 import sources from "~/readonlyStores/sources";
@@ -192,6 +191,10 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
     Form.useWatch("source", form) ?? undefined;
   const categoryId: number | undefined =
     Form.useWatch("category", form) ?? undefined;
+  const category = useMemo(
+    () => (categoryId === undefined ? null : categories.getById(categoryId)),
+    [categoryId]
+  );
   const savingSpendingId: number | undefined =
     Form.useWatch("savingSpendingId", form) ?? undefined;
   const currentCategory =
@@ -267,7 +270,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
   };
 
   const handleTransferAllPeClick = useCallback(
-    (categoryId: PersonalExpCategoryIds) => {
+    (categoryId: number) => {
       const currentName = form.getFieldValue("name") as FormValues["name"];
       form.setFieldsValue({
         category: categoryId,
@@ -398,10 +401,10 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
         <Form.Item
           name="savingSpendingId"
           label="Событие"
-          hidden={categoryId !== CATEGORY_IDS.fromSavings}
+          hidden={category?.type !== "FROM_SAVINGS"}
           rules={[
             {
-              required: categoryId === CATEGORY_IDS.fromSavings,
+              required: category?.type === "FROM_SAVINGS",
               message: "Выберите событие",
             },
           ]}
@@ -413,14 +416,14 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
             allowClear
           />
         </Form.Item>
-        {categoryId === CATEGORY_IDS.fromSavings &&
+        {category?.type === "FROM_SAVINGS" &&
           savingSpendingCategoryOptions.length > 1 && (
             <Form.Item
               name="savingSpendingCategoryId"
               label="Категория события"
               rules={[
                 {
-                  required: categoryId === CATEGORY_IDS.fromSavings,
+                  required: category.type === "FROM_SAVINGS",
                   message: "Выберите категорию",
                 },
               ]}
@@ -451,11 +454,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
         >
           <CostInput />
         </Form.Item>
-        {(categoryId === undefined ||
-          ![
-            PersonalExpCategoryIds.Alexey,
-            PersonalExpCategoryIds.Lena,
-          ].includes(categoryId)) &&
+        {(categoryId === undefined || !category?.isPersonal) &&
           !isIncome.value && (
             <Divider orientation="center">
               <Checkbox

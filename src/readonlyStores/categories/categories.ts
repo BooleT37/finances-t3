@@ -1,10 +1,11 @@
 import { type inferRouterOutputs } from "@trpc/server";
 import { adaptCategoryFromApi } from "~/adapters/category/categoryFromApi";
-import type Category from "~/models/Category";
+import Category from "~/models/Category";
 import { type AppRouter } from "~/server/api/root";
 import { type DataLoader } from "~/stores/DataLoader";
 import type { Option } from "~/types/types";
 import { trpc } from "~/utils/api";
+import { getTempId } from "~/utils/tempId";
 import {
   sortAllCategories,
   sortExpenseCategories,
@@ -22,6 +23,18 @@ export class Categories
   public generalExpenseCategories: Category[] = []; // not personal and not savings
   public personalExpensesCategories: Category[] = [];
   public incomeCategories: Category[] = [];
+  public fromSavingsCategory: Category = new Category(
+    getTempId(),
+    "Из сбережений (врем.)",
+    "Из сбережений (врем.)",
+    "FROM_SAVINGS"
+  );
+  public toSavingsCategory: Category = new Category(
+    getTempId(),
+    "В сбережения (врем.)",
+    "В сбережения (врем.)",
+    "TO_SAVINGS"
+  );
   public savingsCategories: Category[] = [];
   public incomeCategoriesNames: string[] = [];
   public options: Option[] = [];
@@ -71,6 +84,22 @@ export class Categories
     return category;
   }
 
+  private getFromSavingsCategory() {
+    const found = this.categories.find((c) => c.fromSavings);
+    if (found === undefined) {
+      throw new Error('Ни одна категория не помечена как "From savings"!');
+    }
+    return found;
+  }
+
+  private getToSavingsCategory() {
+    const found = this.categories.find((c) => c.toSavings);
+    if (found === undefined) {
+      throw new Error('Ни одна категория не помечена как "To savings"!');
+    }
+    return found;
+  }
+
   calculateDerivations() {
     this.expenseCategories = this.categories
       .filter((c) => !c.isIncome)
@@ -86,6 +115,8 @@ export class Categories
     this.personalExpensesCategories = this.expenseCategories.filter(
       (c) => c.isPersonal
     );
+    this.fromSavingsCategory = this.getFromSavingsCategory();
+    this.toSavingsCategory = this.getToSavingsCategory();
     this.savingsCategories = this.expenseCategories.filter((c) => c.isSavings);
     this.incomeCategoriesNames = this.incomeCategories.map((c) => c.name);
     this.options = this.categories.map((c) => c.asOption);

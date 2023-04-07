@@ -1,13 +1,12 @@
 import { type Dayjs } from "dayjs";
 import sum from "lodash/sum";
-import { type PersonalExpCategoryIds } from "~/models/Category";
 import categories from "~/readonlyStores/categories";
 import expenseStore from "~/stores/expenseStore";
 import forecastStore from "~/stores/forecastStore";
 
 export const useForecastSum = (
   date: Dayjs | undefined,
-  categoryId: PersonalExpCategoryIds | undefined
+  categoryId: number | undefined
 ) => {
   if (categoryId === undefined) {
     return undefined;

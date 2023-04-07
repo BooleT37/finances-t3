@@ -74,12 +74,20 @@ model Subcategory {
   expenses   Expense[]
 }
 
+enum CategoryType {
+  PERSONAL_EXPENSE
+  FROM_SAVINGS
+  TO_SAVINGS
+  RENT
+}
+
 model Category {
   id            Int            @id @default(autoincrement())
   name          String         @unique
   isIncome      Boolean        @default(false)
   isContinuous  Boolean        @default(false)
   shortname     String         @db.VarChar(16)
+  type          CategoryType?
   expenses      Expense[]
   subcategories Subcategory[]
   Subscriptions Subscription[]

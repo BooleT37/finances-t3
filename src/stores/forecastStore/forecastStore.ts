@@ -8,7 +8,6 @@ import roundCost from "~/utils/roundCost";
 
 import type { Forecast as ApiForecast } from "@prisma/client";
 import type Category from "~/models/Category";
-import { CATEGORY_IDS, type PersonalExpCategoryIds } from "~/models/Category";
 import Forecast from "~/models/Forecast";
 import categories from "~/readonlyStores/categories";
 import { trpc } from "~/utils/api";
@@ -128,6 +127,7 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
           category: forecast.category.name,
           categoryId: forecast.category.id,
           categoryShortname: forecast.category.shortname,
+          categoryType: forecast.category.type,
           average: avgForNonEmpty(
             Object.values(
               expenseStore.expenses
@@ -187,6 +187,7 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
           category: "Всего",
           categoryId: -1,
           categoryShortname: "Всего",
+          categoryType: null,
           comment: "",
           lastMonth: {
             spendings: roundCost(
@@ -194,7 +195,7 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
                 data.map((d) =>
                   negateIf(
                     d.lastMonth.spendings,
-                    d.categoryId === CATEGORY_IDS.fromSavings
+                    d.categoryType === "FROM_SAVINGS"
                   )
                 )
               )
@@ -212,7 +213,7 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
                     data.map((d) =>
                       negateIf(
                         d.sum.value ?? 0,
-                        d.categoryId === CATEGORY_IDS.fromSavings
+                        d.categoryType === "FROM_SAVINGS"
                       )
                     )
                   )
@@ -231,7 +232,7 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
                 data.map((d) =>
                   negateIf(
                     d.thisMonth.spendings,
-                    d.categoryId === CATEGORY_IDS.fromSavings
+                    d.categoryType === "FROM_SAVINGS"
                   )
                 )
               )
@@ -328,7 +329,7 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
   }
 
   async transferPersonalExpense(
-    categoryId: PersonalExpCategoryIds,
+    categoryId: number,
     month: number,
     year: number
   ): Promise<Forecast | undefined> {

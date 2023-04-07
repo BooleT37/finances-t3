@@ -1,5 +1,4 @@
 import { type Dayjs } from "dayjs";
-import { type PersonalExpCategoryIds } from "~/models/Category";
 
 export default interface FormValues {
   cost: string;
@@ -7,7 +6,7 @@ export default interface FormValues {
   date: Dayjs | undefined;
   category: number | undefined;
   subcategory: number | undefined;
-  personalExpCategoryId: PersonalExpCategoryIds | undefined;
+  personalExpCategoryId: number | undefined;
   personalExpSpent: string;
   savingSpendingId: number | undefined;
   savingSpendingCategoryId: number | undefined;

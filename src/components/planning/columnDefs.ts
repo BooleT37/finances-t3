@@ -5,7 +5,7 @@ import type {
   ValueFormatterParams,
   ValueParserParams,
 } from "ag-grid-community";
-import { CATEGORY_IDS } from "~/models/Category";
+import { TOTAL_CATEGORY_ID } from "~/models/Category";
 import { sortAllCategories } from "~/readonlyStores/categories/categoriesOrder";
 import {
   type ForecastSum,
@@ -79,9 +79,8 @@ const columnDefs: (
       subscriptions: (params.oldValue as ForecastSum).subscriptions,
     }),
     editable: ({ data }) =>
-      ![CATEGORY_IDS.total, CATEGORY_IDS.fromSavings].includes(
-        (data as ForecastTableItem).categoryId
-      ),
+      data?.categoryId !== TOTAL_CATEGORY_ID &&
+      data?.categoryType !== "FROM_SAVINGS",
   },
   {
     field: "thisMonth",

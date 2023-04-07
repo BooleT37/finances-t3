@@ -19,7 +19,7 @@ import countUniqueMonths from "~/utils/countUniqueMonths";
 import roundCost from "~/utils/roundCost";
 import { getTempId } from "~/utils/tempId";
 import type Category from "../models/Category";
-import { CATEGORY_IDS } from "../models/Category";
+import { PersonalExpCategoryIdsRename } from "../models/Category";
 import type Expense from "../models/Expense";
 import { type TableData } from "../models/Expense";
 import type Subscription from "../models/Subscription";
@@ -53,7 +53,7 @@ export class ExpenseStore implements DataLoader<ApiExpense[]> {
   }
 
   init(expenses: ApiExpense[]) {
-    this.expenses.replace(expenses.map(adaptExpenseFromApi));
+    this.expenses.replace(expenses.map((e) => adaptExpenseFromApi(e, [])));
     this.fillPersonalExpenses(expenses);
   }
 
@@ -69,6 +69,10 @@ export class ExpenseStore implements DataLoader<ApiExpense[]> {
       );
     }
   );
+
+  get personalExpenses() {
+    return this.expenses.filter(({ category }) => category.isPersonal);
+  }
 
   getById(id: number): Expense | undefined {
     return this.expenses.find((e) => e.id === id);
@@ -94,7 +98,7 @@ export class ExpenseStore implements DataLoader<ApiExpense[]> {
         if (tableData.cost && pe && pe.cost !== null) {
           const cost = costToString(pe.cost);
           const author =
-            pe.category.id === CATEGORY_IDS.personal.Alexey ? "А" : "Л";
+            pe.category.id === PersonalExpCategoryIdsRename.Alexey ? "А" : "Л";
           tableData.cost.personalExpStr = `${cost} личных (${author})`;
         }
         return tableData;
@@ -111,7 +115,7 @@ export class ExpenseStore implements DataLoader<ApiExpense[]> {
     const response = await trpc.expense.create.mutate(
       adaptExpenseToCreateInput(expense)
     );
-    const adaptedExpense = adaptExpenseFromApi(response);
+    const adaptedExpense = adaptExpenseFromApi(response, this.personalExpenses);
     runInAction(() => {
       this.expenses.push(adaptedExpense);
     });
@@ -126,7 +130,7 @@ export class ExpenseStore implements DataLoader<ApiExpense[]> {
         id: expense.id,
         data: adaptExpenseToUpdateInput(expense),
       });
-      return adaptExpenseFromApi(response);
+      return adaptExpenseFromApi(response, this.personalExpenses);
     } else {
       throw new Error(`Can't find expense with id ${expense.id}`);
     }

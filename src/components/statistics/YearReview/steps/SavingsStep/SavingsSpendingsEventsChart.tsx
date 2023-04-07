@@ -5,7 +5,7 @@ import {
 import { AgChartsReact } from "ag-charts-react";
 import { groupBy, sum } from "lodash";
 import { observer } from "mobx-react";
-import { CATEGORY_IDS } from "~/models/Category";
+import categories from "~/readonlyStores/categories";
 import expenseStore from "~/stores/expenseStore";
 import costToString from "~/utils/costToString";
 import roundCost from "~/utils/roundCost";
@@ -18,9 +18,10 @@ interface BarDatum {
 export const SavingsSpendingsEventsChart: React.FC = observer(
   function MostSpendingsStep() {
     const { expensesByCategoryIdForYear } = expenseStore;
+    const { fromSavingsCategory } = categories;
 
     const expenses =
-      expensesByCategoryIdForYear(2022)[CATEGORY_IDS.fromSavings.toString()];
+      expensesByCategoryIdForYear(2022)[fromSavingsCategory.id.toString()];
 
     if (!expenses) {
       return null;

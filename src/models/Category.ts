@@ -1,21 +1,14 @@
+import type { CategoryType } from "@prisma/client";
 import type { Option } from "~/types/types";
 import type Subcategory from "./Subcategory";
 
-export enum PersonalExpCategoryIds {
+export const TOTAL_CATEGORY_ID = -1;
+
+// TODO this will not work for other users, need to rework
+export enum PersonalExpCategoryIdsRename {
   Alexey = 0,
   Lena = 50,
 }
-
-export const CATEGORY_IDS = {
-  personal: {
-    Alexey: PersonalExpCategoryIds.Alexey,
-    Lena: PersonalExpCategoryIds.Lena,
-  },
-  fromSavings: 35,
-  toSavings: 11,
-  rent: 14,
-  total: -1,
-};
 
 export default class Category {
   public readonly isPersonal: boolean;
@@ -26,17 +19,15 @@ export default class Category {
     public readonly id: number,
     public readonly name: string,
     public readonly shortname: string,
+    public readonly type: CategoryType | null = null,
     public readonly isIncome = false,
     public readonly isContinuous = false,
-    public readonly subcategories: Subcategory[]
+    public readonly subcategories: Subcategory[] = []
   ) {
-    this.isPersonal = [
-      CATEGORY_IDS.personal.Alexey,
-      CATEGORY_IDS.personal.Lena,
-    ].includes(id);
-    this.fromSavings = id === CATEGORY_IDS.fromSavings;
-    this.toSavings = id === CATEGORY_IDS.toSavings;
-    this.isSavings = this.fromSavings || this.toSavings;
+    this.isPersonal = type === "PERSONAL_EXPENSE";
+    this.fromSavings = type === "FROM_SAVINGS";
+    this.toSavings = type === "TO_SAVINGS";
+    this.isSavings = this.type === "FROM_SAVINGS" || this.type === "TO_SAVINGS";
   }
 
   get asOption(): Option {
