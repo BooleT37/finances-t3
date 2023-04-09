@@ -21,6 +21,7 @@ import { avgForNonEmpty, getPreviousMonth } from "./utils";
 
 export class ForecastStore implements DataLoader<ApiForecast[]> {
   public dataLoaded = false;
+  public dataLoading = false;
   public forecasts = observable.array<Forecast>();
 
   constructor() {
@@ -29,6 +30,10 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
 
   setDataLoaded(dataLoaded: boolean): void {
     this.dataLoaded = dataLoaded;
+  }
+
+  setDataLoading(dataLoading: boolean): void {
+    this.dataLoading = dataLoading;
   }
 
   async loadData() {

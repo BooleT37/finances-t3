@@ -7,6 +7,7 @@ import { trpc } from "~/utils/api";
 
 export class Sources implements DataLoader<ApiSource[]> {
   public dataLoaded = false;
+  public dataLoading = false;
   private sources: Source[] = [];
 
   async loadData() {
@@ -15,6 +16,10 @@ export class Sources implements DataLoader<ApiSource[]> {
 
   setDataLoaded(dataLoaded: boolean): void {
     this.dataLoaded = dataLoaded;
+  }
+
+  setDataLoading(dataLoading: boolean): void {
+    this.dataLoading = dataLoading;
   }
 
   init(sources: ApiSource[]): void {

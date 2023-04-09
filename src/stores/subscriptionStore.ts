@@ -22,6 +22,7 @@ const subscriptionToItem = (
 
 export class SubscriptionStore implements DataLoader<ApiSubscription[]> {
   public dataLoaded = false;
+  public dataLoading = false;
   subscriptions = observable.array<Subscription>();
 
   constructor() {
@@ -30,6 +31,10 @@ export class SubscriptionStore implements DataLoader<ApiSubscription[]> {
 
   setDataLoaded(dataLoaded: boolean): void {
     this.dataLoaded = dataLoaded;
+  }
+
+  setDataLoading(dataLoading: boolean): void {
+    this.dataLoading = dataLoading;
   }
 
   async loadData() {

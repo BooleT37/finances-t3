@@ -14,11 +14,13 @@ export function useDataStores(stores: Stores) {
     (async () => {
       const datum = await Promise.all(
         storesList.map(async (store) => {
-          if (store.dataLoaded) {
+          if (store.dataLoaded || store.dataLoading) {
             return;
           }
+          store.setDataLoading(true);
           const data = await store.loadData();
           store.setDataLoaded(true);
+          store.setDataLoading(false);
           return data;
         })
       );

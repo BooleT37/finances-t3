@@ -21,6 +21,7 @@ export class SavingSpendingStore
     DataLoader<inferRouterOutputs<AppRouter>["savingSpending"]["getAll"]>
 {
   public dataLoaded = false;
+  public dataLoading = false;
   savingSpendings = observable.array<SavingSpending>();
 
   constructor() {
@@ -29,6 +30,10 @@ export class SavingSpendingStore
 
   setDataLoaded(dataLoaded: boolean): void {
     this.dataLoaded = dataLoaded;
+  }
+
+  setDataLoading(dataLoading: boolean): void {
+    this.dataLoading = dataLoading;
   }
 
   async loadData() {
