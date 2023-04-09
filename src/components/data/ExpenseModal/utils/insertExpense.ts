@@ -1,7 +1,7 @@
 import { runInAction } from "mobx";
 import Expense from "~/models/Expense";
-import categories from "~/readonlyStores/categories";
 import sources from "~/readonlyStores/sources";
+import categoriesStore from "~/stores/categoriesStore";
 import expenseStore from "~/stores/expenseStore";
 import subscriptionStore from "~/stores/subscriptionStore";
 import expenseModalViewModel from "../expenseModalViewModel";
@@ -11,7 +11,7 @@ import generatePersonalExpenseName from "./generatePersonalExpenseName";
 export default async function insertExpense(
   values: ValidatedFormValues
 ): Promise<Expense> {
-  const category = categories.getById(values.category);
+  const category = categoriesStore.getById(values.category);
   const newExpense = new Expense(
     -1,
     parseFloat(values.cost),
@@ -56,7 +56,9 @@ export default async function insertExpense(
           newExpense.personalExpense = modifyingPe;
           newExpense.cost = (newExpense.cost ?? 0) - (modifyingPe.cost ?? 0);
         } else {
-          const category = categories.getById(values.personalExpCategoryId);
+          const category = categoriesStore.getById(
+            values.personalExpCategoryId
+          );
           const personalExpense = new Expense(
             modifyingPe.id,
             parseFloat(values.personalExpSpent),
@@ -66,7 +68,7 @@ export default async function insertExpense(
               ? null
               : category.findSubcategoryById(values.subcategory),
             generatePersonalExpenseName({
-              category: categories.getById(values.category).name,
+              category: categoriesStore.getById(values.category).name,
               name: values.name,
             }),
             null,
@@ -78,7 +80,7 @@ export default async function insertExpense(
           await expenseStore.modify(personalExpense);
         }
       } else {
-        const category = categories.getById(values.personalExpCategoryId);
+        const category = categoriesStore.getById(values.personalExpCategoryId);
         const personalExpense = new Expense(
           -1,
           parseFloat(values.personalExpSpent),
@@ -88,7 +90,7 @@ export default async function insertExpense(
             ? null
             : category.findSubcategoryById(values.subcategory),
           generatePersonalExpenseName({
-            category: categories.getById(values.category).name,
+            category: categoriesStore.getById(values.category).name,
             name: values.name,
           }),
           null,
@@ -111,7 +113,7 @@ export default async function insertExpense(
     }
   } else {
     if (values.personalExpCategoryId !== undefined) {
-      const category = categories.getById(values.personalExpCategoryId);
+      const category = categoriesStore.getById(values.personalExpCategoryId);
       const personalExpense = new Expense(
         -1,
         parseFloat(values.personalExpSpent),
@@ -119,7 +121,7 @@ export default async function insertExpense(
         category,
         null,
         generatePersonalExpenseName({
-          category: categories.getById(values.category).name,
+          category: categoriesStore.getById(values.category).name,
           name: values.name,
         }),
         null,

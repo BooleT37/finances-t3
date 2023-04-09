@@ -4,7 +4,7 @@ import { DatePicker, Select, Space, Typography } from "antd";
 import dayjs from "dayjs";
 import React from "react";
 import styled from "styled-components";
-import categories from "~/readonlyStores/categories";
+import categoriesStore from "~/stores/categoriesStore";
 import expenseStore from "~/stores/expenseStore";
 import { MONTH_DATE_FORMAT } from "~/utils/constants";
 import getOptions from "./getOptions";
@@ -27,13 +27,16 @@ const DynamicsChart = function DynamicsChart() {
     thisMonth.clone()
   );
   const [categoriesIds, setCategoriesIds] = React.useState<number[]>([]);
+  const { options: categoriesOptons } = categoriesStore;
 
   const datesAreSame = startDate.isSame(endDate, "month");
   const filteredCategories = React.useMemo(() => {
     if (categoriesIds.length === 0) {
-      return categories.getAll();
+      return categoriesStore.categories;
     }
-    return categories.getAll().filter((c) => categoriesIds.includes(c.id));
+    return categoriesStore.categories.filter((c) =>
+      categoriesIds.includes(c.id)
+    );
   }, [categoriesIds]);
   const options = React.useMemo(
     () =>
@@ -73,7 +76,7 @@ const DynamicsChart = function DynamicsChart() {
         <SelectStyled
           placeholder="Все категории"
           mode="multiple"
-          options={categories.options}
+          options={categoriesOptons}
           value={categoriesIds}
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           /* @ts-ignore bug in styled-components*/

@@ -6,7 +6,7 @@ import type {
   ValueParserParams,
 } from "ag-grid-community";
 import { TOTAL_CATEGORY_ID } from "~/models/Category";
-import { sortAllCategories } from "~/readonlyStores/categories/categoriesOrder";
+import { sortAllCategories } from "~/stores/categoriesOrder";
 import {
   type ForecastSum,
   type ForecastTableItem,

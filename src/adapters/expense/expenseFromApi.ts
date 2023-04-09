@@ -1,8 +1,8 @@
 import type { Expense as ApiExpense } from "@prisma/client";
 import dayjs from "dayjs";
 import Expense from "~/models/Expense";
-import categories from "~/readonlyStores/categories";
 import sources from "~/readonlyStores/sources";
+import categoriesStore from "~/stores/categoriesStore";
 import savingSpendingStore from "~/stores/savingSpendingStore";
 import subscriptionStore from "~/stores/subscriptionStore";
 
@@ -23,7 +23,7 @@ export function adaptExpenseFromApi(
   expense: ApiExpense,
   allPersonalExpenses: Expense[]
 ): Expense {
-  const category = categories.getById(expense.categoryId);
+  const category = categoriesStore.getById(expense.categoryId);
   return new Expense(
     expense.id,
     expense.cost,

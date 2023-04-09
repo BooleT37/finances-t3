@@ -18,8 +18,8 @@ import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { CostInput } from "~/components/CostInput";
 import type Expense from "~/models/Expense";
-import categories from "~/readonlyStores/categories";
 import sources from "~/readonlyStores/sources";
+import categoriesStore from "~/stores/categoriesStore";
 import expenseStore from "~/stores/expenseStore";
 import savingSpendingStore from "~/stores/savingSpendingStore";
 import subscriptionStore from "~/stores/subscriptionStore";
@@ -88,6 +88,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
   }));
   const [hasPersonalExp, setHasPersonalExp] = React.useState(false);
   const { lastSource, isNewExpense } = expenseModalViewModel;
+  const { incomeOptions, expenseOptions } = categoriesStore;
 
   const INITIAL_VALUES: FormValues = React.useMemo(
     () => ({
@@ -192,13 +193,14 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
   const categoryId: number | undefined =
     Form.useWatch("category", form) ?? undefined;
   const category = useMemo(
-    () => (categoryId === undefined ? null : categories.getById(categoryId)),
+    () =>
+      categoryId === undefined ? null : categoriesStore.getById(categoryId),
     [categoryId]
   );
   const savingSpendingId: number | undefined =
     Form.useWatch("savingSpendingId", form) ?? undefined;
   const currentCategory =
-    categoryId !== undefined ? categories.getById(categoryId) : undefined;
+    categoryId !== undefined ? categoriesStore.getById(categoryId) : undefined;
   const sourceExtra =
     sourceId === undefined ? undefined : (
       <SourceLastExpenses sourceId={sourceId} />
@@ -372,11 +374,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
           ]}
         >
           <Select
-            options={
-              isIncome.value
-                ? categories.incomeOptions
-                : categories.expenseOptions
-            }
+            options={isIncome.value ? incomeOptions : expenseOptions}
             placeholder="Выберите категорию"
             style={{ width: 250 }}
             ref={firstFieldRef}

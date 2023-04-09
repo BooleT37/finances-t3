@@ -7,7 +7,7 @@ import { Button } from "antd";
 import { sum } from "lodash";
 import { observer } from "mobx-react";
 import { useState } from "react";
-import categories from "~/readonlyStores/categories";
+import categoriesStore from "~/stores/categoriesStore";
 import expenseStore from "~/stores/expenseStore";
 import costToString from "~/utils/costToString";
 import roundCost from "~/utils/roundCost";
@@ -26,7 +26,7 @@ export const MostSpendingsStep: React.FC = observer(
 
     const data: BarDatum[] = Object.entries(expenses)
       .filter(([categoryId]) => {
-        const category = categories.getById(parseInt(categoryId));
+        const category = categoriesStore.getById(parseInt(categoryId));
         return !category.isIncome && !category.toSavings;
       })
       .map(([categoryId, expenses]): [string, number] => [
@@ -37,7 +37,7 @@ export const MostSpendingsStep: React.FC = observer(
       .slice(0, allCategoriesShown ? Object.keys(expenses).length : 3)
       .map(
         ([categoryId, spent]): BarDatum => ({
-          category: categories.getById(parseInt(categoryId)).name,
+          category: categoriesStore.getById(parseInt(categoryId)).name,
           spent,
         })
       );

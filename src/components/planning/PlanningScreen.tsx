@@ -7,7 +7,7 @@ import { action } from "mobx";
 import { observer } from "mobx-react";
 import React, { useCallback } from "react";
 import { AG_GRID_LOCALE_RU } from "~/agGridLocale.ru";
-import categories from "~/readonlyStores/categories";
+import categoriesStore from "~/stores/categoriesStore";
 import forecastStore from "~/stores/forecastStore";
 import {
   type ForecastSum,
@@ -55,7 +55,7 @@ const PlanningScreen = observer(function PlanningScreen() {
           return;
         }
         void forecastStore.changeForecastSum(
-          categories.getById(params.data.categoryId),
+          categoriesStore.getById(params.data.categoryId),
           date.month(),
           date.year(),
           newValue.value
@@ -67,7 +67,7 @@ const PlanningScreen = observer(function PlanningScreen() {
           return;
         }
         void forecastStore.changeForecastComment(
-          categories.getById(params.data.categoryId),
+          categoriesStore.getById(params.data.categoryId),
           date.month(),
           date.year(),
           newValue
@@ -101,7 +101,7 @@ const PlanningScreen = observer(function PlanningScreen() {
     (categoryId: number, sum: number) => {
       if (date) {
         void forecastStore.changeForecastSum(
-          categories.getById(categoryId),
+          categoriesStore.getById(categoryId),
           date.month(),
           date.year(),
           sum

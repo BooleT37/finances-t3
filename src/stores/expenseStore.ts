@@ -9,7 +9,6 @@ import {
   adaptExpenseToCreateInput,
   adaptExpenseToUpdateInput,
 } from "~/adapters/expense/expenseToApi";
-import categories from "~/readonlyStores/categories";
 import type ComparisonData from "~/types/statistics/comparisonData";
 import type DynamicsData from "~/types/statistics/dynamicsData";
 import { type DynamicsDataMonth } from "~/types/statistics/dynamicsData";
@@ -25,6 +24,7 @@ import { type TableData } from "../models/Expense";
 import type Subscription from "../models/Subscription";
 import sources from "../readonlyStores/sources";
 import costToString from "../utils/costToString";
+import categoriesStore from "./categoriesStore";
 import { type DataLoader } from "./DataLoader";
 import savingSpendingStore from "./savingSpendingStore";
 import subscriptionStore from "./subscriptionStore";
@@ -220,7 +220,7 @@ export class ExpenseStore implements DataLoader<ApiExpense[]> {
     });
     return toJS(
       Object.entries(map).map(([category, costs]) => ({
-        category: categories.getById(parseInt(category)).shortname,
+        category: categoriesStore.getById(parseInt(category)).shortname,
         period1: costs.from,
         period2: costs.to,
       }))
@@ -267,7 +267,7 @@ export class ExpenseStore implements DataLoader<ApiExpense[]> {
     let interim = from.clone();
     const allCategoriesIds =
       categoriesIds.length === 0
-        ? categories.getAll().map((c) => c.id)
+        ? categoriesStore.categories.map((c) => c.id)
         : categoriesIds;
     while (to > interim || interim.format("M") === to.format("M")) {
       const month = interim.format(MONTH_DATE_FORMAT);

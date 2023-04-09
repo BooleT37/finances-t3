@@ -9,9 +9,9 @@ import roundCost from "~/utils/roundCost";
 import type { Forecast as ApiForecast } from "@prisma/client";
 import type Category from "~/models/Category";
 import Forecast from "~/models/Forecast";
-import categories from "~/readonlyStores/categories";
 import { trpc } from "~/utils/api";
 import { negateIf } from "~/utils/negateIf";
+import categoriesStore from "../categoriesStore";
 import { type DataLoader } from "../DataLoader";
 import expenseStore from "../expenseStore";
 import subscriptionStore from "../subscriptionStore";
@@ -66,14 +66,21 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
 
       let filteredCategories: Category[];
 
+      const {
+        incomeCategories,
+        personalExpensesCategories,
+        savingsCategories,
+        generalExpenseCategories,
+      } = categoriesStore;
+
       if (isIncome) {
-        filteredCategories = categories.incomeCategories;
+        filteredCategories = incomeCategories;
       } else if (isPersonal) {
-        filteredCategories = categories.personalExpensesCategories;
+        filteredCategories = personalExpensesCategories;
       } else if (isSavings) {
-        filteredCategories = categories.savingsCategories;
+        filteredCategories = savingsCategories;
       } else {
-        filteredCategories = categories.generalExpenseCategories;
+        filteredCategories = generalExpenseCategories;
       }
       filteredCategories
         .sort((a, b) => a.id - b.id)
@@ -334,7 +341,7 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
     year: number
   ): Promise<Forecast | undefined> {
     const { pePerMonth } = userSettingsStore;
-    const category = categories.getById(categoryId);
+    const category = categoriesStore.getById(categoryId);
     const { month: prevMonth, year: prevYear } = getPreviousMonth(month, year);
     const prevMonthForecast = this.find(prevYear, prevMonth, category);
     if (!prevMonthForecast) {

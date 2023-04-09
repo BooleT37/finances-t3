@@ -1,6 +1,7 @@
 import {
   BankOutlined,
   CalendarOutlined,
+  DatabaseOutlined,
   DollarOutlined,
   LineChartOutlined,
   LogoutOutlined,
@@ -36,6 +37,7 @@ const items: ItemType[] = [
   getItem("Планирование", "/planning", <CalendarOutlined />),
   getItem("Подписки", "/subscriptions", <DollarOutlined />),
   getItem("Настройки", "/settings", <SettingOutlined />),
+  getItem("Категории", "/categories", <DatabaseOutlined />),
   {
     key: "divider",
     type: "divider",

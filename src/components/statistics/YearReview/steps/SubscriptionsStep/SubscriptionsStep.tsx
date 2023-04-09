@@ -2,7 +2,7 @@ import { Checkbox, Space, Typography } from "antd";
 import { groupBy, sum } from "lodash";
 import { observer } from "mobx-react";
 import { useState } from "react";
-import categories from "~/readonlyStores/categories";
+import categoriesStore from "~/stores/categoriesStore";
 import expenseStore from "~/stores/expenseStore";
 import subscriptionStore from "~/stores/subscriptionStore";
 import roundCost from "~/utils/roundCost";
@@ -35,7 +35,7 @@ export const SubscriptionsStep: React.FC = observer(
       groupBy(thisYearExpenses, "category.id")
     )
       .map(([categoryId, expenses]) => ({
-        name: categories.getById(parseInt(categoryId)).name,
+        name: categoriesStore.getById(parseInt(categoryId)).name,
         spent: roundCost(sum(expenses.map((e) => e.cost ?? 0))),
       }))
       .sort((d1, d2) => d2.spent - d1.spent);
@@ -53,7 +53,7 @@ export const SubscriptionsStep: React.FC = observer(
       groupBy(filteredActiveSubscriptions, "category.id")
     )
       .map(([categoryId, subscriptions]) => ({
-        name: categories.getById(parseInt(categoryId)).name,
+        name: categoriesStore.getById(parseInt(categoryId)).name,
         spent: roundCost(sum(subscriptions.map((s) => s.costPerMonth * 12))),
       }))
       .sort((d1, d2) => d2.spent - d1.spent);

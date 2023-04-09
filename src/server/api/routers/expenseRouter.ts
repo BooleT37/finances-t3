@@ -29,7 +29,7 @@ export const expenseRouter = createTRPCRouter({
     )
     .mutation(({ ctx, input: { data, id } }) =>
       ctx.prisma.expense.update({
-        data: { ...data },
+        data,
         where: { id },
       })
     ),

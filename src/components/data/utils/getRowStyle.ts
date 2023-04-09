@@ -1,10 +1,10 @@
 import { type RowClassParams, type RowStyle } from "ag-grid-enterprise";
 import { action } from "mobx";
-import categories from "~/readonlyStores/categories";
+import categoriesStore from "~/stores/categoriesStore";
 
 const getRowStyle = action((params: RowClassParams): RowStyle | undefined => {
   if (params.node.group) {
-    if (categories.incomeCategoriesNames.includes(params.node.key || "")) {
+    if (categoriesStore.incomeCategoriesNames.includes(params.node.key || "")) {
       return {
         fontStyle: "italic",
       };

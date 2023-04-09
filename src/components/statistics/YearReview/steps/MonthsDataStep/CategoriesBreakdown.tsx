@@ -6,7 +6,7 @@ import { AgChartsReact } from "ag-charts-react";
 
 import { sum } from "lodash";
 import { observer } from "mobx-react";
-import categories from "~/readonlyStores/categories";
+import categoriesStore from "~/stores/categoriesStore";
 import expenseStore from "~/stores/expenseStore";
 import costToString from "~/utils/costToString";
 import roundCost from "~/utils/roundCost";
@@ -29,7 +29,7 @@ export const CategoriesBreakdown: React.FC<Props> = observer(
 
     const data: BarDatum[] = Object.entries(expenses)
       .filter(([categoryId]) => {
-        const category = categories.getById(parseInt(categoryId));
+        const category = categoriesStore.getById(parseInt(categoryId));
         return (showFromSavings || !category.fromSavings) && !category.isIncome;
       })
       .map(([categoryId, expenses]): [string, number] => [
@@ -46,7 +46,7 @@ export const CategoriesBreakdown: React.FC<Props> = observer(
       .slice(0, 3)
       .map(
         ([categoryId, spent]): BarDatum => ({
-          category: categories.getById(parseInt(categoryId)).name,
+          category: categoriesStore.getById(parseInt(categoryId)).name,
           spent,
         })
       );

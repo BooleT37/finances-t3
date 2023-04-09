@@ -1,4 +1,5 @@
 import type { CategoryType } from "@prisma/client";
+import { makeAutoObservable } from "mobx";
 import type { Option } from "~/types/types";
 import type Subcategory from "./Subcategory";
 
@@ -10,24 +11,25 @@ export enum PersonalExpCategoryIdsRename {
   Lena = 50,
 }
 
+export interface CategoryTableItem {
+  id: number;
+  name: string;
+  shortname: string;
+  type: CategoryType | null;
+  isIncome: boolean;
+  isContinuous: boolean;
+}
 export default class Category {
-  public readonly isPersonal: boolean;
-  public readonly fromSavings: boolean;
-  public readonly toSavings: boolean;
-  public readonly isSavings: boolean;
   constructor(
-    public readonly id: number,
-    public readonly name: string,
-    public readonly shortname: string,
-    public readonly type: CategoryType | null = null,
-    public readonly isIncome = false,
-    public readonly isContinuous = false,
-    public readonly subcategories: Subcategory[] = []
+    public id: number,
+    public name: string,
+    public shortname: string,
+    public type: CategoryType | null = null,
+    public isIncome = false,
+    public isContinuous = false,
+    public subcategories: Subcategory[] = []
   ) {
-    this.isPersonal = type === "PERSONAL_EXPENSE";
-    this.fromSavings = type === "FROM_SAVINGS";
-    this.toSavings = type === "TO_SAVINGS";
-    this.isSavings = this.type === "FROM_SAVINGS" || this.type === "TO_SAVINGS";
+    makeAutoObservable(this);
   }
 
   get asOption(): Option {
@@ -37,11 +39,56 @@ export default class Category {
     };
   }
 
+  get isPersonal() {
+    return this.type === "PERSONAL_EXPENSE";
+  }
+
+  get fromSavings() {
+    return this.type === "FROM_SAVINGS";
+  }
+
+  get toSavings() {
+    return this.type === "TO_SAVINGS";
+  }
+
+  get isSavings() {
+    return this.type === "FROM_SAVINGS" || this.type === "TO_SAVINGS";
+  }
+
   findSubcategoryById(id: number) {
     const found = this.subcategories.find((s) => s.id === id);
     if (!found) {
       throw new Error(`Can't find subcategory by id ${id}`);
     }
     return found;
+  }
+
+  get tableItem(): CategoryTableItem {
+    return {
+      id: this.id,
+      name: this.name,
+      shortname: this.shortname,
+      type: this.type,
+      isIncome: this.isIncome,
+      isContinuous: this.isContinuous,
+    };
+  }
+
+  update(fields: Partial<CategoryTableItem>) {
+    if (fields.name !== undefined) {
+      this.name = fields.name;
+    }
+    if (fields.isIncome !== undefined) {
+      this.isIncome = fields.isIncome;
+    }
+    if (fields.isContinuous !== undefined) {
+      this.isContinuous = fields.isContinuous;
+    }
+    if (fields.shortname !== undefined) {
+      this.shortname = fields.shortname;
+    }
+    if (fields.type !== undefined) {
+      this.type = fields.type;
+    }
   }
 }

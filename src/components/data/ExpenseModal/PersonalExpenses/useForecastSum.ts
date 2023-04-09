@@ -1,6 +1,6 @@
 import { type Dayjs } from "dayjs";
 import sum from "lodash/sum";
-import categories from "~/readonlyStores/categories";
+import categoriesStore from "~/stores/categoriesStore";
 import expenseStore from "~/stores/expenseStore";
 import forecastStore from "~/stores/forecastStore";
 
@@ -16,7 +16,7 @@ export const useForecastSum = (
       ? forecastStore.find(
           date.year(),
           date.month(),
-          categories.getById(categoryId)
+          categoriesStore.getById(categoryId)
         )?.sum
       : undefined;
   if (forecast === undefined) {

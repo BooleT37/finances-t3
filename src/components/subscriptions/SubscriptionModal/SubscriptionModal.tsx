@@ -9,14 +9,15 @@ import {
 } from "antd";
 import dayjs, { type Dayjs } from "dayjs";
 import { runInAction } from "mobx";
+import { observer } from "mobx-react";
 import React from "react";
 import { CostInput } from "~/components/CostInput";
 
 import Subscription, {
   type SubscriptionFormValues as FormValues,
 } from "~/models/Subscription";
-import categories from "~/readonlyStores/categories";
 import sources from "~/readonlyStores/sources";
+import categoriesStore from "~/stores/categoriesStore";
 import subscriptionStore from "~/stores/subscriptionStore";
 import { DATE_FORMAT } from "~/utils/constants";
 
@@ -36,7 +37,7 @@ function formValuesToSubscription(
     id ?? NEW_SUBSCRIPTION_ID,
     values.name,
     parseFloat(values.cost),
-    categories.getById(values.categoryId),
+    categoriesStore.getById(values.categoryId),
     values.period,
     values.firstDate,
     active,
@@ -62,8 +63,7 @@ interface Props {
   onClose(): void;
 }
 
-// eslint-disable-next-line mobx/missing-observer
-const SubscriptionModal: React.FC<Props> = function SubscriptionModal({
+const SubscriptionModal: React.FC<Props> = observer(function SubscriptionModal({
   open,
   subscriptionId,
   onClose,
@@ -71,6 +71,8 @@ const SubscriptionModal: React.FC<Props> = function SubscriptionModal({
   const [form] = Form.useForm<FormValues>();
   const firstFieldRef = React.useRef<InputRef>(null);
   const [active, setActive] = React.useState(true);
+
+  const { expenseOptions } = categoriesStore;
 
   const handleSubmit = () => {
     form
@@ -175,10 +177,7 @@ const SubscriptionModal: React.FC<Props> = function SubscriptionModal({
           label="Категория"
           rules={[{ required: true, message: "Выберите категорию" }]}
         >
-          <Select
-            options={categories.expenseOptions}
-            placeholder="Начните вводить"
-          />
+          <Select options={expenseOptions} placeholder="Начните вводить" />
         </Form.Item>
         <Form.Item name="period" label="Период" rules={[{ required: true }]}>
           <Select options={periodOptions} style={{ width: 100 }} />
@@ -201,6 +200,6 @@ const SubscriptionModal: React.FC<Props> = function SubscriptionModal({
       </Form>
     </Modal>
   );
-};
+});
 
 export default SubscriptionModal;

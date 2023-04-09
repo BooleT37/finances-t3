@@ -7,11 +7,11 @@ import {
   adaptSavingSpendingToUpdateInput,
 } from "~/adapters/savingSpending/savingSpendingToApi";
 import type SavingSpendingEditing from "~/models/SavingSpendingEditing";
-import categories from "~/readonlyStores/categories";
 import { type AppRouter } from "~/server/api/root";
 import type { Option } from "~/types/types";
 import { trpc } from "~/utils/api";
 import type SavingSpending from "../models/SavingSpending";
+import categoriesStore from "./categoriesStore";
 import { type DataLoader } from "./DataLoader";
 import expenseStore from "./expenseStore";
 import userSettingsStore from "./userSettingsStore";
@@ -102,7 +102,7 @@ export class SavingSpendingStore
       return null;
     }
 
-    const { fromSavingsCategory, toSavingsCategory } = categories;
+    const { fromSavingsCategory, toSavingsCategory } = categoriesStore;
 
     const toSavingsExpenses =
       toSavingsCategory.id in expenseStore.expensesByCategoryId
