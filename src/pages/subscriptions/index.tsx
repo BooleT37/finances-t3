@@ -7,6 +7,7 @@ import WhiteHeader from "~/components/WhiteHeader";
 import sourcesStore from "~/readonlyStores/sources";
 import categoriesStore from "~/stores/categoriesStore";
 import subscriptionStore from "~/stores/subscriptionStore";
+import userSettingsStore from "~/stores/userSettingsStore";
 import { protectedPageProps } from "~/utils/protectedPageProps";
 
 const { Title } = Typography;
@@ -15,10 +16,10 @@ const stores: Stores = {
   categoriesStore,
   sourcesStore,
   subscriptionStore,
+  userSettingsStore,
   forecastStore: false,
   savingSpendingStore: false,
   expenseStore: false,
-  userSettingsStore: false,
 };
 
 export const getServerSideProps = protectedPageProps;

@@ -1,69 +1,28 @@
-const expenseCategoriesOrder = [
-  "Продукты",
-  "Рестораны",
-  "Бытовые товары",
-  "Техника",
-  "Декор",
-  "Ремонт",
-  "Утварь",
-  "Подписки",
-  "Транспорт",
-  "Развлечения",
-  "Концерты",
-  "Косметика",
-  "Одежда",
-  "Здоровье",
-  "Кино",
-  "Подарки",
-  "Должны вернуть",
-  "Линзы",
-  "Отпуск",
-  "Электричество",
-  "Аренда",
-  "Телефон",
-  "Страховки",
-  "Цветы",
-  "Учеба",
-  "Фитнес",
-  "Налоги",
-  "Налог на тупость",
-  "Мамин приезд",
-  "Другое",
-  "Не помню",
-  "Из сбережений",
-  "В сбережения",
-  "Личные — А",
-  "Личные — Л",
-];
-
-const incomeCategoriesOrder = ["Зарплата", "Кэшбек", "Прочие доходы"];
-
-const sortCategories = (
-  category1: string,
-  category2: string,
-  order: string[]
+export const sortCategories = (
+  category1id: number,
+  category2Id: number,
+  order: number[]
 ) => {
-  if (!order.includes(category1)) {
+  if (!order.includes(category1id)) {
     console.error(
-      `Не найдено место в сортировке для категории ${category1}. Вы переменовали ее в базе данных?`
+      `Не найдено место в сортировке для категории с id ${category1id}.`
     );
   }
-  if (!order.includes(category2)) {
+  if (!order.includes(category2Id)) {
     console.error(
-      `Не найдено место в сортировке для категории ${category2}. Вы переменовали ее в базе данных?`
+      `Не найдено место в сортировке для категории с id ${category2Id}.`
     );
   }
-  return order.indexOf(category1) - order.indexOf(category2);
+  return order.indexOf(category1id) - order.indexOf(category2Id);
 };
 
-export const sortExpenseCategories = (category1: string, category2: string) =>
-  sortCategories(category1, category2, expenseCategoriesOrder);
-
-export const sortIncomeCategories = (category1: string, category2: string) =>
-  sortCategories(category1, category2, incomeCategoriesOrder);
-
-export const sortAllCategories = (category1: string, category2: string) =>
-  sortCategories(category1, category2, [
+export const sortAllCategories = (
+  category1Id: number,
+  category2Id: number,
+  expenseCategoriesOrder: number[],
+  incomeCategoriesOrder: number[]
+) =>
+  sortCategories(category1Id, category2Id, [
     ...expenseCategoriesOrder,
     ...incomeCategoriesOrder,
   ]);

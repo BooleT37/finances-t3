@@ -1,5 +1,6 @@
 import { type inferRouterOutputs } from "@trpc/server";
 import dayjs from "dayjs";
+import { isEqual } from "lodash";
 import { makeAutoObservable } from "mobx";
 import { type AppRouter } from "~/server/api/root";
 import { trpc } from "~/utils/api";
@@ -15,6 +16,8 @@ export class UserSettingsStore
     sum: number;
     date: dayjs.Dayjs;
   } = undefined;
+  expenseCategoriesOrder: number[] = [];
+  incomeCategoriesOrder: number[] = [];
 
   constructor() {
     makeAutoObservable(this);
@@ -43,6 +46,8 @@ export class UserSettingsStore
         date: dayjs(settings.savingsDate),
       };
     }
+    this.incomeCategoriesOrder = settings.incomeCategoriesOrder;
+    this.expenseCategoriesOrder = settings.expenseCategoriesOrder;
   }
 
   setPePerMonth = async (sum: number) => {
@@ -68,6 +73,26 @@ export class UserSettingsStore
       savingsDate: null,
     });
     this.savings = undefined;
+  };
+
+  persistIncomeCategoryOrder = async (order: number[]) => {
+    if (isEqual(order, this.incomeCategoriesOrder)) {
+      return;
+    }
+    this.incomeCategoriesOrder = order;
+    await trpc.userSettings.update.mutate({
+      incomeCategoriesOrder: order,
+    });
+  };
+
+  persistExpenseCategoryOrder = async (order: number[]) => {
+    if (isEqual(order, this.expenseCategoriesOrder)) {
+      return;
+    }
+    this.expenseCategoriesOrder = order;
+    await trpc.userSettings.update.mutate({
+      expenseCategoriesOrder: order,
+    });
   };
 }
 

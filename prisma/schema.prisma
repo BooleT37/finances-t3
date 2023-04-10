@@ -47,7 +47,7 @@ model User {
   email          String?          @unique
   emailVerified  DateTime?
   image          String?
-  setupDone      Boolean @default(false)
+  setupDone      Boolean          @default(false)
   accounts       Account[]
   sessions       Session[]
   settings       UserSetting?
@@ -178,10 +178,12 @@ model Forecast {
 }
 
 model UserSetting {
-  id          Int       @id @default(autoincrement())
-  pePerMonth  Int       @default(50)
-  savings     Float?
-  savingsDate DateTime? @db.Date
-  User        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      String    @unique
+  id                     Int       @id @default(autoincrement())
+  pePerMonth             Int       @default(50)
+  savings                Float?
+  savingsDate            DateTime? @db.Date
+  User                   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                 String    @unique
+  incomeCategoriesOrder  Int[]     @default([])
+  expenseCategoriesOrder Int[]     @default([])
 }

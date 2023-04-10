@@ -12,6 +12,7 @@ import categoriesStore from "~/stores/categoriesStore";
 import expenseStore from "~/stores/expenseStore";
 import savingSpendingStore from "~/stores/savingSpendingStore";
 import subscriptionStore from "~/stores/subscriptionStore";
+import userSettingsStore from "~/stores/userSettingsStore";
 import { protectedPageProps } from "~/utils/protectedPageProps";
 
 const YearReviewCta = styled.div`
@@ -29,8 +30,8 @@ const stores: Stores = {
   subscriptionStore,
   savingSpendingStore,
   expenseStore,
+  userSettingsStore,
   forecastStore: false,
-  userSettingsStore: false,
 };
 
 export const getServerSideProps = protectedPageProps;

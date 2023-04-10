@@ -11,6 +11,7 @@ import {
   type ForecastSum,
   type ForecastTableItem,
 } from "~/stores/forecastStore/types";
+import userSettingsStore from "~/stores/userSettingsStore";
 import type { ForecastSubscriptionsItem } from "~/types/forecast/forecastTypes";
 import costToString from "~/utils/costToString";
 import CostCellRenderer from "./CostCellRenderer";
@@ -44,8 +45,10 @@ const columnDefs: (
       categoryA === "Всего" || !nodeA.data || !nodeB.data
         ? 1
         : sortAllCategories(
-            nodeA.data?.categoryShortname,
-            nodeB.data?.categoryShortname
+            nodeA.data?.categoryId,
+            nodeB.data?.categoryId,
+            userSettingsStore.expenseCategoriesOrder,
+            userSettingsStore.incomeCategoriesOrder
           ),
   },
   {

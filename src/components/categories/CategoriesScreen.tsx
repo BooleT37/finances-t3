@@ -7,8 +7,9 @@ import { AG_GRID_LOCALE_RU } from "~/agGridLocale.ru";
 import { type CategoryTableItem } from "~/models/Category";
 import categoriesStore from "~/stores/categoriesStore";
 import { columnDefs } from "./columnDefs";
-import { useHandleCategoryCellEditRequest } from "./useHandleCategoryCellEditRequest";
-import { useHandleCreateCategory } from "./useHandleCreateCategory";
+import { useHandleCategoryCellEditRequest } from "./hooks/useHandleCategoryCellEditRequest";
+import { useHandleCreateCategory } from "./hooks/useHandleCreateCategory";
+import { usePersistCategoriesOrder } from "./hooks/usePersistCategoriesOrder";
 
 const { Title } = Typography;
 
@@ -18,6 +19,7 @@ const CategoriesScreen = observer(function CategoriesScreen() {
   const incomeRef = useRef<AgGridReact<CategoryTableItem>>(null);
 
   const handleCreateCategory = useHandleCreateCategory();
+  const persistCategoriesOrder = usePersistCategoriesOrder();
 
   return (
     <div className="ag-theme-alpine">
@@ -43,7 +45,12 @@ const CategoriesScreen = observer(function CategoriesScreen() {
             domLayout="autoHeight"
             groupDefaultExpanded={-1}
             localeText={AG_GRID_LOCALE_RU}
+            rowDragManaged
+            animateRows
             getRowId={({ data }) => data.id.toString()}
+            onModelUpdated={({ api }) => {
+              persistCategoriesOrder(false, api);
+            }}
           />
         </div>
         <Space align="baseline">
@@ -67,7 +74,12 @@ const CategoriesScreen = observer(function CategoriesScreen() {
             domLayout="autoHeight"
             groupDefaultExpanded={-1}
             localeText={AG_GRID_LOCALE_RU}
+            rowDragManaged
+            animateRows
             getRowId={({ data }) => data.id.toString()}
+            onModelUpdated={({ api }) => {
+              persistCategoriesOrder(true, api);
+            }}
           />
         </div>
       </Space>

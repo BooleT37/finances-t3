@@ -5,18 +5,19 @@ import { DataFetcher, type Stores } from "~/components/DataFetcher";
 import SiteContent from "~/components/SiteContent";
 import WhiteHeader from "~/components/WhiteHeader";
 import categoriesStore from "~/stores/categoriesStore";
+import userSettingsStore from "~/stores/userSettingsStore";
 import { protectedPageProps } from "~/utils/protectedPageProps";
 
 const { Title } = Typography;
 
 const stores: Stores = {
   categoriesStore,
+  userSettingsStore,
   sourcesStore: false,
   forecastStore: false,
   subscriptionStore: false,
   savingSpendingStore: false,
   expenseStore: false,
-  userSettingsStore: false,
 };
 
 export const getServerSideProps = protectedPageProps;

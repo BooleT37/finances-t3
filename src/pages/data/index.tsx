@@ -11,6 +11,7 @@ import expenseStore from "~/stores/expenseStore";
 import forecastStore from "~/stores/forecastStore";
 import savingSpendingStore from "~/stores/savingSpendingStore";
 import subscriptionStore from "~/stores/subscriptionStore";
+import userSettingsStore from "~/stores/userSettingsStore";
 import { protectedPageProps } from "~/utils/protectedPageProps";
 
 const { Title } = Typography;
@@ -27,7 +28,7 @@ const stores: Stores = {
   subscriptionStore,
   savingSpendingStore,
   expenseStore,
-  userSettingsStore: false,
+  userSettingsStore,
 };
 
 export const getServerSideProps = protectedPageProps;

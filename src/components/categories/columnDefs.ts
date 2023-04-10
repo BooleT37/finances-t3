@@ -34,6 +34,7 @@ export const columnDefs: ColDef<CategoryTableItem>[] = [
     headerName: "Имя",
     resizable: true,
     editable: true,
+    rowDrag: true,
   },
   {
     field: "shortname",

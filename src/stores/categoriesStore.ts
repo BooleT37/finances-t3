@@ -6,11 +6,8 @@ import { type CategoryTableItem } from "~/models/Category";
 import { type AppRouter } from "~/server/api/root";
 import { type DataLoader } from "~/stores/DataLoader";
 import { trpc } from "~/utils/api";
-import {
-  sortAllCategories,
-  sortExpenseCategories,
-  sortIncomeCategories,
-} from "./categoriesOrder";
+import { sortCategories } from "./categoriesOrder";
+import userSettingsStore from "./userSettingsStore";
 
 export class CategoriesStore
   implements DataLoader<inferRouterOutputs<AppRouter>["categories"]["getAll"]>
@@ -28,11 +25,7 @@ export class CategoriesStore
   }
 
   init(categories: inferRouterOutputs<AppRouter>["categories"]["getAll"]) {
-    this.categories.replace(
-      categories
-        .map(adaptCategoryFromApi)
-        .sort((c1, c2) => sortAllCategories(c1.shortname, c2.shortname))
-    );
+    this.categories.replace(categories.map(adaptCategoryFromApi));
   }
 
   setDataLoaded(dataLoaded: boolean): void {
@@ -70,13 +63,17 @@ export class CategoriesStore
   get expenseCategories() {
     return this.categories
       .filter((c) => !c.isIncome)
-      .sort((c1, c2) => sortExpenseCategories(c1.shortname, c2.shortname));
+      .sort((c1, c2) =>
+        sortCategories(c1.id, c2.id, userSettingsStore.expenseCategoriesOrder)
+      );
   }
 
   get incomeCategories() {
     return this.categories
       .filter((c) => c.isIncome)
-      .sort((c1, c2) => sortIncomeCategories(c1.shortname, c2.shortname));
+      .sort((c1, c2) =>
+        sortCategories(c1.id, c2.id, userSettingsStore.incomeCategoriesOrder)
+      );
   }
 
   get personalExpensesCategories() {

@@ -1,7 +1,5 @@
-import { type Category as CategoryFromApi } from "@prisma/client";
 import { type CellEditRequestEvent } from "ag-grid-community";
-import type Category from "~/models/Category";
-import { CategoryTableItem } from "~/models/Category";
+import { type CategoryTableItem } from "~/models/Category";
 import categoriesStore from "~/stores/categoriesStore";
 
 export const useHandleCategoryCellEditRequest =
