@@ -41,6 +41,7 @@ export const authOptions: NextAuthOptions = {
   events: {
     signIn: async ({ user }) => {
       await trpc.userSettings.createIfNotExist.mutate({ userId: user.id });
+      await trpc.user.initialUserSetupIfNeeded.mutate({ userId: user.id });
     },
   },
   callbacks: {
