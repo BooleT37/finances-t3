@@ -123,8 +123,12 @@ export class CategoriesStore
     return this.incomeCategories.map((c) => c.asOption);
   }
 
-  get tableItems() {
-    return this.categories.map((c) => c.tableItem);
+  get tableIncomeItems() {
+    return this.incomeCategories.map((c) => c.tableItem);
+  }
+
+  get tableExpenseItems() {
+    return this.expenseCategories.map((c) => c.tableItem);
   }
 
   async updateCategoryField<Field extends keyof CategoryTableItem>(

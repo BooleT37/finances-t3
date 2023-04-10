@@ -38,23 +38,6 @@ export const columnDefs: ColDef<CategoryTableItem>[] = [
     editable: true,
   },
   {
-    field: "isIncome",
-    headerName: "Доход",
-    rowGroup: true,
-    hide: true,
-    editable: isNotRequired,
-    tooltipValueGetter: requiredTooltipValueGetter,
-    valueFormatter: ({ value }) => {
-      const booleanValue =
-        typeof value === "string" ? value === "true" : (value as boolean);
-      return booleanValue ? "Доход" : "Расход";
-    },
-    cellEditor: "agSelectCellEditor",
-    cellEditorParams: {
-      values: [true, false],
-    },
-  },
-  {
     field: "type",
     headerName: "Тип",
     editable: isNotRequired,
@@ -84,5 +67,20 @@ export const columnDefs: ColDef<CategoryTableItem>[] = [
       values: [true, false],
     },
     valueParser: ({ newValue }) => newValue === "Да",
+  },
+  {
+    field: "isIncome",
+    headerName: "Доход/расход",
+    editable: isNotRequired,
+    tooltipValueGetter: requiredTooltipValueGetter,
+    valueFormatter: ({ value }) => {
+      const booleanValue =
+        typeof value === "string" ? value === "true" : (value as boolean);
+      return booleanValue ? "Доход" : "Расход";
+    },
+    cellEditor: "agSelectCellEditor",
+    cellEditorParams: {
+      values: [true, false],
+    },
   },
 ];
