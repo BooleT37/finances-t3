@@ -1,9 +1,12 @@
 import type { GridOptions, ICellRendererParams } from "ag-grid-community";
+import {
+  DeleteHeaderIcon,
+  EditHeaderIcon,
+} from "~/components/shared/headerIcons";
 import { type TableData } from "~/models/Expense";
 import EditButtonRenderer from "../buttonRenderers/EditButtonRenderer";
 import RemoveButtonRenderer from "../buttonRenderers/RemoveButtonRenderer";
 import { type DataTableContext } from "../DataScreen";
-import { DeleteHeaderIcon, EditHeaderIcon } from "../headerIcons";
 import CostCellRenderer from "./CostCellRenderer";
 import { costAggFunc } from "./utils";
 import { sortAllCategoriesByName } from "./utils/sortAllCategoriesByName";

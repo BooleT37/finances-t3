@@ -145,6 +145,24 @@ export class CategoriesStore
     });
     category.update({ [field]: value });
   }
+
+  async createCategory(isIncome: boolean) {
+    const created = await trpc.categories.create.mutate({
+      name: "",
+      shortname: "",
+      isContinuous: false,
+      isIncome,
+      type: null,
+    });
+    const adaptedCategory = adaptCategoryFromApi(created);
+    this.categories.push(adaptedCategory);
+    return adaptedCategory;
+  }
+
+  async deleteCategory(id: number) {
+    await trpc.categories.delete.mutate({ id });
+    this.categories.remove(this.getById(id));
+  }
 }
 
 const categoriesStore = new CategoriesStore();

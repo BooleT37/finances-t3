@@ -21,6 +21,7 @@ export const categoriesRouter = createTRPCRouter({
           ...input,
           ...connectUser(ctx),
         },
+        include: { subcategories: true },
       });
     }),
   update: protectedProcedure

@@ -2,9 +2,12 @@ import { type CategoryType } from "@prisma/client";
 import {
   type ColDef,
   type EditableCallbackParams,
+  type ICellRendererParams,
   type ITooltipParams,
 } from "ag-grid-community";
 import { type CategoryTableItem } from "~/models/Category";
+import { DeleteHeaderIcon } from "../shared/headerIcons";
+import RemoveButtonRenderer from "./RemoveButtonRenderer";
 import {
   ALL_CATEGORY_TYPES,
   categoryTypeTranslations,
@@ -81,6 +84,31 @@ export const columnDefs: ColDef<CategoryTableItem>[] = [
     cellEditor: "agSelectCellEditor",
     cellEditorParams: {
       values: [true, false],
+    },
+  },
+  {
+    field: "remove",
+    headerName: "",
+    headerComponent: DeleteHeaderIcon,
+    cellRendererSelector: (params: ICellRendererParams<CategoryTableItem>) => {
+      // if it's a group row or an upcoming subscription
+      if (!params.data) {
+        return;
+      }
+      return {
+        component: RemoveButtonRenderer,
+        params: {
+          id: params.data.id,
+          disabled:
+            params.data?.type !== null &&
+            REQUIRED_CATEGORIES.includes(params.data.type),
+        },
+      };
+    },
+    width: 50,
+    cellStyle: {
+      paddingLeft: 5,
+      paddingRight: 0,
     },
   },
 ];

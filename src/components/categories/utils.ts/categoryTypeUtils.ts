@@ -1,10 +1,8 @@
 import { CategoryType } from "@prisma/client";
 
 export const ALL_CATEGORY_TYPES = [
-  CategoryType.FROM_SAVINGS,
   CategoryType.PERSONAL_EXPENSE,
   CategoryType.RENT,
-  CategoryType.TO_SAVINGS,
 ];
 
 export const categoryTypeTranslations: Record<CategoryType, string> = {

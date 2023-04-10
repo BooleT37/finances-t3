@@ -137,7 +137,7 @@ model Subscription {
   categoryId Int
   sourceId   Int?
   Expenses   Expense[]
-  user       User      @relation(fields: [userId], references: [id])
+  user       User      @relation(fields: [userId], references: [id], onDelete: Restrict)
   userId     String    @default("clffswkup0000nuyi1ibw7ldf")
 }
 
@@ -146,7 +146,7 @@ model Expense {
   name                     String
   cost                     Float
   date                     DateTime                @db.Date
-  category                 Category                @relation(fields: [categoryId], references: [id])
+  category                 Category                @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   categoryId               Int
   subcategory              Subcategory?            @relation(fields: [subcategoryId], references: [id])
   personalExpense          Expense?                @relation("personalExpenseLink", fields: [personalExpenseId], references: [id])
@@ -165,7 +165,7 @@ model Expense {
 
 model Forecast {
   id         Int      @id @default(autoincrement())
-  category   Category @relation(fields: [categoryId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   categoryId Int
   month      Int      @db.SmallInt
   year       Int      @db.SmallInt
