@@ -7,6 +7,7 @@ import {
 } from "ag-grid-community";
 import { type CategoryTableItem } from "~/models/Category";
 import { DeleteHeaderIcon } from "../shared/headerIcons";
+import { HeaderWithTooltip } from "./HeaderWithTooltip";
 import RemoveButtonRenderer from "./RemoveButtonRenderer";
 import {
   ALL_CATEGORY_TYPES,
@@ -55,14 +56,17 @@ export const columnDefs: ColDef<CategoryTableItem>[] = [
   },
   {
     field: "isContinuous",
-    headerName: "Непрерывная",
-    headerTooltip:
-      "Вносятся ли траты в эту категорию постоянно в течение всей недели. " +
-      "Примеры: продукты, бытовые товары. Этот параметр используется, чтобы понять, рисовать ли " +
-      'предупреждение о потенциальном превышении расходов ("если продолжать тратить с такой же ' +
-      'скоростью, вы превысите лимит к концу месяца", желтым цветом), или отображать лишь предупреждение о ' +
-      "фактическом превышении лимита на месяц (красным цветом). " +
-      "В будущем этот параметр может также быть использован для составления прогнозов трат",
+    headerComponent: HeaderWithTooltip,
+    headerComponentParams: {
+      headerName: "Непрерывная",
+      tooltipText:
+        "Вносятся ли траты в эту категорию постоянно в течение всей недели. " +
+        "Примеры: продукты, бытовые товары. Этот параметр используется, чтобы понять, рисовать ли " +
+        'предупреждение о потенциальном превышении расходов ("если продолжать тратить с такой же ' +
+        'скоростью, вы превысите лимит к концу месяца", желтым цветом), или отображать лишь предупреждение о ' +
+        "фактическом превышении лимита на месяц (красным цветом). " +
+        "В будущем этот параметр может также быть использован для составления прогнозов трат",
+    },
     editable: isNotRequired,
     tooltipValueGetter: requiredTooltipValueGetter,
     valueFormatter: ({ value }) => (value ? "Да" : "Нет"),
