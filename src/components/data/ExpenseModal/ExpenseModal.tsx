@@ -8,7 +8,7 @@ import {
   Modal,
   Radio,
   Select,
-  Space,
+  Space
 } from "antd";
 import dayjs, { type Dayjs } from "dayjs";
 import { action, reaction, runInAction } from "mobx";
@@ -143,8 +143,11 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
           });
         })
       )
-      .catch((info) => {
-        console.log("Validate Failed:", info);
+      .catch((e) => {
+        if (e instanceof Error) {
+          throw e;
+        }
+        console.log("Validate Failed:", e);
       });
   };
 
@@ -268,6 +271,11 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
       form.setFieldsValue({
         savingSpendingCategoryId: undefined,
       });
+    }
+    if ("category" in changedValues) {
+      form.setFieldsValue({
+        subcategory: undefined
+      })
     }
   };
 
