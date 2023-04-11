@@ -6,7 +6,7 @@ import { useRef } from "react";
 import { AG_GRID_LOCALE_RU } from "~/agGridLocale.ru";
 import { type CategoryTableItem } from "~/models/Category";
 import categoriesStore from "~/stores/categoriesStore";
-import { columnDefs } from "./columnDefs";
+import { getColumnDefs } from "./columnDefs";
 import { useHandleCategoryCellEditRequest } from "./hooks/useHandleCategoryCellEditRequest";
 import { useHandleCreateCategory } from "./hooks/useHandleCreateCategory";
 import { usePersistCategoriesOrder } from "./hooks/usePersistCategoriesOrder";
@@ -38,7 +38,7 @@ const CategoriesScreen = observer(function CategoriesScreen() {
         <div style={{ width: 1060 }}>
           <AgGridReact<CategoryTableItem>
             ref={expensesRef}
-            columnDefs={columnDefs}
+            columnDefs={getColumnDefs(false)}
             rowData={categoriesStore.tableExpenseItems}
             readOnlyEdit
             onCellEditRequest={handleCellEditRequest}
@@ -47,6 +47,8 @@ const CategoriesScreen = observer(function CategoriesScreen() {
             localeText={AG_GRID_LOCALE_RU}
             rowDragManaged
             animateRows
+            singleClickEdit
+            stopEditingWhenCellsLoseFocus
             getRowId={({ data }) => data.id.toString()}
             onModelUpdated={({ api }) => {
               persistCategoriesOrder(false, api);
@@ -64,10 +66,10 @@ const CategoriesScreen = observer(function CategoriesScreen() {
             Добавить доход
           </Button>
         </Space>
-        <div style={{ width: 1060 }}>
+        <div style={{ width: 860 }}>
           <AgGridReact<CategoryTableItem>
             ref={incomeRef}
-            columnDefs={columnDefs}
+            columnDefs={getColumnDefs(true)}
             rowData={categoriesStore.tableIncomeItems}
             readOnlyEdit
             onCellEditRequest={handleCellEditRequest}
@@ -77,6 +79,8 @@ const CategoriesScreen = observer(function CategoriesScreen() {
             rowDragManaged
             animateRows
             getRowId={({ data }) => data.id.toString()}
+            singleClickEdit
+            stopEditingWhenCellsLoseFocus
             onModelUpdated={({ api }) => {
               persistCategoriesOrder(true, api);
             }}

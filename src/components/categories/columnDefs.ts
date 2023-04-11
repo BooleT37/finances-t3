@@ -1,4 +1,4 @@
-import { type CategoryType } from "@prisma/client";
+import { CategoryType } from "@prisma/client";
 import {
   type ColDef,
   type EditableCallbackParams,
@@ -9,10 +9,7 @@ import { type CategoryTableItem } from "~/models/Category";
 import { DeleteHeaderIcon } from "../shared/headerIcons";
 import { HeaderWithTooltip } from "./HeaderWithTooltip";
 import RemoveButtonRenderer from "./RemoveButtonRenderer";
-import {
-  ALL_CATEGORY_TYPES,
-  categoryTypeTranslations,
-} from "./utils.ts/categoryTypeUtils";
+import { categoryTypeTranslations } from "./utils.ts/categoryTypeUtils";
 
 const REQUIRED_CATEGORIES = ["FROM_SAVINGS", "TO_SAVINGS"];
 
@@ -29,7 +26,9 @@ function requiredTooltipValueGetter({
   return "Невозможно редактировать это поле: это системная категория";
 }
 
-export const columnDefs: ColDef<CategoryTableItem>[] = [
+export const getColumnDefs = (
+  isIncome: boolean
+): ColDef<CategoryTableItem>[] => [
   {
     field: "name",
     headerName: "Имя",
@@ -42,18 +41,27 @@ export const columnDefs: ColDef<CategoryTableItem>[] = [
     headerName: "Короткое имя",
     editable: true,
   },
-  {
-    field: "type",
-    headerName: "Тип",
-    editable: isNotRequired,
-    tooltipValueGetter: requiredTooltipValueGetter,
-    valueFormatter: ({ value }) =>
-      value ? categoryTypeTranslations[value as CategoryType] : "Нет типа",
-    cellEditor: "agSelectCellEditor",
-    cellEditorParams: {
-      values: ([null] as (CategoryType | null)[]).concat(ALL_CATEGORY_TYPES),
-    },
-  },
+  ...(isIncome
+    ? []
+    : [
+        {
+          field: "type",
+          headerName: "Тип",
+          editable: isNotRequired,
+          tooltipValueGetter: requiredTooltipValueGetter,
+          valueFormatter: ({ value }) =>
+            value
+              ? categoryTypeTranslations[value as CategoryType]
+              : "Нет типа",
+          cellEditor: "agSelectCellEditor",
+          cellEditorParams: {
+            values: ([null] as (CategoryType | null)[]).concat([
+              CategoryType.PERSONAL_EXPENSE,
+              CategoryType.RENT,
+            ]),
+          },
+        } satisfies ColDef<CategoryTableItem>,
+      ]),
   {
     field: "isContinuous",
     headerComponent: HeaderWithTooltip,
