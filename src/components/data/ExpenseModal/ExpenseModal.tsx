@@ -8,7 +8,7 @@ import {
   Modal,
   Radio,
   Select,
-  Space
+  Space,
 } from "antd";
 import dayjs, { type Dayjs } from "dayjs";
 import { action, reaction, runInAction } from "mobx";
@@ -164,6 +164,8 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
               !!expenseModalViewModel.currentExpense.personalExpense
             );
             addMore.value = false;
+            isIncome.value =
+              expenseModalViewModel.currentExpense.category.isIncome;
           } else {
             form.setFieldsValue(INITIAL_VALUES);
             setHasPersonalExp(false);
@@ -174,7 +176,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
         }
       }
     );
-  }, [INITIAL_VALUES, addMore, form]);
+  }, [INITIAL_VALUES, addMore, form, isIncome]);
 
   reaction(
     () => isIncome.value,
@@ -274,8 +276,8 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
     }
     if ("category" in changedValues) {
       form.setFieldsValue({
-        subcategory: undefined
-      })
+        subcategory: undefined,
+      });
     }
   };
 
