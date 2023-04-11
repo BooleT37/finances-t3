@@ -16,7 +16,6 @@ import { observer, useLocalObservable } from "mobx-react";
 import type { BaseSelectRef } from "rc-select";
 import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
-import { CostInput } from "~/components/CostInput";
 import type Expense from "~/models/Expense";
 import sources from "~/readonlyStores/sources";
 import categoriesStore from "~/stores/categoriesStore";
@@ -458,9 +457,16 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
         <Form.Item
           name="cost"
           label="Сумма"
-          rules={[{ required: true, message: "Введите сумму" }]}
+          rules={[
+            { required: true, message: "Введите сумму" },
+            {
+              pattern: /^\d+(?:\.\d+)?$/,
+              message: "Введите корректную сумму",
+              validateTrigger: "onSubmit",
+            },
+          ]}
         >
-          <CostInput />
+          <Input addonAfter="€" style={{ width: 130 }} />
         </Form.Item>
         {(categoryId === undefined || !category?.isPersonal) &&
           !isIncome.value && (
