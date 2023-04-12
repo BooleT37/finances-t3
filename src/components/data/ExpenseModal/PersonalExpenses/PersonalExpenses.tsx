@@ -1,9 +1,8 @@
-import { Divider, Form, Select, Space, type FormInstance } from "antd";
-import Link from "antd/lib/typography/Link";
+import { Divider, Form, Select, type FormInstance } from "antd";
 import React, { useCallback } from "react";
-import { CostInput } from "~/components/CostInput";
 import { PersonalExpCategoryIdsRename } from "~/models/Category";
 import { type FormValues } from "../models";
+import { PersonalExpenseCostInput } from "./PersonalExpenseCostInput";
 import { useForecastSum } from "./useForecastSum";
 
 const { Option } = Select;
@@ -47,12 +46,11 @@ const PersonalExpenses: React.FC<Props> = ({ form, onTransferAll }) => {
         extra={extra}
         rules={[{ required: true, message: "Введите сумму" }]}
       >
-        <Space>
-          <CostInput status={exceeds ? "warning" : ""} />
-          <Link disabled={categoryId === null} onClick={handleTransferAllClick}>
-            Перенести все
-          </Link>
-        </Space>
+        <PersonalExpenseCostInput
+          disabled={categoryId === null}
+          status={exceeds ? "warning" : ""}
+          onTransferAllClick={handleTransferAllClick}
+        />
       </Form.Item>
       <Divider />
     </>
