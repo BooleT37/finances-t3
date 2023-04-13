@@ -1,5 +1,6 @@
 import { type Dayjs } from "dayjs";
 import { makeAutoObservable } from "mobx";
+import expenseStore from "~/stores/expenseStore";
 import { DATE_FORMAT } from "~/utils/constants";
 import type Category from "./Category";
 import type SavingSpending from "./SavingSpending";
@@ -34,7 +35,7 @@ export default class Expense {
   date: Dayjs;
   category: Category;
   subcategory: Subcategory | null;
-  personalExpense: Expense | null;
+  personalExpenseId: number | null;
   source: Source | null;
   subscription: Subscription | null;
   savingSpending: {
@@ -49,7 +50,7 @@ export default class Expense {
     category: Category,
     subcategory: Subcategory | null,
     name: string,
-    personalExpense: Expense | null = null,
+    personalExpenseId: number | null = null,
     source: Source | null = null,
     subscription: Subscription | null = null,
     savingSpending: {
@@ -63,7 +64,7 @@ export default class Expense {
     this.date = date;
     this.category = category;
     this.subcategory = subcategory;
-    this.personalExpense = personalExpense;
+    this.personalExpenseId = personalExpenseId;
     this.name = name;
     this.source = source;
     this.subscription = subscription;
@@ -103,5 +104,12 @@ export default class Expense {
       categoryShortname: this.category.shortname,
       isUpcomingSubscription: false,
     };
+  }
+
+  get personalExpense(): Expense | null {
+    if (this.personalExpenseId === null) {
+      return null;
+    }
+    return expenseStore.getById(this.personalExpenseId) ?? null;
   }
 }

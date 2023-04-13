@@ -159,8 +159,7 @@ export class ExpenseStore implements DataLoader<ApiExpense[]> {
       if (apiExpense.personalExpenseId !== null) {
         const expense = this.getById(apiExpense.id);
         if (expense) {
-          expense.personalExpense =
-            this.getById(apiExpense.personalExpenseId) ?? null;
+          expense.personalExpenseId = apiExpense.personalExpenseId;
         }
       }
     });

@@ -53,7 +53,7 @@ export default async function insertExpense(
           modifyingPe.category.id === values.personalExpCategoryId &&
           modifyingPe.cost?.toString() === values.personalExpSpent
         ) {
-          newExpense.personalExpense = modifyingPe;
+          newExpense.personalExpenseId = modifyingPe.id;
           newExpense.cost = (newExpense.cost ?? 0) - (modifyingPe.cost ?? 0);
         } else {
           const category = categoriesStore.getById(
@@ -74,7 +74,7 @@ export default async function insertExpense(
             null,
             null
           );
-          newExpense.personalExpense = personalExpense;
+          newExpense.personalExpenseId = personalExpense.id;
           newExpense.cost =
             (newExpense.cost ?? 0) - (personalExpense.cost ?? 0);
           await expenseStore.modify(personalExpense);
@@ -97,14 +97,14 @@ export default async function insertExpense(
           null
         );
         await expenseStore.add(personalExpense);
-        newExpense.personalExpense = personalExpense;
+        newExpense.personalExpenseId = personalExpense.id;
         newExpense.cost = (newExpense.cost ?? 0) - (personalExpense.cost ?? 0);
       }
       await expenseStore.modify(newExpense);
     } else {
       if (modifyingExpense.personalExpense) {
         const { id: peId } = modifyingExpense.personalExpense;
-        newExpense.personalExpense = null;
+        newExpense.personalExpenseId = null;
         await expenseStore.modify(newExpense);
         await expenseStore.delete(peId);
       } else {
@@ -130,7 +130,7 @@ export default async function insertExpense(
       newExpense.cost = (newExpense.cost ?? 0) - (personalExpense.cost ?? 0);
       const addedPersonalExpense = await expenseStore.add(personalExpense);
       runInAction(() => {
-        newExpense.personalExpense = addedPersonalExpense;
+        newExpense.personalExpenseId = addedPersonalExpense.id;
       });
     }
     await expenseStore.add(newExpense);
