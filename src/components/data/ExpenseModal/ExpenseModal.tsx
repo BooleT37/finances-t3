@@ -264,7 +264,10 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
         });
       }
     });
-    if (changedValues.savingSpendingId === undefined) {
+    if (
+      "savingSpendingId" in changedValues &&
+      changedValues.savingSpendingId === undefined
+    ) {
       form.setFieldsValue({
         savingSpendingCategoryId: undefined,
       });
@@ -434,17 +437,15 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
               label="Категория события"
               rules={[
                 {
-                  required: category.type === "FROM_SAVINGS",
+                  required: true,
                   message: "Выберите категорию",
                 },
               ]}
             >
               <Select
-                disabled={savingSpendingId === undefined}
                 options={savingSpendingCategoryOptions}
                 placeholder="Выберите категорию"
                 style={{ width: 250 }}
-                ref={firstFieldRef}
               />
             </Form.Item>
           )}
