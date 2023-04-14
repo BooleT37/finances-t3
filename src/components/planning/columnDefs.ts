@@ -77,10 +77,20 @@ const columnDefs: (
     },
     valueParser: (
       params: ValueParserParams<ForecastTableItem>
-    ): ForecastSumFromEdit => ({
-      value: parseFloat(params.newValue as string),
-      subscriptions: (params.oldValue as ForecastSum).subscriptions,
-    }),
+    ): ForecastSumFromEdit => {
+      const parsed = parseFloat(params.newValue as string);
+      const oldValue = params.oldValue as ForecastSum;
+      if (isNaN(parsed)) {
+        return {
+          value: oldValue.value ?? 0,
+          subscriptions: oldValue.subscriptions,
+        };
+      }
+      return {
+        value: parsed,
+        subscriptions: oldValue.subscriptions,
+      };
+    },
     editable: ({ data }) =>
       data?.categoryId !== TOTAL_CATEGORY_ID &&
       data?.categoryType !== "FROM_SAVINGS",
