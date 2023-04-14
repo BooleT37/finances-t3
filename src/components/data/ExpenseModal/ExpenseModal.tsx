@@ -14,7 +14,7 @@ import dayjs, { type Dayjs } from "dayjs";
 import { action, reaction, runInAction } from "mobx";
 import { observer, useLocalObservable } from "mobx-react";
 import type { BaseSelectRef } from "rc-select";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 import type Expense from "~/models/Expense";
 import sources from "~/readonlyStores/sources";
@@ -77,6 +77,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
   endDate,
   onSubmit,
 }) {
+  const [loading, setLoading] = useState(false);
   const [form] = Form.useForm<FormValues>();
   const firstFieldRef = React.useRef<BaseSelectRef>(null);
   const addMore = useLocalObservable<{ value: boolean }>(() => ({
@@ -113,6 +114,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
       .validateFields()
       .then(
         action(async (values) => {
+          setLoading(true);
           // auto set the first saving spending category if it's the only one
           if (values.savingSpendingId !== undefined) {
             const { categories } = savingSpendingStore.getById(
@@ -138,6 +140,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
             } else {
               expenseModalViewModel.close(values.source);
             }
+            setLoading(false);
             onSubmit(expense);
           });
         })
@@ -346,7 +349,12 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
         >
           Отмена
         </Button>,
-        <Button key="submit" type="primary" onClick={handleSubmit}>
+        <Button
+          key="submit"
+          type="primary"
+          onClick={handleSubmit}
+          loading={loading}
+        >
           {isNewExpense ? "Добавить" : "Сохранить"}
         </Button>,
       ]}
