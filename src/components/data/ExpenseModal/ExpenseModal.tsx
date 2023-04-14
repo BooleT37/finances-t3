@@ -180,13 +180,6 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
     );
   }, [INITIAL_VALUES, addMore, form, isIncome]);
 
-  reaction(
-    () => isIncome.value,
-    () => {
-      form.resetFields(["category"]);
-    }
-  );
-
   const handleInsertPreviousClick = () => {
     if (expenseModalViewModel.lastExpense) {
       form.setFieldsValue(
@@ -301,6 +294,11 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
     [currentCategory, form]
   );
 
+  const setIsIncome = action((value: boolean) => {
+    isIncome.value = value;
+    form.resetFields(["category"]);
+  });
+
   return (
     <ModalStyled
       open={expenseModalViewModel.visible}
@@ -371,9 +369,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
       >
         <RadioGroup
           value={isIncome.value ? "income" : "expense"}
-          onChange={action(
-            (e) => (isIncome.value = e.target.value === "income")
-          )}
+          onChange={(e) => setIsIncome(e.target.value === "income")}
         >
           <Space size="large">
             <Radio value="expense">Расход</Radio>
