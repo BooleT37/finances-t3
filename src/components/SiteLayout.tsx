@@ -58,13 +58,11 @@ const SiteLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [collapsed, setCollapsed] = React.useState(false);
   const router = useRouter();
 
-  const { data: session } = useSession();
-
   useEffect(() => {
-    if (!session) {
+    if (status === "unauthenticated") {
       void signIn(undefined, { callbackUrl: router.asPath });
     }
-  }, [router, session]);
+  }, [router, status]);
 
   if (status === "loading") {
     return (
