@@ -58,7 +58,7 @@ export class ExpenseStore implements DataLoader<ApiExpense[]> {
   }
 
   init(expenses: ApiExpense[]) {
-    this.expenses.replace(expenses.map((e) => adaptExpenseFromApi(e, [])));
+    this.expenses.replace(expenses.map((e) => adaptExpenseFromApi(e)));
     this.fillPersonalExpenses(expenses);
   }
 
@@ -120,7 +120,7 @@ export class ExpenseStore implements DataLoader<ApiExpense[]> {
     const response = await trpc.expense.create.mutate(
       adaptExpenseToCreateInput(expense)
     );
-    const adaptedExpense = adaptExpenseFromApi(response, this.personalExpenses);
+    const adaptedExpense = adaptExpenseFromApi(response);
     runInAction(() => {
       this.expenses.push(adaptedExpense);
     });
@@ -135,7 +135,7 @@ export class ExpenseStore implements DataLoader<ApiExpense[]> {
         id: expense.id,
         data: adaptExpenseToUpdateInput(expense),
       });
-      return adaptExpenseFromApi(response, this.personalExpenses);
+      return adaptExpenseFromApi(response);
     } else {
       throw new Error(`Can't find expense with id ${expense.id}`);
     }

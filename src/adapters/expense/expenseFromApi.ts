@@ -19,10 +19,7 @@ function getSavingSpendingByCategoryId(id: number): Expense["savingSpending"] {
   throw new Error(`Can't find spending by category id ${id}`);
 }
 
-export function adaptExpenseFromApi(
-  expense: ApiExpense,
-  allPersonalExpenses: Expense[]
-): Expense {
+export function adaptExpenseFromApi(expense: ApiExpense): Expense {
   const category = categoriesStore.getById(expense.categoryId);
   return new Expense(
     expense.id,
@@ -33,9 +30,7 @@ export function adaptExpenseFromApi(
       ? null
       : category.findSubcategoryById(expense.subcategoryId),
     expense.name,
-    expense.personalExpenseId === null || allPersonalExpenses.length === 0
-      ? null
-      : allPersonalExpenses.find(({ id }) => id === expense.personalExpenseId),
+    expense.personalExpenseId,
     expense.sourceId === null ? null : sources.getById(expense.sourceId),
     expense.subscriptionId === null
       ? null
