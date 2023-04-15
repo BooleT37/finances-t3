@@ -103,12 +103,12 @@ export class SubscriptionStore implements DataLoader<ApiSubscription[]> {
 
   async add(subscription: Subscription): Promise<void> {
     subscription.active = true;
-    this.subscriptions.push(subscription);
     const { id } = await trpc.sub.create.mutate(
       adaptSubscriptionToCreateInput(subscription)
     );
     runInAction(() => {
       subscription.id = id;
+      this.subscriptions.push(subscription);
     });
   }
 

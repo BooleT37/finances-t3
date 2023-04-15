@@ -92,8 +92,11 @@ const SubscriptionModal: React.FC<Props> = observer(function SubscriptionModal({
           onClose();
         })
       )
-      .catch((info) => {
-        console.error("Validate Failed:", info);
+      .catch((e) => {
+        if (e instanceof Error) {
+          throw e;
+        }
+        console.error("Validate Failed:", e);
       });
   };
 
