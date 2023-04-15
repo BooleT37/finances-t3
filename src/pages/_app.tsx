@@ -12,6 +12,7 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import "ag-grid-enterprise";
 import "antd/dist/reset.css";
+import Head from "next/head";
 import SiteLayout from "~/components/SiteLayout";
 
 // eslint-disable-next-line mobx/missing-observer
@@ -20,13 +21,18 @@ const MyApp: AppType<{ session: Session | null }> = ({
   pageProps: { session, ...pageProps },
 }) => {
   return (
-    <SessionProvider session={session}>
-      <ConfigProvider locale={locale}>
-        <SiteLayout>
-          <Component {...pageProps} />
-        </SiteLayout>
-      </ConfigProvider>
-    </SessionProvider>
+    <>
+      <Head>
+        <title>Персональные финансы</title>
+      </Head>
+      <SessionProvider session={session}>
+        <ConfigProvider locale={locale}>
+          <SiteLayout>
+            <Component {...pageProps} />
+          </SiteLayout>
+        </ConfigProvider>
+      </SessionProvider>
+    </>
   );
 };
 
