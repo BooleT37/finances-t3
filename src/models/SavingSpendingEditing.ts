@@ -43,7 +43,7 @@ export default class SavingSpendingEditing {
             `Can't find an initial category for category ${category.name}. Can't figure out if it was edited`
           );
         }
-        return isEqual(initialCategory, category);
+        return !isEqual(initialCategory, category);
       }
     );
   }
