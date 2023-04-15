@@ -94,7 +94,7 @@ model Category {
   Subscriptions Subscription[]
   forecast      Forecast[]
   user          User           @relation(fields: [userId], references: [id])
-  userId        String         @default("clffswkup0000nuyi1ibw7ldf")
+  userId        String         @default("clg6kpbtn0000mr081ntz0f8i")
 }
 
 model Source {
@@ -103,7 +103,7 @@ model Source {
   subscriptions Subscription[]
   expenses      Expense[]
   user          User           @relation(fields: [userId], references: [id])
-  userId        String         @default("clffswkup0000nuyi1ibw7ldf")
+  userId        String         @default("clg6kpbtn0000mr081ntz0f8i")
 }
 
 model SavingSpending {
@@ -112,7 +112,7 @@ model SavingSpending {
   completed  Boolean
   categories SavingSpendingCategory[]
   user       User                     @relation(fields: [userId], references: [id])
-  userId     String                   @default("clffswkup0000nuyi1ibw7ldf")
+  userId     String                   @default("clg6kpbtn0000mr081ntz0f8i")
 }
 
 model SavingSpendingCategory {
@@ -138,7 +138,7 @@ model Subscription {
   sourceId   Int?
   Expenses   Expense[]
   user       User      @relation(fields: [userId], references: [id], onDelete: Restrict)
-  userId     String    @default("clffswkup0000nuyi1ibw7ldf")
+  userId     String    @default("clg6kpbtn0000mr081ntz0f8i")
 }
 
 model Expense {
@@ -160,7 +160,7 @@ model Expense {
   savingSpendingCategoryId Int?
   subcategoryId            Int?
   user                     User                    @relation(fields: [userId], references: [id])
-  userId                   String                  @default("clffswkup0000nuyi1ibw7ldf")
+  userId                   String                  @default("clg6kpbtn0000mr081ntz0f8i")
 }
 
 model Forecast {
@@ -172,7 +172,7 @@ model Forecast {
   sum        Int      @default(0) @db.SmallInt
   comment    String   @default("")
   user       User     @relation(fields: [userId], references: [id])
-  userId     String   @default("clffswkup0000nuyi1ibw7ldf")
+  userId     String   @default("clg6kpbtn0000mr081ntz0f8i")
 
   @@unique([categoryId, month, year, userId])
 }
