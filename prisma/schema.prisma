@@ -169,7 +169,7 @@ model Forecast {
   categoryId Int
   month      Int      @db.SmallInt
   year       Int      @db.SmallInt
-  sum        Int      @default(0) @db.SmallInt
+  sum        Float    @default(0)
   comment    String   @default("")
   user       User     @relation(fields: [userId], references: [id])
   userId     String   @default("clg6kpbtn0000mr081ntz0f8i")
