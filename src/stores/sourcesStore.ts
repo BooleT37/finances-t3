@@ -1,14 +1,19 @@
 import { type Source as ApiSource } from "@prisma/client";
+import { makeAutoObservable, observable } from "mobx";
 import { adaptSourceFromApi } from "~/adapters/source/sourceFromApi";
 import type Source from "~/models/Source";
 import { type DataLoader } from "~/stores/DataLoader";
 import type { Option } from "~/types/types";
 import { trpc } from "~/utils/api";
 
-export class Sources implements DataLoader<ApiSource[]> {
+export class SourcesStore implements DataLoader<ApiSource[]> {
   public dataLoaded = false;
   public dataLoading = false;
-  private sources: Source[] = [];
+  private sources = observable.array<Source>();
+
+  constructor() {
+    makeAutoObservable(this);
+  }
 
   async loadData() {
     return trpc.sources.getAll.query();
@@ -23,7 +28,7 @@ export class Sources implements DataLoader<ApiSource[]> {
   }
 
   init(sources: ApiSource[]): void {
-    this.sources = sources.map(adaptSourceFromApi);
+    this.sources.replace(sources.map(adaptSourceFromApi));
   }
 
   getAll(): Source[] {
@@ -47,6 +52,6 @@ export class Sources implements DataLoader<ApiSource[]> {
   }
 }
 
-const sources = new Sources();
+const sourcesStore = new SourcesStore();
 
-export default sources;
+export default sourcesStore;

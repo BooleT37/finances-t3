@@ -17,10 +17,10 @@ import type { BaseSelectRef } from "rc-select";
 import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 import type Expense from "~/models/Expense";
-import sources from "~/readonlyStores/sources";
 import categoriesStore from "~/stores/categoriesStore";
 import expenseStore from "~/stores/expenseStore";
 import savingSpendingStore from "~/stores/savingSpendingStore";
+import sourcesStore from "~/stores/sourcesStore";
 import subscriptionStore from "~/stores/subscriptionStore";
 import type { Option } from "~/types/types";
 import { DATE_FORMAT } from "~/utils/constants";
@@ -502,7 +502,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
         </Form.Item>
         <Form.Item name="source" label="Источник" extra={sourceExtra}>
           <Select
-            options={sources.asOptions}
+            options={sourcesStore.asOptions}
             placeholder="Не указано"
             style={{ width: 150 }}
             allowClear

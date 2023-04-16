@@ -1,8 +1,8 @@
 import { runInAction } from "mobx";
 import Expense from "~/models/Expense";
-import sources from "~/readonlyStores/sources";
 import categoriesStore from "~/stores/categoriesStore";
 import expenseStore from "~/stores/expenseStore";
+import sourcesStore from "~/stores/sourcesStore";
 import subscriptionStore from "~/stores/subscriptionStore";
 import expenseModalViewModel from "../expenseModalViewModel";
 import { type ValidatedFormValues } from "../models";
@@ -22,7 +22,7 @@ export default async function insertExpense(
       : category.findSubcategoryById(values.subcategory),
     values.name,
     null,
-    values.source !== undefined ? sources.getById(values.source) : null,
+    values.source !== undefined ? sourcesStore.getById(values.source) : null,
     values.subscription === undefined
       ? null
       : subscriptionStore.getById(values.subscription),

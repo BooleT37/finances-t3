@@ -22,11 +22,11 @@ import { PersonalExpCategoryIdsRename } from "../models/Category";
 import type Expense from "../models/Expense";
 import { type TableData } from "../models/Expense";
 import type Subscription from "../models/Subscription";
-import sources from "../readonlyStores/sources";
 import costToString from "../utils/costToString";
 import categoriesStore from "./categoriesStore";
 import { type DataLoader } from "./DataLoader";
 import savingSpendingStore from "./savingSpendingStore";
+import sourcesStore from "./sourcesStore";
 import subscriptionStore from "./subscriptionStore";
 
 interface SubscriptionForPeriod {
@@ -312,7 +312,7 @@ export class ExpenseStore implements DataLoader<ApiExpense[]> {
 
   get lastExpensesPerSource(): Record<number, Expense[]> {
     return Object.fromEntries(
-      sources.getAll().map<[number, Expense[]]>((s) => {
+      sourcesStore.getAll().map<[number, Expense[]]>((s) => {
         const expensesWithSource = this.expenses.filter(
           (e) => e.source?.id === s.id
         );

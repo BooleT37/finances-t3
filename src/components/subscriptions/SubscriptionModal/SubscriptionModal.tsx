@@ -16,8 +16,8 @@ import { CostInput } from "~/components/CostInput";
 import Subscription, {
   type SubscriptionFormValues as FormValues,
 } from "~/models/Subscription";
-import sources from "~/readonlyStores/sources";
 import categoriesStore from "~/stores/categoriesStore";
+import sourcesStore from "~/stores/sourcesStore";
 import subscriptionStore from "~/stores/subscriptionStore";
 import { DATE_FORMAT } from "~/utils/constants";
 
@@ -41,7 +41,7 @@ function formValuesToSubscription(
     values.period,
     values.firstDate,
     active,
-    values.source !== null ? sources.getById(values.source) : null
+    values.source !== null ? sourcesStore.getById(values.source) : null
   );
 }
 
@@ -194,7 +194,7 @@ const SubscriptionModal: React.FC<Props> = observer(function SubscriptionModal({
         </Form.Item>
         <Form.Item name="source" label="Источник">
           <Select
-            options={sources.asOptions}
+            options={sourcesStore.asOptions}
             placeholder="Не указано"
             style={{ width: 150 }}
             allowClear

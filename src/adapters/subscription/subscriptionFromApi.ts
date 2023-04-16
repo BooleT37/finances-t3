@@ -1,8 +1,8 @@
 import type { Subscription as ApiSubscription } from "@prisma/client";
 import dayjs from "dayjs";
 import Subscription from "~/models/Subscription";
-import sources from "~/readonlyStores/sources";
 import categoriesStore from "~/stores/categoriesStore";
+import sourcesStore from "~/stores/sourcesStore";
 
 export function adaptSubscriptionFromApi(
   subscription: ApiSubscription
@@ -17,6 +17,6 @@ export function adaptSubscriptionFromApi(
     subscription.active,
     subscription.sourceId === null
       ? null
-      : sources.getById(subscription.sourceId)
+      : sourcesStore.getById(subscription.sourceId)
   );
 }
