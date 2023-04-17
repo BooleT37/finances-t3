@@ -14,6 +14,7 @@ import "ag-grid-enterprise";
 import "antd/dist/reset.css";
 import Head from "next/head";
 import SiteLayout from "~/components/SiteLayout";
+import configureMobx from "~/utils/configureMobx";
 
 // eslint-disable-next-line mobx/missing-observer
 const MyApp: AppType<{ session: Session | null }> = ({
@@ -37,5 +38,6 @@ const MyApp: AppType<{ session: Session | null }> = ({
 };
 
 setupDayJs();
+configureMobx();
 
 export default api.withTRPC(MyApp);
