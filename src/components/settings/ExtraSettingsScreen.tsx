@@ -21,7 +21,7 @@ const Info = styled.div`
   color: #777;
 `;
 
-const SettingsScreen: React.FC = observer(function SettingsScreen() {
+const ExtraSettingsScreen: React.FC = observer(function ExtraSettingsScreen() {
   const {
     pePerMonth: savedPeSum,
     savings: savedSavings,
@@ -158,4 +158,4 @@ const SettingsScreen: React.FC = observer(function SettingsScreen() {
   );
 });
 
-export default SettingsScreen;
+export default ExtraSettingsScreen;

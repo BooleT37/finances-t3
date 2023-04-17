@@ -1,6 +1,7 @@
 import {
   BankOutlined,
   CalendarOutlined,
+  CreditCardOutlined,
   DatabaseOutlined,
   DollarOutlined,
   LineChartOutlined,
@@ -35,9 +36,17 @@ const items: ItemType[] = [
   getItem("Траты из сбережений", "/saving-spendings", <BankOutlined />),
   getItem("Статистика", "/statistics", <LineChartOutlined />),
   getItem("Планирование", "/planning", <CalendarOutlined />),
-  getItem("Подписки", "/subscriptions", <DollarOutlined />),
-  getItem("Настройки", "/settings", <SettingOutlined />),
-  getItem("Категории", "/categories", <DatabaseOutlined />),
+  {
+    label: "Настройки",
+    icon: <SettingOutlined />,
+    key: "settings-menu",
+    children: [
+      getItem("Категории", "/categories", <DatabaseOutlined />),
+      getItem("Источники", "/sources", <CreditCardOutlined />),
+      getItem("Подписки", "/subscriptions", <DollarOutlined />),
+      getItem("Прочее", "/extra-settings", <SettingOutlined />),
+    ],
+  },
   {
     key: "divider",
     type: "divider",

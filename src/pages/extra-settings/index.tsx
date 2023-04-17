@@ -1,7 +1,7 @@
 import { Typography } from "antd";
 import React from "react";
 import { DataFetcher, type Stores } from "~/components/DataFetcher";
-import SettingsScreen from "~/components/settings/SettingsScreen";
+import ExtraSettingsScreen from "~/components/settings/ExtraSettingsScreen";
 import SiteContent from "~/components/SiteContent";
 import WhiteHeader from "~/components/WhiteHeader";
 import userSettingsStore from "~/stores/userSettingsStore";
@@ -22,17 +22,17 @@ const stores: Stores = {
 export const getServerSideProps = protectedPageProps;
 
 // eslint-disable-next-line mobx/missing-observer
-const SettingsPage: React.FC = () => {
+const ExtraSettingsPage: React.FC = () => {
   return (
     <DataFetcher stores={stores}>
       <WhiteHeader className="site-layout-background">
-        <Title>Настройки</Title>
+        <Title>Прочие настройки</Title>
       </WhiteHeader>
       <SiteContent className="site-layout-background">
-        <SettingsScreen />
+        <ExtraSettingsScreen />
       </SiteContent>
     </DataFetcher>
   );
 };
 
-export default SettingsPage;
+export default ExtraSettingsPage;
