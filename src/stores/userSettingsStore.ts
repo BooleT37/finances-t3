@@ -18,6 +18,7 @@ export class UserSettingsStore
   } = undefined;
   expenseCategoriesOrder: number[] = [];
   incomeCategoriesOrder: number[] = [];
+  sourcesOrder: number[] = [];
 
   constructor() {
     makeAutoObservable(this);
@@ -48,6 +49,7 @@ export class UserSettingsStore
     }
     this.incomeCategoriesOrder = settings.incomeCategoriesOrder;
     this.expenseCategoriesOrder = settings.expenseCategoriesOrder;
+    this.sourcesOrder = settings.sourcesOrder;
   }
 
   setPePerMonth = async (sum: number) => {
@@ -92,6 +94,16 @@ export class UserSettingsStore
     this.expenseCategoriesOrder = order;
     await trpc.userSettings.update.mutate({
       expenseCategoriesOrder: order,
+    });
+  };
+
+  persistSourcesOrder = async (order: number[]) => {
+    if (isEqual(order, this.sourcesOrder)) {
+      return;
+    }
+    this.sourcesOrder = order;
+    await trpc.userSettings.update.mutate({
+      sourcesOrder: order,
     });
   };
 }

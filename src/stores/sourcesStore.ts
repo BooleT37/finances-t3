@@ -1,10 +1,13 @@
 import { type Source as ApiSource } from "@prisma/client";
-import { makeAutoObservable, observable } from "mobx";
+import { makeAutoObservable, observable, runInAction } from "mobx";
 import { adaptSourceFromApi } from "~/adapters/source/sourceFromApi";
 import type Source from "~/models/Source";
+import { type SourceTableItem } from "~/models/Source";
 import { type DataLoader } from "~/stores/DataLoader";
 import type { Option } from "~/types/types";
 import { trpc } from "~/utils/api";
+import { getFirstUnusedName } from "~/utils/getFirstUnusedName";
+import userSettingsStore from "./userSettingsStore";
 
 export class SourcesStore implements DataLoader<ApiSource[]> {
   public dataLoaded = false;
@@ -32,7 +35,10 @@ export class SourcesStore implements DataLoader<ApiSource[]> {
   }
 
   getAll(): Source[] {
-    return this.sources;
+    const { sourcesOrder } = userSettingsStore;
+    return this.sources
+      .slice()
+      .sort((a, b) => sourcesOrder.indexOf(a.id) - sourcesOrder.indexOf(b.id));
   }
 
   getByIdIfExists(id: number): Source | undefined {
@@ -48,7 +54,45 @@ export class SourcesStore implements DataLoader<ApiSource[]> {
   }
 
   get asOptions(): Option[] {
-    return this.sources.map((s) => s.asOption);
+    return this.getAll().map((s) => s.asOption);
+  }
+
+  get asTableItems(): SourceTableItem[] {
+    return this.getAll().map((s) => s.asTableItem);
+  }
+
+  async createSource() {
+    const names = this.getAll().map((s) => s.name);
+    const created = await trpc.sources.create.mutate({
+      name: getFirstUnusedName(names, "Источник"),
+    });
+    const adapted = adaptSourceFromApi(created);
+    runInAction(() => {
+      this.sources.push(adapted);
+    });
+
+    return adapted;
+  }
+
+  async editSourceName(name: string, id: number) {
+    const source = this.getById(id);
+    await trpc.sources.update.mutate({
+      data: {
+        name,
+      },
+      id,
+    });
+    runInAction(() => {
+      source.name = name;
+    });
+  }
+
+  async deleteSource(id: number) {
+    const source = this.getById(id);
+    await trpc.sources.delete.mutate({
+      id,
+    });
+    this.sources.remove(source);
   }
 }
 

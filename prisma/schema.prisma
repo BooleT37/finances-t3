@@ -132,7 +132,7 @@ model Subscription {
   category   Category  @relation(fields: [categoryId], references: [id])
   period     Int       @db.SmallInt
   firstDate  DateTime  @db.Date
-  source     Source?   @relation(fields: [sourceId], references: [id])
+  source     Source?   @relation(fields: [sourceId], references: [id], onDelete: SetNull)
   active     Boolean
   categoryId Int
   sourceId   Int?
@@ -152,7 +152,7 @@ model Expense {
   personalExpense          Expense?                @relation("personalExpenseLink", fields: [personalExpenseId], references: [id])
   parentExpense            Expense?                @relation("personalExpenseLink")
   personalExpenseId        Int?                    @unique
-  source                   Source?                 @relation(fields: [sourceId], references: [id])
+  source                   Source?                 @relation(fields: [sourceId], references: [id], onDelete: SetNull)
   sourceId                 Int?
   subscription             Subscription?           @relation(fields: [subscriptionId], references: [id])
   subscriptionId           Int?
@@ -186,4 +186,5 @@ model UserSetting {
   userId                 String    @unique
   incomeCategoriesOrder  Int[]     @default([])
   expenseCategoriesOrder Int[]     @default([])
+  sourcesOrder           Int[]     @default([])
 }
