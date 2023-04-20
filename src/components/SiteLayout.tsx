@@ -31,22 +31,24 @@ function getItem(
   };
 }
 
+const settingsItem: ItemType = {
+  label: "Настройки",
+  icon: <SettingOutlined />,
+  key: "settings-menu",
+  children: [
+    getItem("Категории", "/categories", <DatabaseOutlined />),
+    getItem("Источники", "/sources", <CreditCardOutlined />),
+    getItem("Подписки", "/subscriptions", <DollarOutlined />),
+    getItem("Прочее", "/extra-settings", <SettingOutlined />),
+  ],
+};
+
 const items: ItemType[] = [
   getItem("Данные", "/data", <TableOutlined />),
   getItem("Траты из сбережений", "/saving-spendings", <BankOutlined />),
   getItem("Статистика", "/statistics", <LineChartOutlined />),
   getItem("Планирование", "/planning", <CalendarOutlined />),
-  {
-    label: "Настройки",
-    icon: <SettingOutlined />,
-    key: "settings-menu",
-    children: [
-      getItem("Категории", "/categories", <DatabaseOutlined />),
-      getItem("Источники", "/sources", <CreditCardOutlined />),
-      getItem("Подписки", "/subscriptions", <DollarOutlined />),
-      getItem("Прочее", "/extra-settings", <SettingOutlined />),
-    ],
-  },
+  settingsItem,
   {
     key: "divider",
     type: "divider",
@@ -95,6 +97,13 @@ const SiteLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           theme="dark"
           mode="inline"
           items={items}
+          defaultOpenKeys={
+            settingsItem.children
+              .map((c) => c?.key as string)
+              .includes(router.pathname)
+              ? [settingsItem.key]
+              : []
+          }
         />
       </Sider>
       <Layout className="site-layout">
