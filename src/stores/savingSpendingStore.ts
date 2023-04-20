@@ -20,20 +20,10 @@ export class SavingSpendingStore
   implements
     DataLoader<inferRouterOutputs<AppRouter>["savingSpending"]["getAll"]>
 {
-  public dataLoaded = false;
-  public dataLoading = false;
   savingSpendings = observable.array<SavingSpending>();
 
   constructor() {
     makeAutoObservable(this);
-  }
-
-  setDataLoaded(dataLoaded: boolean): void {
-    this.dataLoaded = dataLoaded;
-  }
-
-  setDataLoading(dataLoading: boolean): void {
-    this.dataLoading = dataLoading;
   }
 
   async loadData() {

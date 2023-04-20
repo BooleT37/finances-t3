@@ -9,8 +9,6 @@ import { type DataLoader } from "./DataLoader";
 export class UserSettingsStore
   implements DataLoader<inferRouterOutputs<AppRouter>["userSettings"]["get"]>
 {
-  public dataLoaded = false;
-  public dataLoading = false;
   pePerMonth = 50;
   savings?: {
     sum: number;
@@ -22,14 +20,6 @@ export class UserSettingsStore
 
   constructor() {
     makeAutoObservable(this);
-  }
-
-  setDataLoaded(dataLoaded: boolean): void {
-    this.dataLoaded = dataLoaded;
-  }
-
-  setDataLoading(dataLoading: boolean): void {
-    this.dataLoading = dataLoading;
   }
 
   async loadData() {

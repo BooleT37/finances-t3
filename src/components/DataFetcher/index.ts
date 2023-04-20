@@ -1,2 +1,1 @@
-export { DataFetcher } from "./DataFetcher";
-export * from "./types";
+export { DataFetcher, type Stores } from "./DataFetcher";

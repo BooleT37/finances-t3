@@ -1,9 +1,9 @@
 import { Spin } from "antd";
 import { observer } from "mobx-react";
-import { default as React } from "react";
+import { default as React, useEffect } from "react";
+import { dataLoadersStore, type Stores } from "~/stores/dataLoadersStore";
 import { SpinWrapper } from "../SpinWrapper";
-import type { Stores } from "./types";
-import { useDataStores } from "./useDataStores";
+export type { Stores } from "~/stores/dataLoadersStore";
 
 interface Props {
   stores: Stores;
@@ -14,7 +14,11 @@ export const DataFetcher: React.FC<Props> = observer(function DataFetcher({
   stores,
   children,
 }) {
-  const { dataLoaded } = useDataStores(stores);
+  const { dataLoaded, initStores } = dataLoadersStore;
+
+  useEffect(() => {
+    void initStores(stores);
+  }, [initStores, stores]);
 
   if (!dataLoaded) {
     return (

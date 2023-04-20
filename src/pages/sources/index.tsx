@@ -21,11 +21,6 @@ const stores: Stores = {
 
 export const getServerSideProps = protectedPageProps;
 
-// TODO:
-// 1. Понять, почему имя источника визуально не изменяется
-// 2. Исправить все предупрежения MOBX, относящиеся к этой странице
-// 3. Исправить вообще все предепреждения MOBX
-
 // eslint-disable-next-line mobx/missing-observer
 const SourcesPage: React.FC = () => {
   return (

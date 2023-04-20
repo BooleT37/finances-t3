@@ -12,8 +12,6 @@ import userSettingsStore from "./userSettingsStore";
 export class CategoriesStore
   implements DataLoader<inferRouterOutputs<AppRouter>["categories"]["getAll"]>
 {
-  public dataLoaded = false;
-  public dataLoading = false;
   categories = observable.array<Category>();
 
   constructor() {
@@ -26,14 +24,6 @@ export class CategoriesStore
 
   init(categories: inferRouterOutputs<AppRouter>["categories"]["getAll"]) {
     this.categories.replace(categories.map(adaptCategoryFromApi));
-  }
-
-  setDataLoaded(dataLoaded: boolean): void {
-    this.dataLoaded = dataLoaded;
-  }
-
-  setDataLoading(dataLoading: boolean): void {
-    this.dataLoading = dataLoading;
   }
 
   getByNameIfExists(name: string): Category | undefined {

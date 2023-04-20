@@ -10,8 +10,6 @@ import { getFirstUnusedName } from "~/utils/getFirstUnusedName";
 import userSettingsStore from "./userSettingsStore";
 
 export class SourcesStore implements DataLoader<ApiSource[]> {
-  public dataLoaded = false;
-  public dataLoading = false;
   private sources = observable.array<Source>();
 
   constructor() {
@@ -20,14 +18,6 @@ export class SourcesStore implements DataLoader<ApiSource[]> {
 
   async loadData() {
     return trpc.sources.getAll.query();
-  }
-
-  setDataLoaded(dataLoaded: boolean): void {
-    this.dataLoaded = dataLoaded;
-  }
-
-  setDataLoading(dataLoading: boolean): void {
-    this.dataLoading = dataLoading;
   }
 
   init(sources: ApiSource[]): void {
