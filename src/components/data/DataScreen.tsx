@@ -6,6 +6,7 @@ import {
   RightOutlined,
   SwapOutlined,
 } from "@ant-design/icons";
+import "ag-grid-enterprise";
 import { AgGridReact } from "ag-grid-react";
 import { Button, Checkbox, DatePicker, Input, Space, Tooltip } from "antd";
 import dayjs, { type Dayjs } from "dayjs";

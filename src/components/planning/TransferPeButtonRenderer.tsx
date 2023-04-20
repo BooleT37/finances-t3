@@ -1,5 +1,5 @@
 import { RightSquareOutlined } from "@ant-design/icons";
-import { type ICellRendererParams } from "ag-grid-enterprise";
+import type { ICellRendererParams } from "ag-grid-community";
 import { Button } from "antd";
 import { observer } from "mobx-react";
 import React from "react";

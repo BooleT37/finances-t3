@@ -10,7 +10,6 @@ import "~/styles/globals.css";
 
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-import "ag-grid-enterprise";
 import "antd/dist/reset.css";
 import Head from "next/head";
 import SiteLayout from "~/components/SiteLayout";
