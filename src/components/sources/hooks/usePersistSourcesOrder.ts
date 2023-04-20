@@ -1,5 +1,6 @@
 import { type GridApi } from "ag-grid-community";
 import { debounce } from "lodash";
+import { runInAction } from "mobx";
 import { useMemo } from "react";
 import { type SourceTableItem } from "~/models/Source";
 import userSettingsStore from "~/stores/userSettingsStore";
@@ -16,8 +17,10 @@ function getSourcesOrder(api: GridApi<SourceTableItem>): number[] {
 
 export const usePersistSourcesOrder = () => {
   const persistFn = (api: GridApi<SourceTableItem>) => {
-    const order = getSourcesOrder(api);
-    void userSettingsStore.persistSourcesOrder(order);
+    runInAction(() => {
+      const order = getSourcesOrder(api);
+      void userSettingsStore.persistSourcesOrder(order);
+    });
   };
   const debouncedPersist = useMemo(() => debounce(persistFn, 500), []);
 

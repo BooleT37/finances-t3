@@ -1,5 +1,4 @@
 import { Typography } from "antd";
-import { observer } from "mobx-react";
 import CategoriesScreen from "~/components/categories/CategoriesScreen";
 import { DataFetcher, type Stores } from "~/components/DataFetcher";
 import SiteContent from "~/components/SiteContent";
@@ -22,17 +21,16 @@ const stores: Stores = {
 
 export const getServerSideProps = protectedPageProps;
 
-const CategoriesPage = observer(function CategoriesPage() {
-  return (
-    <DataFetcher stores={stores}>
-      <WhiteHeader className="site-layout-background">
-        <Title>Категории</Title>
-      </WhiteHeader>
-      <SiteContent className="site-layout-background">
-        <CategoriesScreen />
-      </SiteContent>
-    </DataFetcher>
-  );
-});
+// eslint-disable-next-line mobx/missing-observer
+const CategoriesPage: React.FC = () => (
+  <DataFetcher stores={stores}>
+    <WhiteHeader className="site-layout-background">
+      <Title>Категории</Title>
+    </WhiteHeader>
+    <SiteContent className="site-layout-background">
+      <CategoriesScreen />
+    </SiteContent>
+  </DataFetcher>
+);
 
 export default CategoriesPage;
