@@ -11,12 +11,15 @@ interface Props extends InputNumberProps<string> {
 }
 
 // eslint-disable-next-line mobx/missing-observer
-export const PersonalExpenseCostInput: React.FC<Props> = (props) => (
+export const PersonalExpenseCostInput: React.FC<Props> = ({
+  onTransferAllClick,
+  ...inputProps
+}) => (
   <Space>
-    <InputNumber addonAfter="€" style={{ width: 130 }} {...props} />
+    <InputNumber addonAfter="€" style={{ width: 130 }} {...inputProps} />
     <Link
       onClick={() => {
-        props.onTransferAllClick();
+        onTransferAllClick();
       }}
     >
       Перенести все

@@ -1,5 +1,4 @@
 import { Typography } from "antd";
-import { observer } from "mobx-react";
 import styled from "styled-components";
 import DataScreen from "~/components/data/DataScreen";
 import { DataFetcher, type Stores } from "~/components/DataFetcher";
@@ -33,19 +32,18 @@ const stores: Stores = {
 
 export const getServerSideProps = protectedPageProps;
 
-const DataPage = observer(function DataPage() {
-  return (
-    <DataFetcher stores={stores}>
-      <WhiteHeader className="site-layout-background">
-        <Title>Данные</Title>
-      </WhiteHeader>
-      <SiteContent className="site-layout-background">
-        <ContentWrapper>
-          <DataScreen />
-        </ContentWrapper>
-      </SiteContent>
-    </DataFetcher>
-  );
-});
+// eslint-disable-next-line mobx/missing-observer
+const DataPage = () => (
+  <DataFetcher stores={stores}>
+    <WhiteHeader className="site-layout-background">
+      <Title>Данные</Title>
+    </WhiteHeader>
+    <SiteContent className="site-layout-background">
+      <ContentWrapper>
+        <DataScreen />
+      </ContentWrapper>
+    </SiteContent>
+  </DataFetcher>
+);
 
 export default DataPage;

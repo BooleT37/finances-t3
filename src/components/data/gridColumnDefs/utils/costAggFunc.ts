@@ -1,11 +1,12 @@
 import { type IAggFuncParams } from "ag-grid-enterprise";
+import { action } from "mobx";
 import { type CostCol, type TableData } from "~/models/Expense";
 import categoriesStore from "~/stores/categoriesStore";
 import { type AggCostCol } from "~/types/data";
 import roundCost from "~/utils/roundCost";
 import { type DataTableContext } from "../../DataScreen";
 
-export default function costAggFunc(
+export default action(function costAggFunc(
   params: IAggFuncParams<TableData, CostCol>
 ): AggCostCol {
   const values = params.values;
@@ -39,4 +40,4 @@ export default function costAggFunc(
     isIncome,
     isContinuous,
   };
-}
+});
