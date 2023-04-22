@@ -1,5 +1,4 @@
 import { Typography } from "antd";
-import { observer } from "mobx-react";
 import styled from "styled-components";
 import type { Stores } from "~/components/DataFetcher";
 import { DataFetcher } from "~/components/DataFetcher";
@@ -33,18 +32,17 @@ const stores: Stores = {
 
 export const getServerSideProps = protectedPageProps;
 
-const SavingSpendingsPage: React.FC = observer(function SavingSpendingsPage() {
-  return (
-    <DataFetcher stores={stores}>
-      <WhiteHeader>
-        <Title>Траты из сбережений</Title>
-        <CurrentSpendings />
-      </WhiteHeader>
-      <ContentStyled>
-        <SavingSpendingsScreen />
-      </ContentStyled>
-    </DataFetcher>
-  );
-});
+// eslint-disable-next-line mobx/missing-observer
+const SavingSpendingsPage: React.FC = () => (
+  <DataFetcher stores={stores}>
+    <WhiteHeader>
+      <Title>Траты из сбережений</Title>
+      <CurrentSpendings />
+    </WhiteHeader>
+    <ContentStyled>
+      <SavingSpendingsScreen />
+    </ContentStyled>
+  </DataFetcher>
+);
 
 export default SavingSpendingsPage;
