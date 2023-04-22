@@ -2,6 +2,7 @@ import { type AgChartOptions } from "ag-charts-community";
 import { AgChartsReact } from "ag-charts-react";
 import { DatePicker, Select, Space, Typography } from "antd";
 import dayjs from "dayjs";
+import { observer } from "mobx-react";
 import React from "react";
 import styled from "styled-components";
 import categoriesStore from "~/stores/categoriesStore";
@@ -18,8 +19,7 @@ const SelectStyled = styled(Select)`
   width: 400px;
 `;
 
-// eslint-disable-next-line mobx/missing-observer
-const DynamicsChart = function DynamicsChart() {
+const DynamicsChart = observer(function DynamicsChart() {
   const [startDate, setStartDate] = React.useState<dayjs.Dayjs>(() =>
     thisMonth.clone().subtract(1, "year")
   );
@@ -86,6 +86,6 @@ const DynamicsChart = function DynamicsChart() {
       <AgChartsReact ref={ref} options={options} />
     </div>
   );
-};
+});
 
 export default DynamicsChart;
