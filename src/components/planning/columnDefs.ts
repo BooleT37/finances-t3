@@ -5,17 +5,17 @@ import type {
   ValueFormatterParams,
   ValueParserParams,
 } from "ag-grid-community";
+import { action } from "mobx";
 import { TOTAL_CATEGORY_ID } from "~/models/Category";
-import { sortAllCategories } from "~/stores/categoriesOrder";
 import {
   type ForecastSum,
   type ForecastTableItem,
 } from "~/stores/forecastStore/types";
-import userSettingsStore from "~/stores/userSettingsStore";
 import type { ForecastSubscriptionsItem } from "~/types/forecast/forecastTypes";
 import costToString from "~/utils/costToString";
 import CostCellRenderer from "./CostCellRenderer";
 import LastMonthCellRenderer from "./LastMonthCellRenderer";
+import { planningScreenViewModel } from "./PlanningScreenViewModel";
 import ThisMonthCellRenderer from "./ThisMonthCellRenderer";
 
 const costValueFormatter = ({ value }: { value: number }): string =>
@@ -36,20 +36,14 @@ const columnDefs: (
     width: 250,
     headerName: "Категория",
     tooltipField: "category",
-    comparator: (
-      categoryA: string,
-      _categoryB: string,
-      nodeA: IRowNode<ForecastTableItem>,
-      nodeB: IRowNode<ForecastTableItem>
-    ) =>
-      categoryA === "Всего" || !nodeA.data || !nodeB.data
-        ? 1
-        : sortAllCategories(
-            nodeA.data?.categoryId,
-            nodeB.data?.categoryId,
-            userSettingsStore.expenseCategoriesOrder,
-            userSettingsStore.incomeCategoriesOrder
-          ),
+    comparator: action(
+      (
+        categoryA: string,
+        _categoryB: string,
+        nodeA: IRowNode<ForecastTableItem>,
+        nodeB: IRowNode<ForecastTableItem>
+      ) => planningScreenViewModel.compareCategories(categoryA, nodeA, nodeB)
+    ),
   },
   {
     field: "average",

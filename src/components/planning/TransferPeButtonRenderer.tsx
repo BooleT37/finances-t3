@@ -1,16 +1,15 @@
 import { RightSquareOutlined } from "@ant-design/icons";
 import type { ICellRendererParams } from "ag-grid-community";
 import { Button } from "antd";
-import { observer } from "mobx-react";
 import React from "react";
 import forecastStore from "~/stores/forecastStore";
 import type { ForecastTableItem } from "~/stores/forecastStore/types";
 import type { ForecastTableContext } from "./PlanningScreen";
 
-// eslint-disable-next-line mobx/missing-observer
 const TransferPeButtonRenderer: React.FC<
   ICellRendererParams<ForecastTableItem>
-> = observer((props) => {
+  // eslint-disable-next-line mobx/missing-observer
+> = (props) => {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { year, month, scrollToRow } = props.context as ForecastTableContext;
   return (
@@ -34,6 +33,6 @@ const TransferPeButtonRenderer: React.FC<
       }}
     />
   );
-});
+};
 
 export default TransferPeButtonRenderer;

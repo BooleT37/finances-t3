@@ -13,10 +13,7 @@ interface Props {
   month: number;
 }
 
-const SurplusData: React.FC<Props> = observer(function SurplusData({
-  year,
-  month,
-}) {
+const SurplusData: React.FC<Props> = observer(function ({ year, month }) {
   return (
     <div>
       <Title level={4}>Разница в этом месяце:</Title>
