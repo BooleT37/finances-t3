@@ -1,4 +1,4 @@
-import { CategoryType } from "@prisma/client";
+import type { CategoryType } from "@prisma/client";
 import type { ForecastSubscriptionsItem } from "~/types/forecast/forecastTypes";
 
 export interface MonthSpendings {
