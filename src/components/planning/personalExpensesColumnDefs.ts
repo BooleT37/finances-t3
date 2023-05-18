@@ -1,5 +1,5 @@
 import { type ColDef, type ColGroupDef } from "ag-grid-community";
-import { type ForecastTableItem } from "~/stores/forecastStore/types";
+import { type ForecastTableItem } from "~/stores/ForecastStore/types";
 import columnDefs from "./columnDefs";
 import TransferPeButtonRenderer from "./TransferPeButtonRenderer";
 

@@ -1,6 +1,6 @@
 import { makeAutoObservable } from "mobx";
 import type Expense from "~/models/Expense";
-import expenseStore from "~/stores/expenseStore";
+import { dataStores } from "~/stores/dataStores";
 
 class ExpenseModalViewModel {
   visible = false;
@@ -13,11 +13,15 @@ class ExpenseModalViewModel {
   }
 
   get currentExpense(): Expense | undefined {
-    return expenseStore.expenses.find(({ id }) => this.expenseId === id);
+    return dataStores.expenseStore.expenses.find(
+      ({ id }) => this.expenseId === id
+    );
   }
 
   get lastExpense(): Expense | undefined {
-    return expenseStore.expenses.find(({ id }) => this.lastExpenseId === id);
+    return dataStores.expenseStore.expenses.find(
+      ({ id }) => this.lastExpenseId === id
+    );
   }
 
   get isNewExpense(): boolean {

@@ -11,7 +11,7 @@ import { trpc } from "~/utils/api";
 import type Category from "../models/Category";
 import type Subscription from "../models/Subscription";
 import { type SubscriptionFormValues } from "../models/Subscription";
-import { type DataLoader } from "./DataLoader";
+import { type DataLoader } from "./dataStores";
 
 const subscriptionToItem = (
   subscription: Subscription
@@ -20,8 +20,11 @@ const subscriptionToItem = (
   name: subscription.name,
 });
 
-export class SubscriptionStore implements DataLoader<ApiSubscription[]> {
+export default class SubscriptionStore
+  implements DataLoader<ApiSubscription[]>
+{
   subscriptions = observable.array<Subscription>();
+  inited = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -33,6 +36,7 @@ export class SubscriptionStore implements DataLoader<ApiSubscription[]> {
 
   init(subscriptions: ApiSubscription[]) {
     this.subscriptions.replace(subscriptions.map(adaptSubscriptionFromApi));
+    this.inited = true;
   }
 
   get subscriptionsMap() {
@@ -142,7 +146,3 @@ export class SubscriptionStore implements DataLoader<ApiSubscription[]> {
       .map(subscriptionToItem);
   }
 }
-
-const subscriptionStore = new SubscriptionStore();
-
-export default subscriptionStore;

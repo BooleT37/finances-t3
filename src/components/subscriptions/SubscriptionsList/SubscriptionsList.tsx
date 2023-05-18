@@ -1,7 +1,7 @@
 import { Space, Switch, Tooltip } from "antd";
 import { observer } from "mobx-react";
 import React from "react";
-import subscriptionStore from "~/stores/subscriptionStore";
+import { dataStores } from "~/stores/dataStores";
 import { DATE_FORMAT } from "~/utils/constants";
 
 import SubscriptionItem from "./SubscriptionItem";
@@ -14,7 +14,7 @@ interface Props {
 const SubscriptionsList: React.FC<Props> = observer(function SubscriptionsList({
   onEditClick,
 }) {
-  const subscriptions = subscriptionStore.byCategory;
+  const subscriptions = dataStores.subscriptionStore.byCategory;
   return (
     <div>
       {Object.keys(subscriptions)
@@ -48,7 +48,7 @@ const SubscriptionsList: React.FC<Props> = observer(function SubscriptionsList({
                       onEditClick(subscriptionId);
                     }}
                     onDelete={(subscriptionId) => {
-                      subscriptionStore.delete(subscriptionId);
+                      dataStores.subscriptionStore.delete(subscriptionId);
                     }}
                   />
                 </Space>

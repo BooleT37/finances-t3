@@ -5,8 +5,7 @@ import dayjs from "dayjs";
 import { observer } from "mobx-react";
 import React from "react";
 import styled from "styled-components";
-import categoriesStore from "~/stores/categoriesStore";
-import expenseStore from "~/stores/expenseStore";
+import { dataStores } from "~/stores/dataStores";
 import { MONTH_DATE_FORMAT } from "~/utils/constants";
 import getOptions from "./getOptions";
 
@@ -27,14 +26,14 @@ const DynamicsChart = observer(function DynamicsChart() {
     thisMonth.clone()
   );
   const [categoriesIds, setCategoriesIds] = React.useState<number[]>([]);
-  const { options: categoriesOptons } = categoriesStore;
+  const { options: categoriesOptons } = dataStores.categoriesStore;
 
   const datesAreSame = startDate.isSame(endDate, "month");
   const filteredCategories = React.useMemo(() => {
     if (categoriesIds.length === 0) {
-      return categoriesStore.categories;
+      return dataStores.categoriesStore.categories;
     }
-    return categoriesStore.categories.filter((c) =>
+    return dataStores.categoriesStore.categories.filter((c) =>
       categoriesIds.includes(c.id)
     );
   }, [categoriesIds]);
@@ -45,7 +44,11 @@ const DynamicsChart = observer(function DynamicsChart() {
         : getOptions(
             filteredCategories.map((c) => c.id.toString()),
             filteredCategories.map((c) => c.shortname),
-            expenseStore.getDynamicsData(startDate, endDate, categoriesIds)
+            dataStores.expenseStore.getDynamicsData(
+              startDate,
+              endDate,
+              categoriesIds
+            )
           ),
     [categoriesIds, datesAreSame, endDate, filteredCategories, startDate]
   );

@@ -2,7 +2,7 @@ import { DeleteOutlined } from "@ant-design/icons";
 import { TRPCClientError } from "@trpc/client";
 import { Button, Modal, Tooltip } from "antd";
 import React from "react";
-import sourcesStore from "~/stores/sourcesStore";
+import { dataStores } from "~/stores/dataStores";
 
 interface Props {
   id: number;
@@ -15,7 +15,7 @@ const RemoveButtonRenderer: React.FC<Props> = ({ id }) => {
       content: "Вы уверены, что хотите удалить этот источник?",
       onOk: async () => {
         try {
-          await sourcesStore.deleteSource(id);
+          await dataStores.sourcesStore.deleteSource(id);
         } catch (e) {
           if (e instanceof TRPCClientError) {
             Modal.error({

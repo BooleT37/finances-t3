@@ -11,16 +11,14 @@ import type Category from "~/models/Category";
 import Forecast from "~/models/Forecast";
 import { trpc } from "~/utils/api";
 import { negateIf } from "~/utils/negateIf";
-import categoriesStore from "../categoriesStore";
-import { type DataLoader } from "../DataLoader";
-import expenseStore from "../expenseStore";
-import subscriptionStore from "../subscriptionStore";
-import userSettingsStore from "../userSettingsStore";
+import type { DataLoader } from "../dataStores";
+import { dataStores } from "../dataStores/DataStores";
 import { type ForecastTableItem } from "./types";
 import { avgForNonEmpty, getPreviousMonth } from "./utils";
 
-export class ForecastStore implements DataLoader<ApiForecast[]> {
+export default class ForecastStore implements DataLoader<ApiForecast[]> {
   public forecasts = observable.array<Forecast>();
+  inited = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -32,6 +30,7 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
 
   init(forecasts: ApiForecast[]) {
     this.forecasts.replace(forecasts.map(adaptForecastFromApi));
+    this.inited = true;
   }
 
   find(year: number, month: number, category: Category) {
@@ -66,7 +65,7 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
         personalExpensesCategories,
         savingsCategories,
         generalExpenseCategories,
-      } = categoriesStore;
+      } = dataStores.categoriesStore;
 
       if (isIncome) {
         filteredCategories = incomeCategories;
@@ -99,7 +98,7 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
 
         const lastMonthSpendings = roundCost(
           sum(
-            expenseStore.expenses
+            dataStores.expenseStore.expenses
               .filter(
                 (e) =>
                   e.date.month() === prevMonth &&
@@ -112,7 +111,7 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
 
         const thisMonthSpendings = roundCost(
           sum(
-            expenseStore.expenses
+            dataStores.expenseStore.expenses
               .filter(
                 (e) =>
                   e.date.month() === month &&
@@ -132,7 +131,7 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
           categoryType: forecast.category.type,
           average: avgForNonEmpty(
             Object.values(
-              expenseStore.expenses
+              dataStores.expenseStore.expenses
                 .filter((e) => e.category.id === forecast.category.id)
                 .reduce<Record<string, number>>((a, c) => {
                   const month = c.date.format(MONTH_DATE_FORMAT);
@@ -146,10 +145,10 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
             )
           ),
           monthsWithSpendings: `${countUniqueMonths(
-            expenseStore.expenses
+            dataStores.expenseStore.expenses
               .filter((e) => e.category.id === forecast.category.id)
               .map((e) => e.date)
-          )} / ${expenseStore.totalMonths} месяцев`,
+          )} / ${dataStores.expenseStore.totalMonths} месяцев`,
           lastMonth: {
             spendings: lastMonthSpendings,
             diff: forecast.category.fromSavings
@@ -172,11 +171,12 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
           },
           sum: {
             value: forecast.category.fromSavings ? null : forecast.sum,
-            subscriptions: subscriptionStore.getSubscriptionsForForecast(
-              month,
-              year,
-              forecast.category
-            ),
+            subscriptions:
+              dataStores.subscriptionStore.getSubscriptionsForForecast(
+                month,
+                year,
+                forecast.category
+              ),
           },
           comment: forecast.comment || "",
         };
@@ -222,7 +222,7 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
                 ),
             subscriptions: isIncome
               ? []
-              : subscriptionStore.getSubscriptionsForForecast(
+              : dataStores.subscriptionStore.getSubscriptionsForForecast(
                   month,
                   year,
                   null
@@ -267,11 +267,12 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
 
   categoriesForecast = computedFn(
     (year: number, month: number): Record<number, number> => {
-      return Object.fromEntries(
+      const forecast = Object.fromEntries(
         this.forecasts
           .filter((f) => f.month === month && f.year === year)
           .map((f) => [f.category.id, f.sum])
       );
+      return forecast;
     }
   );
 
@@ -335,8 +336,8 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
     month: number,
     year: number
   ): Promise<Forecast | undefined> {
-    const { pePerMonth } = userSettingsStore;
-    const category = categoriesStore.getById(categoryId);
+    const { pePerMonth } = dataStores.userSettingsStore;
+    const category = dataStores.categoriesStore.getById(categoryId);
     const { month: prevMonth, year: prevYear } = getPreviousMonth(month, year);
     const prevMonthForecast = this.find(prevYear, prevMonth, category);
     if (!prevMonthForecast) {
@@ -345,7 +346,7 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
     }
     const prevMonthSpends = roundCost(
       sum(
-        expenseStore.expenses
+        dataStores.expenseStore.expenses
           .filter(
             (e) =>
               e.date.month() === prevMonth &&
@@ -362,7 +363,3 @@ export class ForecastStore implements DataLoader<ApiForecast[]> {
     return this.changeForecastSum(category, month, year, correctedSum);
   }
 }
-
-const forecastStore = new ForecastStore();
-
-export default forecastStore;

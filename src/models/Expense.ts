@@ -1,6 +1,6 @@
 import { type Dayjs } from "dayjs";
 import { makeAutoObservable } from "mobx";
-import expenseStore from "~/stores/expenseStore";
+import { dataStores } from "~/stores/dataStores";
 import { DATE_FORMAT } from "~/utils/constants";
 import type Category from "./Category";
 import type SavingSpending from "./SavingSpending";
@@ -110,6 +110,6 @@ export default class Expense {
     if (this.personalExpenseId === null) {
       return null;
     }
-    return expenseStore.getById(this.personalExpenseId) ?? null;
+    return dataStores.expenseStore.getById(this.personalExpenseId) ?? null;
   }
 }

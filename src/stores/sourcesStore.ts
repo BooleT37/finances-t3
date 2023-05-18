@@ -3,14 +3,15 @@ import { makeAutoObservable, observable, runInAction } from "mobx";
 import { adaptSourceFromApi } from "~/adapters/source/sourceFromApi";
 import type Source from "~/models/Source";
 import { type SourceTableItem } from "~/models/Source";
-import { type DataLoader } from "~/stores/DataLoader";
 import type { Option } from "~/types/types";
 import { trpc } from "~/utils/api";
 import { getFirstUnusedName } from "~/utils/getFirstUnusedName";
-import userSettingsStore from "./userSettingsStore";
+import { type DataLoader } from "./dataStores";
+import { dataStores } from "./dataStores/DataStores";
 
-export class SourcesStore implements DataLoader<ApiSource[]> {
+export default class SourcesStore implements DataLoader<ApiSource[]> {
   private sources = observable.array<Source>();
+  inited = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -22,10 +23,11 @@ export class SourcesStore implements DataLoader<ApiSource[]> {
 
   init(sources: ApiSource[]): void {
     this.sources.replace(sources.map(adaptSourceFromApi));
+    this.inited = true;
   }
 
   getAll(): Source[] {
-    const { sourcesOrder } = userSettingsStore;
+    const { sourcesOrder } = dataStores.userSettingsStore;
     return this.sources
       .slice()
       .sort((a, b) => sourcesOrder.indexOf(a.id) - sourcesOrder.indexOf(b.id));
@@ -85,7 +87,3 @@ export class SourcesStore implements DataLoader<ApiSource[]> {
     this.sources.remove(source);
   }
 }
-
-const sourcesStore = new SourcesStore();
-
-export default sourcesStore;

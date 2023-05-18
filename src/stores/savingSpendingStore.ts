@@ -11,16 +11,15 @@ import { type AppRouter } from "~/server/api/root";
 import type { Option } from "~/types/types";
 import { trpc } from "~/utils/api";
 import type SavingSpending from "../models/SavingSpending";
-import categoriesStore from "./categoriesStore";
-import { type DataLoader } from "./DataLoader";
-import expenseStore from "./expenseStore";
-import userSettingsStore from "./userSettingsStore";
+import { type DataLoader } from "./dataStores";
+import { dataStores } from "./dataStores/DataStores";
 
-export class SavingSpendingStore
+export default class SavingSpendingStore
   implements
     DataLoader<inferRouterOutputs<AppRouter>["savingSpending"]["getAll"]>
 {
   savingSpendings = observable.array<SavingSpending>();
+  inited = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -36,6 +35,7 @@ export class SavingSpendingStore
     this.savingSpendings.replace(
       savingSpendings.map(adaptSavingSpendingFromApi)
     );
+    this.inited = true;
   }
 
   getById(id: number): SavingSpending {
@@ -92,21 +92,25 @@ export class SavingSpendingStore
   }
 
   get currentSpendings(): number | null {
-    const { savings } = userSettingsStore;
+    const { savings } = dataStores.userSettingsStore;
     if (!savings) {
       return null;
     }
 
-    const { fromSavingsCategory, toSavingsCategory } = categoriesStore;
+    const { fromSavingsCategory, toSavingsCategory } =
+      dataStores.categoriesStore;
 
     const toSavingsExpenses =
-      toSavingsCategory.id in expenseStore.expensesByCategoryId
-        ? expenseStore.expensesByCategoryId[toSavingsCategory.id] ?? []
+      toSavingsCategory.id in dataStores.expenseStore.expensesByCategoryId
+        ? dataStores.expenseStore.expensesByCategoryId[toSavingsCategory.id] ??
+          []
         : [];
 
     const fromSavingsExpenses =
-      fromSavingsCategory.id in expenseStore.expensesByCategoryId
-        ? expenseStore.expensesByCategoryId[fromSavingsCategory.id] ?? []
+      fromSavingsCategory.id in dataStores.expenseStore.expensesByCategoryId
+        ? dataStores.expenseStore.expensesByCategoryId[
+            fromSavingsCategory.id
+          ] ?? []
         : [];
 
     return (
@@ -123,7 +127,3 @@ export class SavingSpendingStore
     );
   }
 }
-
-const savingSpendingStore = new SavingSpendingStore();
-
-export default savingSpendingStore;

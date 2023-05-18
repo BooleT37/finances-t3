@@ -8,7 +8,7 @@ import dayjs from "dayjs";
 import { maxBy, range, sum } from "lodash";
 import { observer } from "mobx-react";
 import { useState } from "react";
-import expenseStore from "~/stores/expenseStore";
+import { dataStores } from "~/stores/dataStores";
 import costToString from "~/utils/costToString";
 import roundCost from "~/utils/roundCost";
 import { CategoriesBreakdown } from "./CategoriesBreakdown";
@@ -21,7 +21,7 @@ interface Datum {
 }
 
 export const MonthsDataStep: React.FC = observer(function MonthsDataStep() {
-  const { expenses } = expenseStore;
+  const { expenses } = dataStores.expenseStore;
   const [showFromSavings, setShowFromSavings] = useState(true);
 
   const thisYearExpenses = expenses.filter((e) => e.date.year() === 2022);

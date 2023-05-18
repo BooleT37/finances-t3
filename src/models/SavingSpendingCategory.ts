@@ -1,9 +1,9 @@
 import { sum } from "lodash";
 import { makeAutoObservable } from "mobx";
+import { dataStores } from "~/stores/dataStores";
 import type { RecordType } from "~/types/savingSpending/RecordType";
 import type { Option } from "~/types/types";
 import roundCost from "~/utils/roundCost";
-import expenseStore from "../stores/expenseStore";
 import type NewSavingSpendingCategory from "./NewSavingSpendingCategory";
 
 export default class SavingSpendingCategory
@@ -35,7 +35,7 @@ export default class SavingSpendingCategory
   get expenses() {
     return roundCost(
       sum(
-        expenseStore.expenses
+        dataStores.expenseStore.expenses
           .filter(
             (e) => e.savingSpending && e.savingSpending.category.id === this.id
           )

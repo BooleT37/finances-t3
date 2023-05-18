@@ -6,8 +6,7 @@ import { AgChartsReact } from "ag-charts-react";
 
 import { sum } from "lodash";
 import { observer } from "mobx-react";
-import categoriesStore from "~/stores/categoriesStore";
-import expenseStore from "~/stores/expenseStore";
+import { dataStores } from "~/stores/dataStores";
 import costToString from "~/utils/costToString";
 import roundCost from "~/utils/roundCost";
 
@@ -23,13 +22,15 @@ interface Props {
 
 export const CategoriesBreakdown: React.FC<Props> = observer(
   function MostSpendingsStep({ month, showFromSavings }) {
-    const { expensesByCategoryIdForYear } = expenseStore;
+    const { expensesByCategoryIdForYear } = dataStores.expenseStore;
 
     const expenses = expensesByCategoryIdForYear(2022);
 
     const data: BarDatum[] = Object.entries(expenses)
       .filter(([categoryId]) => {
-        const category = categoriesStore.getById(parseInt(categoryId));
+        const category = dataStores.categoriesStore.getById(
+          parseInt(categoryId)
+        );
         return (showFromSavings || !category.fromSavings) && !category.isIncome;
       })
       .map(([categoryId, expenses]): [string, number] => [
@@ -46,7 +47,8 @@ export const CategoriesBreakdown: React.FC<Props> = observer(
       .slice(0, 3)
       .map(
         ([categoryId, spent]): BarDatum => ({
-          category: categoriesStore.getById(parseInt(categoryId)).name,
+          category: dataStores.categoriesStore.getById(parseInt(categoryId))
+            .name,
           spent,
         })
       );

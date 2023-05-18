@@ -1,6 +1,6 @@
 import { type CellEditRequestEvent } from "ag-grid-community";
 import { type SourceTableItem } from "~/models/Source";
-import sourcesStore from "~/stores/sourcesStore";
+import { dataStores } from "~/stores/dataStores";
 
 export const useHandleSourceCellEditRequest =
   () => (event: CellEditRequestEvent<SourceTableItem>) => {
@@ -8,6 +8,9 @@ export const useHandleSourceCellEditRequest =
       throw new Error("Only name editing is supported for source");
     }
     if (event.newValue !== event.oldValue) {
-      void sourcesStore.editSourceName(event.newValue as string, event.data.id);
+      void dataStores.sourcesStore.editSourceName(
+        event.newValue as string,
+        event.data.id
+      );
     }
   };

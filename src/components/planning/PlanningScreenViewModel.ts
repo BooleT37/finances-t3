@@ -1,8 +1,8 @@
-import type { ColDef, IRowNode } from "ag-grid-community";
+import type { IRowNode } from "ag-grid-community";
 import { makeAutoObservable } from "mobx";
 import { sortAllCategories } from "~/stores/categoriesOrder";
-import { type ForecastTableItem } from "~/stores/forecastStore/types";
-import userSettingsStore from "~/stores/userSettingsStore";
+import { dataStores } from "~/stores/dataStores";
+import { type ForecastTableItem } from "~/stores/ForecastStore/types";
 
 class PlanningScreenViewModel {
   constructor() {
@@ -19,8 +19,8 @@ class PlanningScreenViewModel {
       : sortAllCategories(
           nodeA.data?.categoryId,
           nodeB.data?.categoryId,
-          userSettingsStore.expenseCategoriesOrder,
-          userSettingsStore.incomeCategoriesOrder
+          dataStores.userSettingsStore.expenseCategoriesOrder,
+          dataStores.userSettingsStore.incomeCategoriesOrder
         );
 }
 

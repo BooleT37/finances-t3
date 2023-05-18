@@ -1,18 +1,19 @@
 import { Button, Space, Typography } from "antd";
 import React, { useState } from "react";
 import styled from "styled-components";
-import { DataFetcher, type Stores } from "~/components/DataFetcher";
+import { DataFetcher } from "~/components/DataFetcher";
 import SiteContent from "~/components/SiteContent";
 import ComparisonChart from "~/components/statistics/ComparisonChart";
 import DynamicsChart from "~/components/statistics/DynamicsChart";
 import { YearReview } from "~/components/statistics/YearReview";
 import WhiteHeader from "~/components/WhiteHeader";
-import categoriesStore from "~/stores/categoriesStore";
-import expenseStore from "~/stores/expenseStore";
-import savingSpendingStore from "~/stores/savingSpendingStore";
-import sourcesStore from "~/stores/sourcesStore";
-import subscriptionStore from "~/stores/subscriptionStore";
-import userSettingsStore from "~/stores/userSettingsStore";
+import CategoriesStore from "~/stores/CategoriesStore";
+import { type StoresToInit } from "~/stores/dataStores";
+import ExpenseStore from "~/stores/ExpenseStore";
+import SavingSpendingStore from "~/stores/SavingSpendingStore";
+import SourcesStore from "~/stores/SourcesStore";
+import SubscriptionStore from "~/stores/SubscriptionStore";
+import UserSettingsStore from "~/stores/UserSettingsStore";
 import { protectedPageProps } from "~/utils/protectedPageProps";
 
 const YearReviewCta = styled.div`
@@ -24,14 +25,14 @@ const YearReviewCta = styled.div`
 
 const { Title } = Typography;
 
-const stores: Stores = {
-  categoriesStore,
-  sourcesStore,
-  subscriptionStore,
-  savingSpendingStore,
-  expenseStore,
-  userSettingsStore,
-  forecastStore: false,
+const storesToInit: StoresToInit = {
+  CategoriesStore,
+  SourcesStore,
+  SubscriptionStore,
+  SavingSpendingStore,
+  ExpenseStore,
+  UserSettingsStore,
+  ForecastStore: false,
 };
 
 export const getServerSideProps = protectedPageProps;
@@ -41,7 +42,7 @@ const StatisticsScreen: React.FC = () => {
   const [yearReviewOpen, setYearReviewOpen] = useState(false);
 
   return (
-    <DataFetcher stores={stores}>
+    <DataFetcher stores={storesToInit}>
       <WhiteHeader className="site-layout-background">
         <Title>Статистика</Title>
         <YearReviewCta>

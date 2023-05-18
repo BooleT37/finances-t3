@@ -1,12 +1,11 @@
 import { Spin } from "antd";
 import { observer } from "mobx-react";
 import { default as React, useEffect } from "react";
-import { dataLoadersStore, type Stores } from "~/stores/dataLoadersStore";
+import { dataStoresStateStore, type StoresToInit } from "~/stores/dataStores";
 import { SpinWrapper } from "../SpinWrapper";
-export type { Stores } from "~/stores/dataLoadersStore";
 
 interface Props {
-  stores: Stores;
+  stores: StoresToInit;
   children: React.ReactNode;
 }
 
@@ -14,13 +13,13 @@ export const DataFetcher: React.FC<Props> = observer(function DataFetcher({
   stores,
   children,
 }) {
-  const { dataLoaded, initStores } = dataLoadersStore;
+  const { storesLoaded, initStores } = dataStoresStateStore;
 
   useEffect(() => {
     void initStores(stores);
   }, [initStores, stores]);
 
-  if (!dataLoaded) {
+  if (!storesLoaded(stores)) {
     return (
       <SpinWrapper>
         <Spin size="large" tip="Загрузка финансов..." />

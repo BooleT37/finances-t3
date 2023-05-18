@@ -23,11 +23,8 @@ import type Expense from "../models/Expense";
 import { type TableData } from "../models/Expense";
 import type Subscription from "../models/Subscription";
 import costToString from "../utils/costToString";
-import categoriesStore from "./categoriesStore";
-import { type DataLoader } from "./DataLoader";
-import savingSpendingStore from "./savingSpendingStore";
-import sourcesStore from "./sourcesStore";
-import subscriptionStore from "./subscriptionStore";
+import { type DataLoader } from "./dataStores";
+import { dataStores } from "./dataStores/DataStores";
 
 interface SubscriptionForPeriod {
   subscription: Subscription;
@@ -36,8 +33,9 @@ interface SubscriptionForPeriod {
 
 const today = dayjs();
 
-export class ExpenseStore implements DataLoader<ApiExpense[]> {
+export default class ExpenseStore implements DataLoader<ApiExpense[]> {
   public expenses = observable.array<Expense>();
+  inited = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -50,6 +48,7 @@ export class ExpenseStore implements DataLoader<ApiExpense[]> {
   init(expenses: ApiExpense[]) {
     this.expenses.replace(expenses.map((e) => adaptExpenseFromApi(e)));
     this.fillPersonalExpenses(expenses);
+    this.inited = true;
   }
 
   get expensesByCategoryId(): Record<string, Expense[]> {
@@ -156,7 +155,7 @@ export class ExpenseStore implements DataLoader<ApiExpense[]> {
   }
 
   getSavingSpendingByCategoryId(id: number): Expense["savingSpending"] {
-    for (const spending of savingSpendingStore.savingSpendings) {
+    for (const spending of dataStores.savingSpendingStore.savingSpendings) {
       const found = spending.categories.find((c) => c.id === id);
       if (found) {
         return {
@@ -214,7 +213,8 @@ export class ExpenseStore implements DataLoader<ApiExpense[]> {
     });
     return toJS(
       Object.entries(map).map(([category, costs]) => ({
-        category: categoriesStore.getById(parseInt(category)).shortname,
+        category: dataStores.categoriesStore.getById(parseInt(category))
+          .shortname,
         period1: costs.from,
         period2: costs.to,
       }))
@@ -261,7 +261,7 @@ export class ExpenseStore implements DataLoader<ApiExpense[]> {
     let interim = from.clone();
     const allCategoriesIds =
       categoriesIds.length === 0
-        ? categoriesStore.categories.map((c) => c.id)
+        ? dataStores.categoriesStore.categories.map((c) => c.id)
         : categoriesIds;
     while (to > interim || interim.format("M") === to.format("M")) {
       const month = interim.format(MONTH_DATE_FORMAT);
@@ -302,7 +302,7 @@ export class ExpenseStore implements DataLoader<ApiExpense[]> {
 
   get lastExpensesPerSource(): Record<number, Expense[]> {
     return Object.fromEntries(
-      sourcesStore.getAll().map<[number, Expense[]]>((s) => {
+      dataStores.sourcesStore.getAll().map<[number, Expense[]]>((s) => {
         const expensesWithSource = this.expenses.filter(
           (e) => e.source?.id === s.id
         );
@@ -340,8 +340,8 @@ export class ExpenseStore implements DataLoader<ApiExpense[]> {
     category?: Category
   ): SubscriptionForPeriod[] {
     const allSubscriptions = category
-      ? subscriptionStore.activeByCategory[category.name] ?? []
-      : subscriptionStore.activeSubscriptions;
+      ? dataStores.subscriptionStore.activeByCategory[category.name] ?? []
+      : dataStores.subscriptionStore.activeSubscriptions;
     let subscriptionsForPeriod = allSubscriptions
       .map((subscription): SubscriptionForPeriod | null => {
         const firstDate = subscription.firstDateInInterval(startDate, endDate);
@@ -436,7 +436,3 @@ export class ExpenseStore implements DataLoader<ApiExpense[]> {
     return [firstExpense.date, lastExpense.date];
   }
 }
-
-const expenseStore = new ExpenseStore();
-
-export default expenseStore;

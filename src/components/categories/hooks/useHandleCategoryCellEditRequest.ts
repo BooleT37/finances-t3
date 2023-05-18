@@ -1,6 +1,6 @@
 import { type CellEditRequestEvent } from "ag-grid-community";
 import { type CategoryTableItem } from "~/models/Category";
-import categoriesStore from "~/stores/categoriesStore";
+import { dataStores } from "~/stores/dataStores";
 
 export const useHandleCategoryCellEditRequest =
   () => (event: CellEditRequestEvent<CategoryTableItem>) => {
@@ -12,5 +12,9 @@ export const useHandleCategoryCellEditRequest =
     if (newValue === undefined) {
       return;
     }
-    void categoriesStore.updateCategoryField(event.data.id, field, newValue);
+    void dataStores.categoriesStore.updateCategoryField(
+      event.data.id,
+      field,
+      newValue
+    );
   };

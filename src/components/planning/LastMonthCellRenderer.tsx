@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { type MonthSpendings } from "~/stores/forecastStore/types";
+import { type MonthSpendings } from "~/stores/ForecastStore/types";
 import costToString from "~/utils/costToString";
 
 interface Props {

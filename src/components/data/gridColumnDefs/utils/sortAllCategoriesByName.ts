@@ -1,15 +1,14 @@
 import { sortAllCategories } from "~/stores/categoriesOrder";
-import categoriesStore from "~/stores/categoriesStore";
-import userSettingsStore from "~/stores/userSettingsStore";
+import { dataStores } from "~/stores/dataStores";
 
 export const sortAllCategoriesByName = (
   category1Name: string,
   category2Name: string
 ) => {
   return sortAllCategories(
-    categoriesStore.getByName(category1Name).id,
-    categoriesStore.getByName(category2Name).id,
-    userSettingsStore.expenseCategoriesOrder,
-    userSettingsStore.incomeCategoriesOrder
+    dataStores.categoriesStore.getByName(category1Name).id,
+    dataStores.categoriesStore.getByName(category2Name).id,
+    dataStores.userSettingsStore.expenseCategoriesOrder,
+    dataStores.userSettingsStore.incomeCategoriesOrder
   );
 };

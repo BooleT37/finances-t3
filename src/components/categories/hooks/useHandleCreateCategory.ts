@@ -1,12 +1,12 @@
 import { type AgGridReact } from "ag-grid-react";
 import { type RefObject } from "react";
 import { type CategoryTableItem } from "~/models/Category";
-import categoriesStore from "~/stores/categoriesStore";
+import { dataStores } from "~/stores/dataStores";
 
 export const useHandleCreateCategory =
   () =>
   async (isIncome: boolean, ref: RefObject<AgGridReact<CategoryTableItem>>) => {
-    const created = await categoriesStore.createCategory(isIncome);
+    const created = await dataStores.categoriesStore.createCategory(isIncome);
     if (!ref.current) {
       return;
     }

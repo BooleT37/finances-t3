@@ -1,7 +1,7 @@
 import { Tooltip } from "antd";
 import { observer } from "mobx-react";
 import styled from "styled-components";
-import expenseStore from "~/stores/expenseStore";
+import { dataStores } from "~/stores/dataStores";
 import { DATE_FORMAT } from "~/utils/constants";
 import costToString from "~/utils/costToString";
 
@@ -22,7 +22,8 @@ const Row = styled.div`
 
 const SourceLastExpenses: React.FC<Props> = observer(
   function SourceLastExpenses({ sourceId }) {
-    const lastExpenses = expenseStore.lastExpensesPerSource[sourceId];
+    const lastExpenses =
+      dataStores.expenseStore.lastExpensesPerSource[sourceId];
     if (!lastExpenses || !lastExpenses[0]) {
       return null;
     }

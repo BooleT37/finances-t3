@@ -17,14 +17,14 @@ import styled from "styled-components";
 import { AG_GRID_LOCALE_RU } from "~/agGridLocale.ru";
 import type Expense from "~/models/Expense";
 import { type TableData } from "~/models/Expense";
-import expenseStore from "~/stores/expenseStore";
-import forecastStore from "~/stores/forecastStore";
+import { dataStores } from "~/stores/dataStores";
 import { DATE_FORMAT, MONTH_DATE_FORMAT } from "~/utils/constants";
 import ExpenseModal from "./ExpenseModal";
 import expenseModalViewModel from "./ExpenseModal/expenseModalViewModel";
+import { useColumnDefs } from "./gridColumnDefs";
 import autoGroupColumnDef from "./gridColumnDefs/autoGroupColumnDef";
-import columnDefs from "./gridColumnDefs/columnDefs";
 import { getRowStyle } from "./utils";
+import { useDataTableContext } from "./utils/useDataTableContext";
 
 const { RangePicker } = DatePicker;
 const { Search } = Input;
@@ -46,13 +46,6 @@ const AgGridStyled = styled(AgGridReact<TableData>)`
     color: darkgray;
   }
 `;
-
-export interface DataTableContext {
-  expandCategory(category: string): void;
-  categoriesForecast: Record<number, number>;
-  passedDaysRatio: number | null;
-  savingSpendingsForecast: number;
-}
 
 const DataScreen = observer(function DataScreen() {
   const [rangeStart, setRangeStart] = React.useState<Dayjs | null>(
@@ -135,7 +128,7 @@ const DataScreen = observer(function DataScreen() {
     });
   };
 
-  const { boundaryDates } = expenseStore;
+  const { boundaryDates } = dataStores.expenseStore;
 
   const setRangeAcrossAllTime = useCallback(() => {
     setRangeStart(boundaryDates[0]);
@@ -152,11 +145,6 @@ const DataScreen = observer(function DataScreen() {
       });
     }
   };
-
-  const isCurrentMonth =
-    rangeStart &&
-    today.month() === rangeStart.month() &&
-    today.year() === rangeStart.year();
 
   const handleModalSubmit = useCallback(
     (expense: Expense) => {
@@ -189,6 +177,27 @@ const DataScreen = observer(function DataScreen() {
     }
     setIsRangePicker((value) => !value);
   }, [isRangePicker, rangeEnd]);
+
+  const context = useDataTableContext(
+    expandCategory,
+    isRangePicker,
+    rangeStart
+  );
+
+  const categoriesForecast =
+    isRangePicker || !rangeStart
+      ? null
+      : dataStores.forecastStore.categoriesForecast(
+          rangeStart.year(),
+          rangeStart.month()
+        );
+  const savingSpendingsForecast = rangeStart
+    ? dataStores.expenseStore.savingSpendingsForecast(
+        rangeStart.year(),
+        rangeStart.month()
+      )
+    : 0;
+  const columnDefs = useColumnDefs(categoriesForecast, savingSpendingsForecast);
 
   return (
     <>
@@ -282,7 +291,7 @@ const DataScreen = observer(function DataScreen() {
           <div className="ag-theme-alpine" style={{ width: 800 }}>
             <AgGridStyled
               ref={gridRef}
-              rowData={expenseStore.tableData(
+              rowData={dataStores.expenseStore.tableData(
                 rangeStart,
                 rangeEnd,
                 search,
@@ -299,24 +308,7 @@ const DataScreen = observer(function DataScreen() {
               groupAllowUnbalanced
               columnDefs={columnDefs}
               getRowId={({ data }) => data.id.toString()}
-              context={{
-                expandCategory,
-                categoriesForecast: isRangePicker
-                  ? null
-                  : forecastStore.categoriesForecast(
-                      rangeStart.year(),
-                      rangeStart.month()
-                    ),
-                passedDaysRatio: isRangePicker
-                  ? null
-                  : isCurrentMonth
-                  ? today.date() / rangeStart.daysInMonth()
-                  : 1,
-                savingSpendingsForecast: expenseStore.savingSpendingsForecast(
-                  rangeStart.year(),
-                  rangeStart.month()
-                ),
-              }}
+              context={context}
               isGroupOpenByDefault={({ field }) => field === "subcategory"}
               getRowStyle={getRowStyle}
               suppressAggFuncInHeader

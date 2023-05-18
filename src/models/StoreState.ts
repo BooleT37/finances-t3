@@ -1,10 +1,9 @@
 import { makeAutoObservable } from "mobx";
-import type { DataLoader } from "~/stores/DataLoader";
+import { type DataLoader } from "~/stores/dataStores";
 
 export class StoreState<T extends DataLoader> {
   store?: T = undefined;
   loading = false;
-  loaded = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -17,9 +16,5 @@ export class StoreState<T extends DataLoader> {
 
   setLoading(value: boolean) {
     this.loading = value;
-  }
-
-  setLoaded() {
-    this.loaded = true;
   }
 }

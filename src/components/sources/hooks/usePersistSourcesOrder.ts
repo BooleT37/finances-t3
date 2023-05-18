@@ -3,7 +3,7 @@ import { debounce } from "lodash";
 import { runInAction } from "mobx";
 import { useMemo } from "react";
 import { type SourceTableItem } from "~/models/Source";
-import userSettingsStore from "~/stores/userSettingsStore";
+import { dataStores } from "~/stores/dataStores";
 
 function getSourcesOrder(api: GridApi<SourceTableItem>): number[] {
   const order: number[] = [];
@@ -19,7 +19,7 @@ export const usePersistSourcesOrder = () => {
   const persistFn = (api: GridApi<SourceTableItem>) => {
     runInAction(() => {
       const order = getSourcesOrder(api);
-      void userSettingsStore.persistSourcesOrder(order);
+      void dataStores.userSettingsStore.persistSourcesOrder(order);
     });
   };
   const debouncedPersist = useMemo(() => debounce(persistFn, 500), []);

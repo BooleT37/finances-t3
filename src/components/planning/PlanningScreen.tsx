@@ -7,12 +7,11 @@ import { action } from "mobx";
 import { observer } from "mobx-react";
 import React, { useCallback } from "react";
 import { AG_GRID_LOCALE_RU } from "~/agGridLocale.ru";
-import categoriesStore from "~/stores/categoriesStore";
-import forecastStore from "~/stores/forecastStore";
+import { dataStores } from "~/stores/dataStores";
 import {
   type ForecastSum,
   type ForecastTableItem,
-} from "~/stores/forecastStore/types";
+} from "~/stores/ForecastStore/types";
 import { MONTH_DATE_FORMAT } from "~/utils/constants";
 import columnDefs, { type ForecastSumFromEdit } from "./columnDefs";
 import personalExpensesColumnDefs from "./personalExpensesColumnDefs";
@@ -54,8 +53,8 @@ const PlanningScreen = observer(function PlanningScreen() {
         if (oldValue.value === newValue.value) {
           return;
         }
-        void forecastStore.changeForecastSum(
-          categoriesStore.getById(params.data.categoryId),
+        void dataStores.forecastStore.changeForecastSum(
+          dataStores.categoriesStore.getById(params.data.categoryId),
           date.month(),
           date.year(),
           newValue.value
@@ -66,8 +65,8 @@ const PlanningScreen = observer(function PlanningScreen() {
         if (oldValue === newValue) {
           return;
         }
-        void forecastStore.changeForecastComment(
-          categoriesStore.getById(params.data.categoryId),
+        void dataStores.forecastStore.changeForecastComment(
+          dataStores.categoriesStore.getById(params.data.categoryId),
           date.month(),
           date.year(),
           newValue
@@ -100,8 +99,8 @@ const PlanningScreen = observer(function PlanningScreen() {
   const setForecastSum = useCallback(
     (categoryId: number, sum: number) => {
       if (date) {
-        void forecastStore.changeForecastSum(
-          categoriesStore.getById(categoryId),
+        void dataStores.forecastStore.changeForecastSum(
+          dataStores.categoriesStore.getById(categoryId),
           date.month(),
           date.year(),
           sum
@@ -151,7 +150,7 @@ const PlanningScreen = observer(function PlanningScreen() {
                   readOnlyEdit
                   onCellEditRequest={handleCellEditRequest}
                   columnDefs={columnDefs}
-                  rowData={forecastStore.tableData(
+                  rowData={dataStores.forecastStore.tableData(
                     date.year(),
                     date.month(),
                     false,
@@ -178,7 +177,7 @@ const PlanningScreen = observer(function PlanningScreen() {
                   readOnlyEdit
                   onCellEditRequest={handleCellEditRequest}
                   columnDefs={columnDefs}
-                  rowData={forecastStore.tableData(
+                  rowData={dataStores.forecastStore.tableData(
                     date.year(),
                     date.month(),
                     false,
@@ -205,7 +204,7 @@ const PlanningScreen = observer(function PlanningScreen() {
                   readOnlyEdit
                   onCellEditRequest={handleCellEditRequest}
                   columnDefs={personalExpensesColumnDefs}
-                  rowData={forecastStore.tableData(
+                  rowData={dataStores.forecastStore.tableData(
                     date.year(),
                     date.month(),
                     false,
@@ -231,7 +230,7 @@ const PlanningScreen = observer(function PlanningScreen() {
                   readOnlyEdit
                   onCellEditRequest={handleCellEditRequest}
                   columnDefs={columnDefs}
-                  rowData={forecastStore.tableData(
+                  rowData={dataStores.forecastStore.tableData(
                     date.year(),
                     date.month(),
                     true,

@@ -1,25 +1,26 @@
 import { Typography } from "antd";
 import React from "react";
-import { DataFetcher, type Stores } from "~/components/DataFetcher";
+import { DataFetcher } from "~/components/DataFetcher";
 import SiteContent from "~/components/SiteContent";
 import SubscriptionsScreen from "~/components/subscriptions/SubscriptionsScreen";
 import WhiteHeader from "~/components/WhiteHeader";
-import categoriesStore from "~/stores/categoriesStore";
-import sourcesStore from "~/stores/sourcesStore";
-import subscriptionStore from "~/stores/subscriptionStore";
-import userSettingsStore from "~/stores/userSettingsStore";
+import CategoriesStore from "~/stores/CategoriesStore";
+import { type StoresToInit } from "~/stores/dataStores";
+import SourcesStore from "~/stores/SourcesStore";
+import SubscriptionStore from "~/stores/SubscriptionStore";
+import UserSettingsStore from "~/stores/UserSettingsStore";
 import { protectedPageProps } from "~/utils/protectedPageProps";
 
 const { Title } = Typography;
 
-const stores: Stores = {
-  categoriesStore,
-  sourcesStore,
-  subscriptionStore,
-  userSettingsStore,
-  forecastStore: false,
-  savingSpendingStore: false,
-  expenseStore: false,
+const storesToInit: StoresToInit = {
+  CategoriesStore,
+  SourcesStore,
+  SubscriptionStore,
+  UserSettingsStore,
+  ForecastStore: false,
+  SavingSpendingStore: false,
+  ExpenseStore: false,
 };
 
 export const getServerSideProps = protectedPageProps;
@@ -27,7 +28,7 @@ export const getServerSideProps = protectedPageProps;
 // eslint-disable-next-line mobx/missing-observer
 const SubscriptionsPage: React.FC = function SubscriptionsPage() {
   return (
-    <DataFetcher stores={stores}>
+    <DataFetcher stores={storesToInit}>
       <WhiteHeader className="site-layout-background">
         <Title>Подписки</Title>
       </WhiteHeader>

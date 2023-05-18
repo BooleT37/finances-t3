@@ -1,7 +1,7 @@
 import { DeleteOutlined } from "@ant-design/icons";
 import { Button, Modal } from "antd";
 import React from "react";
-import expenseStore from "~/stores/expenseStore";
+import { dataStores } from "~/stores/dataStores";
 
 interface Props {
   id: number;
@@ -14,7 +14,7 @@ const RemoveButtonRenderer: React.FC<Props> = ({ id, onClick }) => {
     Modal.confirm({
       content: "Вы уверены, что хотите удалить этот расход?",
       onOk: async () => {
-        await expenseStore.delete(id);
+        await dataStores.expenseStore.delete(id);
         onClick();
       },
     });

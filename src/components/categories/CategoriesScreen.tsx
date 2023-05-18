@@ -5,7 +5,7 @@ import { observer } from "mobx-react";
 import { useRef } from "react";
 import { AG_GRID_LOCALE_RU } from "~/agGridLocale.ru";
 import { type CategoryTableItem } from "~/models/Category";
-import categoriesStore from "~/stores/categoriesStore";
+import { dataStores } from "~/stores/dataStores";
 import { getColumnDefs } from "./columnDefs";
 import { useHandleCategoryCellEditRequest } from "./hooks/useHandleCategoryCellEditRequest";
 import { useHandleCreateCategory } from "./hooks/useHandleCreateCategory";
@@ -39,7 +39,7 @@ const CategoriesScreen = observer(function CategoriesScreen() {
           <AgGridReact<CategoryTableItem>
             ref={expensesRef}
             columnDefs={getColumnDefs(false)}
-            rowData={categoriesStore.tableExpenseItems}
+            rowData={dataStores.categoriesStore.tableExpenseItems}
             readOnlyEdit
             onCellEditRequest={handleCellEditRequest}
             domLayout="autoHeight"
@@ -70,7 +70,7 @@ const CategoriesScreen = observer(function CategoriesScreen() {
           <AgGridReact<CategoryTableItem>
             ref={incomeRef}
             columnDefs={getColumnDefs(true)}
-            rowData={categoriesStore.tableIncomeItems}
+            rowData={dataStores.categoriesStore.tableIncomeItems}
             readOnlyEdit
             onCellEditRequest={handleCellEditRequest}
             domLayout="autoHeight"

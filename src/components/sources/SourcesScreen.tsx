@@ -5,7 +5,7 @@ import { observer } from "mobx-react";
 import { useRef } from "react";
 import { AG_GRID_LOCALE_RU } from "~/agGridLocale.ru";
 import { type SourceTableItem } from "~/models/Source";
-import sourcesStore from "~/stores/sourcesStore";
+import { dataStores } from "~/stores/dataStores";
 import { сolumnDefs } from "./columnDefs";
 import { useHandleCreateSource } from "./hooks/useHandleCreateSource";
 import { useHandleSourceCellEditRequest } from "./hooks/useHandleSourceCellEditRequest";
@@ -34,7 +34,7 @@ const SourcesScreen = observer(function SourcesScreen() {
           <AgGridReact<SourceTableItem>
             ref={ref}
             columnDefs={сolumnDefs}
-            rowData={sourcesStore.asTableItems}
+            rowData={dataStores.sourcesStore.asTableItems}
             readOnlyEdit
             onCellEditRequest={handleCellEditRequest}
             domLayout="autoHeight"

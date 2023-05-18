@@ -1,9 +1,6 @@
 import { runInAction } from "mobx";
 import Expense from "~/models/Expense";
-import categoriesStore from "~/stores/categoriesStore";
-import expenseStore from "~/stores/expenseStore";
-import sourcesStore from "~/stores/sourcesStore";
-import subscriptionStore from "~/stores/subscriptionStore";
+import { dataStores } from "~/stores/dataStores";
 import expenseModalViewModel from "../expenseModalViewModel";
 import { type ValidatedFormValues } from "../models";
 import generatePersonalExpenseName from "./generatePersonalExpenseName";
@@ -11,7 +8,7 @@ import generatePersonalExpenseName from "./generatePersonalExpenseName";
 export default async function insertExpense(
   values: ValidatedFormValues
 ): Promise<Expense> {
-  const category = categoriesStore.getById(values.category);
+  const category = dataStores.categoriesStore.getById(values.category);
   const newExpense = new Expense(
     -1,
     parseFloat(values.cost),
@@ -22,20 +19,22 @@ export default async function insertExpense(
       : category.findSubcategoryById(values.subcategory),
     values.name,
     null,
-    values.source !== undefined ? sourcesStore.getById(values.source) : null,
+    values.source !== undefined
+      ? dataStores.sourcesStore.getById(values.source)
+      : null,
     values.subscription === undefined
       ? null
-      : subscriptionStore.getById(values.subscription),
+      : dataStores.subscriptionStore.getById(values.subscription),
     values.savingSpendingCategoryId === undefined
       ? null
-      : expenseStore.getSavingSpendingByCategoryId(
+      : dataStores.expenseStore.getSavingSpendingByCategoryId(
           values.savingSpendingCategoryId
         )
   );
   // if we are editing the expense
   if (expenseModalViewModel.expenseId !== null) {
     newExpense.id = expenseModalViewModel.expenseId;
-    const modifyingExpense = expenseStore.getById(
+    const modifyingExpense = dataStores.expenseStore.getById(
       expenseModalViewModel.expenseId
     );
     if (!modifyingExpense) {
@@ -56,7 +55,7 @@ export default async function insertExpense(
           newExpense.personalExpenseId = modifyingPe.id;
           newExpense.cost = (newExpense.cost ?? 0) - (modifyingPe.cost ?? 0);
         } else {
-          const category = categoriesStore.getById(
+          const category = dataStores.categoriesStore.getById(
             values.personalExpCategoryId
           );
           const personalExpense = new Expense(
@@ -68,7 +67,8 @@ export default async function insertExpense(
               ? null
               : category.findSubcategoryById(values.subcategory),
             generatePersonalExpenseName({
-              category: categoriesStore.getById(values.category).name,
+              category: dataStores.categoriesStore.getById(values.category)
+                .name,
               name: values.name,
             }),
             null,
@@ -77,10 +77,12 @@ export default async function insertExpense(
           newExpense.personalExpenseId = personalExpense.id;
           newExpense.cost =
             (newExpense.cost ?? 0) - (personalExpense.cost ?? 0);
-          await expenseStore.modify(personalExpense);
+          await dataStores.expenseStore.modify(personalExpense);
         }
       } else {
-        const category = categoriesStore.getById(values.personalExpCategoryId);
+        const category = dataStores.categoriesStore.getById(
+          values.personalExpCategoryId
+        );
         const personalExpense = new Expense(
           -1,
           parseFloat(values.personalExpSpent),
@@ -90,30 +92,32 @@ export default async function insertExpense(
             ? null
             : category.findSubcategoryById(values.subcategory),
           generatePersonalExpenseName({
-            category: categoriesStore.getById(values.category).name,
+            category: dataStores.categoriesStore.getById(values.category).name,
             name: values.name,
           }),
           null,
           null
         );
-        await expenseStore.add(personalExpense);
+        await dataStores.expenseStore.add(personalExpense);
         newExpense.personalExpenseId = personalExpense.id;
         newExpense.cost = (newExpense.cost ?? 0) - (personalExpense.cost ?? 0);
       }
-      await expenseStore.modify(newExpense);
+      await dataStores.expenseStore.modify(newExpense);
     } else {
       if (modifyingExpense.personalExpense) {
         const { id: peId } = modifyingExpense.personalExpense;
         newExpense.personalExpenseId = null;
-        await expenseStore.modify(newExpense);
-        await expenseStore.delete(peId);
+        await dataStores.expenseStore.modify(newExpense);
+        await dataStores.expenseStore.delete(peId);
       } else {
-        await expenseStore.modify(newExpense);
+        await dataStores.expenseStore.modify(newExpense);
       }
     }
   } else {
     if (values.personalExpCategoryId !== undefined) {
-      const category = categoriesStore.getById(values.personalExpCategoryId);
+      const category = dataStores.categoriesStore.getById(
+        values.personalExpCategoryId
+      );
       const personalExpense = new Expense(
         -1,
         parseFloat(values.personalExpSpent),
@@ -121,19 +125,21 @@ export default async function insertExpense(
         category,
         null,
         generatePersonalExpenseName({
-          category: categoriesStore.getById(values.category).name,
+          category: dataStores.categoriesStore.getById(values.category).name,
           name: values.name,
         }),
         null,
         null
       );
       newExpense.cost = (newExpense.cost ?? 0) - (personalExpense.cost ?? 0);
-      const addedPersonalExpense = await expenseStore.add(personalExpense);
+      const addedPersonalExpense = await dataStores.expenseStore.add(
+        personalExpense
+      );
       runInAction(() => {
         newExpense.personalExpenseId = addedPersonalExpense.id;
       });
     }
-    await expenseStore.add(newExpense);
+    await dataStores.expenseStore.add(newExpense);
   }
   return newExpense;
 }

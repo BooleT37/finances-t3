@@ -17,11 +17,7 @@ import type { BaseSelectRef } from "rc-select";
 import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 import type Expense from "~/models/Expense";
-import categoriesStore from "~/stores/categoriesStore";
-import expenseStore from "~/stores/expenseStore";
-import savingSpendingStore from "~/stores/savingSpendingStore";
-import sourcesStore from "~/stores/sourcesStore";
-import subscriptionStore from "~/stores/subscriptionStore";
+import { dataStores } from "~/stores/dataStores";
 import type { Option } from "~/types/types";
 import { DATE_FORMAT } from "~/utils/constants";
 import expenseModalViewModel from "./expenseModalViewModel";
@@ -88,7 +84,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
   }));
   const [hasPersonalExp, setHasPersonalExp] = React.useState(false);
   const { lastSource, isNewExpense } = expenseModalViewModel;
-  const { incomeOptions, expenseOptions } = categoriesStore;
+  const { incomeOptions, expenseOptions } = dataStores.categoriesStore;
 
   const INITIAL_VALUES: FormValues = React.useMemo(
     () => ({
@@ -117,7 +113,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
           setLoading(true);
           // auto set the first saving spending category if it's the only one
           if (values.savingSpendingId !== undefined) {
-            const { categories } = savingSpendingStore.getById(
+            const { categories } = dataStores.savingSpendingStore.getById(
               values.savingSpendingId
             );
             if (categories.length === 1 && categories[0]) {
@@ -194,13 +190,17 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
     Form.useWatch("category", form) ?? undefined;
   const category = useMemo(
     () =>
-      categoryId === undefined ? null : categoriesStore.getById(categoryId),
+      categoryId === undefined
+        ? null
+        : dataStores.categoriesStore.getById(categoryId),
     [categoryId]
   );
   const savingSpendingId: number | undefined =
     Form.useWatch("savingSpendingId", form) ?? undefined;
   const currentCategory =
-    categoryId !== undefined ? categoriesStore.getById(categoryId) : undefined;
+    categoryId !== undefined
+      ? dataStores.categoriesStore.getById(categoryId)
+      : undefined;
   const sourceExtra =
     sourceId === undefined ? undefined : (
       <SourceLastExpenses sourceId={sourceId} />
@@ -210,12 +210,12 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
     if (savingSpendingId === undefined) {
       return [];
     }
-    return savingSpendingStore.categoriesAsOptions(savingSpendingId);
+    return dataStores.savingSpendingStore.categoriesAsOptions(savingSpendingId);
   }, [savingSpendingId]);
 
   const availabileSubscriptions =
     startDate && endDate && currentCategory
-      ? expenseStore.getAvailableSubscriptions(
+      ? dataStores.expenseStore.getAvailableSubscriptions(
           startDate,
           endDate,
           currentCategory
@@ -228,7 +228,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
 
   const handleValuesChange = (changedValues: Partial<FormValues>) => {
     if (changedValues.subscription !== undefined) {
-      const subscription = subscriptionStore.getJsById(
+      const subscription = dataStores.subscriptionStore.getJsById(
         changedValues.subscription
       );
       if (!subscription) {
@@ -253,7 +253,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
     }
     runInAction(() => {
       if (changedValues.savingSpendingId !== undefined) {
-        const { categories } = savingSpendingStore.getById(
+        const { categories } = dataStores.savingSpendingStore.getById(
           changedValues.savingSpendingId
         );
         form.setFieldsValue({
@@ -424,7 +424,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
           ]}
         >
           <Select
-            options={savingSpendingStore.asOptions}
+            options={dataStores.savingSpendingStore.asOptions}
             placeholder="Не указано"
             style={{ width: 250 }}
             allowClear
@@ -502,7 +502,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
         </Form.Item>
         <Form.Item name="source" label="Источник" extra={sourceExtra}>
           <Select
-            options={sourcesStore.asOptions}
+            options={dataStores.sourcesStore.asOptions}
             placeholder="Не указано"
             style={{ width: 150 }}
             allowClear

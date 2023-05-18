@@ -18,7 +18,6 @@ export const subscriptionRouter = createTRPCRouter({
   create: protectedProcedure
     .input(SubscriptionCreateWithoutUserInputObjectSchema)
     .mutation(({ ctx, input }) => {
-      console.log("====== USER ID: =======", ctx.session.user.id);
       return ctx.prisma.subscription.create({
         data: { ...input, ...connectUser(ctx) },
       });

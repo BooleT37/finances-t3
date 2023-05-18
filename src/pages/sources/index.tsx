@@ -1,22 +1,23 @@
 import { Typography } from "antd";
-import { DataFetcher, type Stores } from "~/components/DataFetcher";
+import { DataFetcher } from "~/components/DataFetcher";
 import SiteContent from "~/components/SiteContent";
 import SourcesScreen from "~/components/sources/SourcesScreen";
 import WhiteHeader from "~/components/WhiteHeader";
-import sourcesStore from "~/stores/sourcesStore";
-import userSettingsStore from "~/stores/userSettingsStore";
+import { type StoresToInit } from "~/stores/dataStores";
+import SourcesStore from "~/stores/SourcesStore";
+import UserSettingsStore from "~/stores/UserSettingsStore";
 import { protectedPageProps } from "~/utils/protectedPageProps";
 
 const { Title } = Typography;
 
-const stores: Stores = {
-  userSettingsStore,
-  sourcesStore,
-  categoriesStore: false,
-  forecastStore: false,
-  subscriptionStore: false,
-  savingSpendingStore: false,
-  expenseStore: false,
+const stores: StoresToInit = {
+  UserSettingsStore,
+  SourcesStore,
+  CategoriesStore: false,
+  ForecastStore: false,
+  SubscriptionStore: false,
+  SavingSpendingStore: false,
+  ExpenseStore: false,
 };
 
 export const getServerSideProps = protectedPageProps;

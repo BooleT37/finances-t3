@@ -2,9 +2,7 @@ import { Checkbox, Space, Typography } from "antd";
 import { groupBy, sum } from "lodash";
 import { observer } from "mobx-react";
 import { useState } from "react";
-import categoriesStore from "~/stores/categoriesStore";
-import expenseStore from "~/stores/expenseStore";
-import subscriptionStore from "~/stores/subscriptionStore";
+import { dataStores } from "~/stores/dataStores";
 import roundCost from "~/utils/roundCost";
 import {
   SubscriptionsChart,
@@ -18,8 +16,8 @@ export const SubscriptionsStep: React.FC = observer(
     const [rentShown, setRentShown] = useState(false);
     const [thisYearByCategories, setThisYearByCategories] = useState(true);
     const [nextYearByCategories, setNextYearByCategories] = useState(true);
-    const { expenses } = expenseStore;
-    const { activeSubscriptions } = subscriptionStore;
+    const { expenses } = dataStores.expenseStore;
+    const { activeSubscriptions } = dataStores.subscriptionStore;
     const thisYearExpenses = expenses.filter(
       (e) =>
         (rentShown || e.category.type !== "RENT") &&
@@ -35,7 +33,7 @@ export const SubscriptionsStep: React.FC = observer(
       groupBy(thisYearExpenses, "category.id")
     )
       .map(([categoryId, expenses]) => ({
-        name: categoriesStore.getById(parseInt(categoryId)).name,
+        name: dataStores.categoriesStore.getById(parseInt(categoryId)).name,
         spent: roundCost(sum(expenses.map((e) => e.cost ?? 0))),
       }))
       .sort((d1, d2) => d2.spent - d1.spent);
@@ -53,7 +51,7 @@ export const SubscriptionsStep: React.FC = observer(
       groupBy(filteredActiveSubscriptions, "category.id")
     )
       .map(([categoryId, subscriptions]) => ({
-        name: categoriesStore.getById(parseInt(categoryId)).name,
+        name: dataStores.categoriesStore.getById(parseInt(categoryId)).name,
         spent: roundCost(sum(subscriptions.map((s) => s.costPerMonth * 12))),
       }))
       .sort((d1, d2) => d2.spent - d1.spent);

@@ -1,11 +1,11 @@
 import { type AgGridReact } from "ag-grid-react";
 import { type RefObject } from "react";
 import { type SourceTableItem } from "~/models/Source";
-import sourcesStore from "~/stores/sourcesStore";
+import { dataStores } from "~/stores/dataStores";
 
 export const useHandleCreateSource =
   () => async (ref: RefObject<AgGridReact<SourceTableItem>>) => {
-    const created = await sourcesStore.createSource();
+    const created = await dataStores.sourcesStore.createSource();
     if (!ref.current) {
       return;
     }

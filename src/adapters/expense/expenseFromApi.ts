@@ -1,13 +1,10 @@
 import type { Expense as ApiExpense } from "@prisma/client";
 import dayjs from "dayjs";
 import Expense from "~/models/Expense";
-import categoriesStore from "~/stores/categoriesStore";
-import savingSpendingStore from "~/stores/savingSpendingStore";
-import sourcesStore from "~/stores/sourcesStore";
-import subscriptionStore from "~/stores/subscriptionStore";
+import { dataStores } from "~/stores/dataStores";
 
 function getSavingSpendingByCategoryId(id: number): Expense["savingSpending"] {
-  for (const spending of savingSpendingStore.savingSpendings) {
+  for (const spending of dataStores.savingSpendingStore.savingSpendings) {
     const found = spending.categories.find((c) => c.id === id);
     if (found) {
       return {
@@ -20,7 +17,7 @@ function getSavingSpendingByCategoryId(id: number): Expense["savingSpending"] {
 }
 
 export function adaptExpenseFromApi(expense: ApiExpense): Expense {
-  const category = categoriesStore.getById(expense.categoryId);
+  const category = dataStores.categoriesStore.getById(expense.categoryId);
   return new Expense(
     expense.id,
     expense.cost,
@@ -31,10 +28,12 @@ export function adaptExpenseFromApi(expense: ApiExpense): Expense {
       : category.findSubcategoryById(expense.subcategoryId),
     expense.name,
     expense.personalExpenseId,
-    expense.sourceId === null ? null : sourcesStore.getById(expense.sourceId),
+    expense.sourceId === null
+      ? null
+      : dataStores.sourcesStore.getById(expense.sourceId),
     expense.subscriptionId === null
       ? null
-      : subscriptionStore.getById(expense.subscriptionId),
+      : dataStores.subscriptionStore.getById(expense.subscriptionId),
     expense.savingSpendingCategoryId === null
       ? null
       : getSavingSpendingByCategoryId(expense.savingSpendingCategoryId)

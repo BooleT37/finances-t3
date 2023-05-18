@@ -1,29 +1,30 @@
 import { Typography } from "antd";
 import CategoriesScreen from "~/components/categories/CategoriesScreen";
-import { DataFetcher, type Stores } from "~/components/DataFetcher";
+import { DataFetcher } from "~/components/DataFetcher";
 import SiteContent from "~/components/SiteContent";
 import WhiteHeader from "~/components/WhiteHeader";
-import categoriesStore from "~/stores/categoriesStore";
-import userSettingsStore from "~/stores/userSettingsStore";
+import CategoriesStore from "~/stores/CategoriesStore";
+import { type StoresToInit } from "~/stores/dataStores";
+import UserSettingsStore from "~/stores/UserSettingsStore";
 import { protectedPageProps } from "~/utils/protectedPageProps";
 
 const { Title } = Typography;
 
-const stores: Stores = {
-  categoriesStore,
-  userSettingsStore,
-  sourcesStore: false,
-  forecastStore: false,
-  subscriptionStore: false,
-  savingSpendingStore: false,
-  expenseStore: false,
+const storesToInit: StoresToInit = {
+  CategoriesStore,
+  UserSettingsStore,
+  SourcesStore: false,
+  ForecastStore: false,
+  SubscriptionStore: false,
+  SavingSpendingStore: false,
+  ExpenseStore: false,
 };
 
 export const getServerSideProps = protectedPageProps;
 
 // eslint-disable-next-line mobx/missing-observer
 const CategoriesPage: React.FC = () => (
-  <DataFetcher stores={stores}>
+  <DataFetcher stores={storesToInit}>
     <WhiteHeader className="site-layout-background">
       <Title>Категории</Title>
     </WhiteHeader>

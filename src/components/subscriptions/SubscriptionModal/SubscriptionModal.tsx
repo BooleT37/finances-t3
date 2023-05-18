@@ -16,9 +16,7 @@ import { CostInput } from "~/components/CostInput";
 import Subscription, {
   type SubscriptionFormValues as FormValues,
 } from "~/models/Subscription";
-import categoriesStore from "~/stores/categoriesStore";
-import sourcesStore from "~/stores/sourcesStore";
-import subscriptionStore from "~/stores/subscriptionStore";
+import { dataStores } from "~/stores/dataStores";
 import { DATE_FORMAT } from "~/utils/constants";
 
 const NEW_SUBSCRIPTION_ID = -1;
@@ -37,11 +35,13 @@ function formValuesToSubscription(
     id ?? NEW_SUBSCRIPTION_ID,
     values.name,
     parseFloat(values.cost),
-    categoriesStore.getById(values.categoryId),
+    dataStores.categoriesStore.getById(values.categoryId),
     values.period,
     values.firstDate,
     active,
-    values.source !== null ? sourcesStore.getById(values.source) : null
+    values.source !== null
+      ? dataStores.sourcesStore.getById(values.source)
+      : null
   );
 }
 
@@ -72,7 +72,7 @@ const SubscriptionModal: React.FC<Props> = observer(function SubscriptionModal({
   const firstFieldRef = React.useRef<InputRef>(null);
   const [active, setActive] = React.useState(true);
 
-  const { expenseOptions } = categoriesStore;
+  const { expenseOptions } = dataStores.categoriesStore;
 
   const handleSubmit = () => {
     form
@@ -85,9 +85,9 @@ const SubscriptionModal: React.FC<Props> = observer(function SubscriptionModal({
             active
           );
           if (subscriptionId === null) {
-            await subscriptionStore.add(subscription);
+            await dataStores.subscriptionStore.add(subscription);
           } else {
-            subscriptionStore.modify(subscription);
+            dataStores.subscriptionStore.modify(subscription);
           }
           onClose();
         })
@@ -107,10 +107,11 @@ const SubscriptionModal: React.FC<Props> = observer(function SubscriptionModal({
         setActive(true);
       } else {
         form.setFieldsValue(
-          subscriptionStore.getFormValuesByIdOrThrow(subscriptionId)
+          dataStores.subscriptionStore.getFormValuesByIdOrThrow(subscriptionId)
         );
         runInAction(() => {
-          const subscription = subscriptionStore.getByIdOrThrow(subscriptionId);
+          const subscription =
+            dataStores.subscriptionStore.getByIdOrThrow(subscriptionId);
           setActive(subscription.active);
         });
       }
@@ -194,7 +195,7 @@ const SubscriptionModal: React.FC<Props> = observer(function SubscriptionModal({
         </Form.Item>
         <Form.Item name="source" label="Источник">
           <Select
-            options={sourcesStore.asOptions}
+            options={dataStores.sourcesStore.asOptions}
             placeholder="Не указано"
             style={{ width: 150 }}
             allowClear

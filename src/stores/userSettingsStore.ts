@@ -4,9 +4,9 @@ import { isEqual } from "lodash";
 import { makeAutoObservable } from "mobx";
 import { type AppRouter } from "~/server/api/root";
 import { trpc } from "~/utils/api";
-import { type DataLoader } from "./DataLoader";
+import { type DataLoader } from "./dataStores";
 
-export class UserSettingsStore
+export default class UserSettingsStore
   implements DataLoader<inferRouterOutputs<AppRouter>["userSettings"]["get"]>
 {
   pePerMonth = 50;
@@ -17,6 +17,7 @@ export class UserSettingsStore
   expenseCategoriesOrder: number[] = [];
   incomeCategoriesOrder: number[] = [];
   sourcesOrder: number[] = [];
+  inited = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -40,6 +41,7 @@ export class UserSettingsStore
     this.incomeCategoriesOrder = settings.incomeCategoriesOrder;
     this.expenseCategoriesOrder = settings.expenseCategoriesOrder;
     this.sourcesOrder = settings.sourcesOrder;
+    this.inited = true;
   }
 
   setPePerMonth = async (sum: number) => {
@@ -97,7 +99,3 @@ export class UserSettingsStore
     });
   };
 }
-
-const userSettingsStore = new UserSettingsStore();
-
-export default userSettingsStore;

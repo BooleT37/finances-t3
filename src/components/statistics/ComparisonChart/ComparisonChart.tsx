@@ -3,7 +3,7 @@ import { AgChartsReact } from "ag-charts-react";
 import { DatePicker, Select, Space, Typography } from "antd";
 import dayjs from "dayjs";
 import React from "react";
-import expenseStore from "~/stores/expenseStore";
+import { dataStores } from "~/stores/dataStores";
 import { MONTH_DATE_FORMAT } from "~/utils/constants";
 import getOptions from "./getOptions";
 
@@ -51,7 +51,11 @@ const ComparisonChart = function ComparisonChart() {
     : getOptions(
         startDate.format(format),
         endDate.format(format),
-        expenseStore.getComparisonData(startDate, endDate, granularity)
+        dataStores.expenseStore.getComparisonData(
+          startDate,
+          endDate,
+          granularity
+        )
       );
 
   return (

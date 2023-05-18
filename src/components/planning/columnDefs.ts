@@ -10,7 +10,7 @@ import { TOTAL_CATEGORY_ID } from "~/models/Category";
 import {
   type ForecastSum,
   type ForecastTableItem,
-} from "~/stores/forecastStore/types";
+} from "~/stores/ForecastStore/types";
 import type { ForecastSubscriptionsItem } from "~/types/forecast/forecastTypes";
 import costToString from "~/utils/costToString";
 import CostCellRenderer from "./CostCellRenderer";

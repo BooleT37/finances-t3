@@ -7,8 +7,7 @@ import { Button } from "antd";
 import { sum } from "lodash";
 import { observer } from "mobx-react";
 import { useState } from "react";
-import categoriesStore from "~/stores/categoriesStore";
-import expenseStore from "~/stores/expenseStore";
+import { dataStores } from "~/stores/dataStores";
 import costToString from "~/utils/costToString";
 import roundCost from "~/utils/roundCost";
 
@@ -20,13 +19,15 @@ interface BarDatum {
 export const MostSpendingsStep: React.FC = observer(
   function MostSpendingsStep() {
     const [allCategoriesShown, setAllCategoriesShown] = useState(false);
-    const { expensesByCategoryIdForYear } = expenseStore;
+    const { expensesByCategoryIdForYear } = dataStores.expenseStore;
 
     const expenses = expensesByCategoryIdForYear(2022);
 
     const data: BarDatum[] = Object.entries(expenses)
       .filter(([categoryId]) => {
-        const category = categoriesStore.getById(parseInt(categoryId));
+        const category = dataStores.categoriesStore.getById(
+          parseInt(categoryId)
+        );
         return !category.isIncome && !category.toSavings;
       })
       .map(([categoryId, expenses]): [string, number] => [
@@ -37,7 +38,8 @@ export const MostSpendingsStep: React.FC = observer(
       .slice(0, allCategoriesShown ? Object.keys(expenses).length : 3)
       .map(
         ([categoryId, spent]): BarDatum => ({
-          category: categoriesStore.getById(parseInt(categoryId)).name,
+          category: dataStores.categoriesStore.getById(parseInt(categoryId))
+            .name,
           spent,
         })
       );

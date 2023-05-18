@@ -1,2 +1,2 @@
-export { default as columnDefs } from './columnDefs'
-export { default as autoGroupColumnDef } from './autoGroupColumnDef'
+export { default as autoGroupColumnDef } from "./autoGroupColumnDef";
+export { default as useColumnDefs } from "./useColumnDefs";

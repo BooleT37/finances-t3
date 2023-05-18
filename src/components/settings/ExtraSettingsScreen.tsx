@@ -9,7 +9,7 @@ import { debounce } from "lodash";
 import { observer } from "mobx-react";
 import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
-import userSettingsStore from "~/stores/userSettingsStore";
+import { dataStores } from "~/stores/dataStores";
 import { DATE_FORMAT } from "~/utils/constants";
 import { CostInput } from "../CostInput";
 
@@ -28,7 +28,7 @@ const ExtraSettingsScreen: React.FC = observer(function ExtraSettingsScreen() {
     setPePerMonth: setSavedPeSum,
     setSavings: setSavedSavings,
     removeSavings,
-  } = userSettingsStore;
+  } = dataStores.userSettingsStore;
   const [peSum, setPeSum] = React.useState(savedPeSum);
   const [savings, setSavings] = React.useState(savedSavings?.sum ?? 0);
 

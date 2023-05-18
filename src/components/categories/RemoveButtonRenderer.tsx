@@ -2,7 +2,7 @@ import { DeleteOutlined } from "@ant-design/icons";
 import { TRPCClientError } from "@trpc/client";
 import { Button, Modal, Tooltip } from "antd";
 import React from "react";
-import categoriesStore from "~/stores/categoriesStore";
+import { dataStores } from "~/stores/dataStores";
 
 interface Props {
   id: number;
@@ -16,7 +16,7 @@ const RemoveButtonRenderer: React.FC<Props> = ({ id, disabled }) => {
       content: "Вы уверены, что хотите удалить эту категорию?",
       onOk: async () => {
         try {
-          await categoriesStore.deleteCategory(id);
+          await dataStores.categoriesStore.deleteCategory(id);
         } catch (e) {
           if (e instanceof TRPCClientError) {
             Modal.error({

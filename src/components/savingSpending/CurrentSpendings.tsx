@@ -3,7 +3,7 @@ import { Tooltip } from "antd";
 import { observer } from "mobx-react";
 import Link from "next/link";
 import styled from "styled-components";
-import savingSpendingStore from "~/stores/savingSpendingStore";
+import { dataStores } from "~/stores/dataStores";
 import costToString from "~/utils/costToString";
 
 const Wrapper = styled.div`
@@ -15,7 +15,7 @@ const Wrapper = styled.div`
 `;
 
 export const CurrentSpendings: React.FC = observer(() => {
-  const { currentSpendings } = savingSpendingStore;
+  const { currentSpendings } = dataStores.savingSpendingStore;
   if (currentSpendings === null) {
     return null;
   }

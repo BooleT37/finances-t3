@@ -4,7 +4,7 @@ import { runInAction } from "mobx";
 import { observer } from "mobx-react";
 import { useState } from "react";
 import styled from "styled-components";
-import savingSpendingStore from "~/stores/savingSpendingStore";
+import { dataStores } from "~/stores/dataStores";
 import SavingSpendingCard from "./SavingSpendingCard";
 import SavingSpendingModal from "./SavingSpendingModal";
 
@@ -18,7 +18,7 @@ const AddEventCard = styled(Card)`
 
 const SavingSpendingsScreen: React.FC = observer(
   function SavingSpendingsScreen() {
-    const { savingSpendings: spendings } = savingSpendingStore;
+    const { savingSpendings: spendings } = dataStores.savingSpendingStore;
 
     const [modalOpen, setModalOpen] = useState(false);
     const [editedSpendingId, setEditedSpendingId] = useState<number>(-1);
@@ -46,7 +46,7 @@ const SavingSpendingsScreen: React.FC = observer(
                       icon: <ExclamationCircleOutlined />,
                       onOk: async () =>
                         runInAction(() =>
-                          savingSpendingStore.removeSpending(s.id)
+                          dataStores.savingSpendingStore.removeSpending(s.id)
                         ),
                     });
                   }}

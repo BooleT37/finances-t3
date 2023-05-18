@@ -4,15 +4,16 @@ import { adaptCategoryFromApi } from "~/adapters/category/categoryFromApi";
 import type Category from "~/models/Category";
 import { type CategoryTableItem } from "~/models/Category";
 import { type AppRouter } from "~/server/api/root";
-import { type DataLoader } from "~/stores/DataLoader";
 import { trpc } from "~/utils/api";
 import { sortCategories } from "./categoriesOrder";
-import userSettingsStore from "./userSettingsStore";
+import { type DataLoader } from "./dataStores";
+import { dataStores } from "./dataStores/DataStores";
 
-export class CategoriesStore
+export default class CategoriesStore
   implements DataLoader<inferRouterOutputs<AppRouter>["categories"]["getAll"]>
 {
   categories = observable.array<Category>();
+  inited = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -24,6 +25,7 @@ export class CategoriesStore
 
   init(categories: inferRouterOutputs<AppRouter>["categories"]["getAll"]) {
     this.categories.replace(categories.map(adaptCategoryFromApi));
+    this.inited = true;
   }
 
   getByNameIfExists(name: string): Category | undefined {
@@ -54,7 +56,11 @@ export class CategoriesStore
     return this.categories
       .filter((c) => !c.isIncome)
       .sort((c1, c2) =>
-        sortCategories(c1.id, c2.id, userSettingsStore.expenseCategoriesOrder)
+        sortCategories(
+          c1.id,
+          c2.id,
+          dataStores.userSettingsStore.expenseCategoriesOrder
+        )
       );
   }
 
@@ -62,7 +68,11 @@ export class CategoriesStore
     return this.categories
       .filter((c) => c.isIncome)
       .sort((c1, c2) =>
-        sortCategories(c1.id, c2.id, userSettingsStore.incomeCategoriesOrder)
+        sortCategories(
+          c1.id,
+          c2.id,
+          dataStores.userSettingsStore.incomeCategoriesOrder
+        )
       );
   }
 
@@ -151,7 +161,3 @@ export class CategoriesStore
     this.categories.remove(this.getById(id));
   }
 }
-
-const categoriesStore = new CategoriesStore();
-
-export default categoriesStore;

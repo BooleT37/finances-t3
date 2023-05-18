@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import {
   type ForecastSum,
   type ForecastTableItem,
-} from "~/stores/forecastStore/types";
+} from "~/stores/ForecastStore/types";
 import costToString from "~/utils/costToString";
 import type { ForecastMainTableContext } from "../PlanningScreen";
 

@@ -3,7 +3,7 @@ import { debounce } from "lodash";
 import { runInAction } from "mobx";
 import { useMemo } from "react";
 import { type CategoryTableItem } from "~/models/Category";
-import userSettingsStore from "~/stores/userSettingsStore";
+import { dataStores } from "~/stores/dataStores";
 
 function getCategoriesOrder(api: GridApi<CategoryTableItem>): number[] {
   const order: number[] = [];
@@ -20,9 +20,9 @@ export const usePersistCategoriesOrder = () => {
     runInAction(() => {
       const order = getCategoriesOrder(api);
       if (isIncome) {
-        void userSettingsStore.persistIncomeCategoryOrder(order);
+        void dataStores.userSettingsStore.persistIncomeCategoryOrder(order);
       } else {
-        void userSettingsStore.persistExpenseCategoryOrder(order);
+        void dataStores.userSettingsStore.persistExpenseCategoryOrder(order);
       }
     });
   };

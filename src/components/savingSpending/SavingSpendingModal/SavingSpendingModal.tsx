@@ -2,7 +2,7 @@ import { runInAction } from "mobx";
 import { useMemo } from "react";
 import CostsListModal from "~/components/CostsListModal";
 import { type FormValues } from "~/components/CostsListModal/CostsListForm";
-import savingSpendingStore from "~/stores/savingSpendingStore";
+import { dataStores } from "~/stores/dataStores";
 import { savingSpendingModalViewModel } from "./SavingSpendingModalViewModel";
 import { saveSavingSpending } from "./utils/saveSavingSpending";
 
@@ -21,7 +21,7 @@ const SavingSpendingModal: React.FC<Props> = ({
   const editedSpending =
     editedSpendingId === -1
       ? null
-      : savingSpendingStore.getById(editedSpendingId);
+      : dataStores.savingSpendingStore.getById(editedSpendingId);
 
   const handleFinish = (values: FormValues) => {
     runInAction(() => {

@@ -2,7 +2,7 @@ import { type FormValues } from "~/components/CostsListModal/CostsListForm";
 import type NewSavingSpendingCategory from "~/models/NewSavingSpendingCategory";
 import SavingSpendingCategory from "~/models/SavingSpendingCategory";
 import SavingSpendingEditing from "~/models/SavingSpendingEditing";
-import savingSpendingStore from "~/stores/savingSpendingStore";
+import { dataStores } from "~/stores/dataStores";
 import { isTempId } from "~/utils/tempId";
 
 export async function saveSavingSpending(
@@ -36,8 +36,8 @@ export async function saveSavingSpending(
     }
   }
   if (id === -1) {
-    await savingSpendingStore.addSpending(spending);
+    await dataStores.savingSpendingStore.addSpending(spending);
   } else {
-    await savingSpendingStore.editSpending(spending);
+    await dataStores.savingSpendingStore.editSpending(spending);
   }
 }

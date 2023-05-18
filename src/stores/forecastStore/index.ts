@@ -1,5 +1,5 @@
-import forecastStore from "./forecastStore";
+import ForecastStore from "./ForecastStore";
 
-export * from "./forecastStore";
+export * from "./ForecastStore";
 
-export default forecastStore;
+export default ForecastStore;

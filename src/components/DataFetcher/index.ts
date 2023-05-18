@@ -1,1 +1,1 @@
-export { DataFetcher, type Stores } from "./DataFetcher";
+export { DataFetcher } from "./DataFetcher";
