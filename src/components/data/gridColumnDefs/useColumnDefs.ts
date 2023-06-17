@@ -51,13 +51,14 @@ const useColumnDefs = (
         hide: true,
         headerName: "Категория",
         sort: "asc",
-        comparator: (_categoryA, _categoryB, nodeA, nodeB) =>
-          nodeA.group &&
-          nodeA.key === "category" &&
-          nodeB.group &&
-          nodeB.key === "category"
+        comparator: (_categoryA, _categoryB, nodeA, nodeB) => {
+          return nodeA.group &&
+            nodeA.field === "category" &&
+            nodeB.group &&
+            nodeB.field === "category"
             ? sortAllCategoriesByName(nodeA.key ?? "", nodeB.key ?? "")
-            : 0,
+            : 0;
+        },
       },
       {
         field: "subcategory",
