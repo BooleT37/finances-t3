@@ -109,11 +109,13 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
     const response = await trpc.expense.create.mutate(
       adaptExpenseToCreateInput(expense)
     );
-    const adaptedExpense = adaptExpenseFromApi(response);
-    runInAction(() => {
-      this.expenses.push(adaptedExpense);
+    return runInAction(() => {
+      const adaptedExpense = adaptExpenseFromApi(response);
+      runInAction(() => {
+        this.expenses.push(adaptedExpense);
+      });
+      return adaptedExpense;
     });
-    return adaptedExpense;
   }
 
   async modify(expense: Expense): Promise<Expense> {

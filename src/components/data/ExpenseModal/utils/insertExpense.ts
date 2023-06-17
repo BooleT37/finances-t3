@@ -102,16 +102,15 @@ export default async function insertExpense(
         newExpense.personalExpenseId = personalExpense.id;
         newExpense.cost = (newExpense.cost ?? 0) - (personalExpense.cost ?? 0);
       }
-      await dataStores.expenseStore.modify(newExpense);
+      return await dataStores.expenseStore.modify(newExpense);
     } else {
       if (modifyingExpense.personalExpense) {
         const { id: peId } = modifyingExpense.personalExpense;
         newExpense.personalExpenseId = null;
-        await dataStores.expenseStore.modify(newExpense);
         await dataStores.expenseStore.delete(peId);
-      } else {
-        await dataStores.expenseStore.modify(newExpense);
+        return await dataStores.expenseStore.modify(newExpense);
       }
+      return await dataStores.expenseStore.modify(newExpense);
     }
   } else {
     if (values.personalExpCategoryId !== undefined) {
@@ -139,7 +138,6 @@ export default async function insertExpense(
         newExpense.personalExpenseId = addedPersonalExpense.id;
       });
     }
-    await dataStores.expenseStore.add(newExpense);
+    return await dataStores.expenseStore.add(newExpense);
   }
-  return newExpense;
 }

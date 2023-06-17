@@ -316,7 +316,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
           form.getFieldValue("source") as FormValues["source"]
         );
       }}
-      width={540}
+      width={580}
       footer={[
         expenseModalViewModel.lastExpense && (
           <Button

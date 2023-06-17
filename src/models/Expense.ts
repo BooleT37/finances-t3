@@ -58,7 +58,7 @@ export default class Expense {
       category: SavingSpendingCategory;
     } | null = null
   ) {
-    makeAutoObservable(this);
+    makeAutoObservable(this, undefined, { autoBind: true });
     this.id = id;
     this.cost = cost;
     this.date = date;
