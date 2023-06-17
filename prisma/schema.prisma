@@ -165,7 +165,7 @@ model Expense {
 
 model Forecast {
   id         Int      @id @default(autoincrement())
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   categoryId Int
   month      Int      @db.SmallInt
   year       Int      @db.SmallInt
