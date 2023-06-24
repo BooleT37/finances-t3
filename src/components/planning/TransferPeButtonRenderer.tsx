@@ -10,7 +10,6 @@ const TransferPeButtonRenderer: React.FC<
   ICellRendererParams<ForecastTableItem>
   // eslint-disable-next-line mobx/missing-observer
 > = (props) => {
-  // eslint-disable-next-line @typescript-eslint/unbound-method
   const { year, month, scrollToRow } = props.context as ForecastTableContext;
   return (
     <Button

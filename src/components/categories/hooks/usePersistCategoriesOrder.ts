@@ -15,8 +15,8 @@ function getCategoriesOrder(api: GridApi<CategoryTableItem>): number[] {
   return order;
 }
 
-export const usePersistCategoriesOrder = () => {
-  const persistFn = (isIncome: boolean, api: GridApi<CategoryTableItem>) => {
+export const usePersistCategoriesOrder = (isIncome: boolean) => {
+  const persistFn = (api: GridApi<CategoryTableItem>) => {
     runInAction(() => {
       const order = getCategoriesOrder(api);
       if (isIncome) {

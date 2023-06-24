@@ -20,10 +20,10 @@ import type Expense from "~/models/Expense";
 import { dataStores } from "~/stores/dataStores";
 import type { Option } from "~/types/types";
 import { DATE_FORMAT } from "~/utils/constants";
-import expenseModalViewModel from "./expenseModalViewModel";
-import { type FormValues, type ValidatedFormValues } from "./models";
 import PersonalExpenses from "./PersonalExpenses";
 import SourceLastExpenses from "./SourceLastExpenses";
+import expenseModalViewModel from "./expenseModalViewModel";
+import { type FormValues, type ValidatedFormValues } from "./models";
 import { insertExpense } from "./utils";
 
 function expenseToFormValues(expense: Expense): FormValues {
@@ -362,7 +362,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
     >
       <Form
         form={form}
-        name="basic"
+        name="expense"
         labelCol={{ span: 8 }}
         wrapperCol={{ span: 16 }}
         initialValues={INITIAL_VALUES}

@@ -38,9 +38,7 @@ const RemoveButtonRenderer: React.FC<Props> = ({ id, disabled }) => {
   return (
     <Tooltip
       title={
-        disabled
-          ? "Это системная категория, ее нельзя удалить"
-          : "Удалить категорию"
+        disabled ? "Это системная категория, ее нельзя удалить" : "Удалить"
       }
     >
       <Button

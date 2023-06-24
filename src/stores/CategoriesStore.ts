@@ -128,6 +128,20 @@ export default class CategoriesStore
     return this.expenseCategories.map((c) => c.tableItem);
   }
 
+  async updateCategory(category: Category) {
+    await trpc.categories.update.mutate({
+      data: {
+        name: category.name,
+        shortname: category.shortname,
+        type: category.type,
+        isContinuous: category.isContinuous,
+        isIncome: category.isIncome,
+      },
+      id: category.id,
+    });
+    this.getById(category.id).update(category);
+  }
+
   async updateCategoryField<Field extends keyof CategoryTableItem>(
     id: number,
     field: Field,
@@ -143,13 +157,13 @@ export default class CategoriesStore
     category.update({ [field]: value });
   }
 
-  async createCategory(isIncome: boolean) {
+  async createCategory(category: Category) {
     const created = await trpc.categories.create.mutate({
-      name: "",
-      shortname: "",
-      isContinuous: false,
-      isIncome,
-      type: null,
+      name: category.name,
+      shortname: category.shortname,
+      isContinuous: category.isContinuous,
+      isIncome: category.isIncome,
+      type: category.type,
     });
     const adaptedCategory = adaptCategoryFromApi(created);
     this.categories.push(adaptedCategory);

@@ -6,9 +6,10 @@ import { useRef } from "react";
 import { AG_GRID_LOCALE_RU } from "~/agGridLocale.ru";
 import { type CategoryTableItem } from "~/models/Category";
 import { dataStores } from "~/stores/dataStores";
-import { getColumnDefs } from "./columnDefs";
+import { categoriesColumnDefs } from "./categoriesColumnDefs";
+import CategoryModal from "./CategoryEditModal/CategoryModal";
+import categoryModalViewModel from "./CategoryEditModal/categoryModalViewModel";
 import { useHandleCategoryCellEditRequest } from "./hooks/useHandleCategoryCellEditRequest";
-import { useHandleCreateCategory } from "./hooks/useHandleCreateCategory";
 import { usePersistCategoriesOrder } from "./hooks/usePersistCategoriesOrder";
 
 const { Title } = Typography;
@@ -18,75 +19,81 @@ const CategoriesScreen = observer(function CategoriesScreen() {
   const expensesRef = useRef<AgGridReact<CategoryTableItem>>(null);
   const incomeRef = useRef<AgGridReact<CategoryTableItem>>(null);
 
-  const handleCreateCategory = useHandleCreateCategory();
-  const persistCategoriesOrder = usePersistCategoriesOrder();
+  const persistExpenseCategoriesOrder = usePersistCategoriesOrder(false);
+  const persistIncomeCategoriesOrder = usePersistCategoriesOrder(true);
+  const { open } = categoryModalViewModel;
 
   return (
     <div className="ag-theme-alpine">
-      <Space direction="vertical" size="middle">
-        <Space align="baseline">
-          <Title level={2}>Расходы</Title>
-          <Button
-            onClick={() => {
-              void handleCreateCategory(false, expensesRef);
-            }}
-          >
-            <PlusOutlined />
-            Добавить расход
-          </Button>
+      <Space wrap={true} size="middle" align="start">
+        <Space direction="vertical">
+          <Space align="baseline">
+            <Title level={2}>Расходы</Title>
+            <Button
+              onClick={() => {
+                void open(false, null);
+              }}
+            >
+              <PlusOutlined />
+              Добавить
+            </Button>
+          </Space>
+          <div style={{ width: 502 }}>
+            <AgGridReact<CategoryTableItem>
+              ref={expensesRef}
+              columnDefs={categoriesColumnDefs}
+              rowData={dataStores.categoriesStore.tableExpenseItems}
+              readOnlyEdit
+              onCellEditRequest={handleCellEditRequest}
+              domLayout="autoHeight"
+              groupDefaultExpanded={-1}
+              localeText={AG_GRID_LOCALE_RU}
+              rowDragManaged
+              animateRows
+              singleClickEdit
+              stopEditingWhenCellsLoseFocus
+              getRowId={({ data }) => data.id.toString()}
+              onModelUpdated={({ api }) => {
+                persistExpenseCategoriesOrder(api);
+              }}
+            />
+          </div>
         </Space>
-        <div style={{ width: 1060 }}>
-          <AgGridReact<CategoryTableItem>
-            ref={expensesRef}
-            columnDefs={getColumnDefs(false)}
-            rowData={dataStores.categoriesStore.tableExpenseItems}
-            readOnlyEdit
-            onCellEditRequest={handleCellEditRequest}
-            domLayout="autoHeight"
-            groupDefaultExpanded={-1}
-            localeText={AG_GRID_LOCALE_RU}
-            rowDragManaged
-            animateRows
-            singleClickEdit
-            stopEditingWhenCellsLoseFocus
-            getRowId={({ data }) => data.id.toString()}
-            onModelUpdated={({ api }) => {
-              persistCategoriesOrder(false, api);
-            }}
-          />
-        </div>
-        <Space align="baseline">
-          <Title level={2}>Доходы</Title>
-          <Button
-            onClick={() => {
-              void handleCreateCategory(true, incomeRef);
-            }}
-          >
-            <PlusOutlined />
-            Добавить доход
-          </Button>
+        <Space direction="vertical">
+          <Space align="baseline">
+            <Title level={2}>Доходы</Title>
+            <Button
+              onClick={() => {
+                void open(true, null);
+              }}
+            >
+              <PlusOutlined />
+              Добавить
+            </Button>
+          </Space>
+          <div style={{ width: 502 }}>
+            <AgGridReact<CategoryTableItem>
+              ref={incomeRef}
+              columnDefs={categoriesColumnDefs}
+              rowData={dataStores.categoriesStore.tableIncomeItems}
+              readOnlyEdit
+              onCellEditRequest={handleCellEditRequest}
+              domLayout="autoHeight"
+              groupDefaultExpanded={-1}
+              localeText={AG_GRID_LOCALE_RU}
+              rowDragManaged
+              animateRows
+              getRowId={({ data }) => data.id.toString()}
+              singleClickEdit
+              stopEditingWhenCellsLoseFocus
+              onModelUpdated={({ api }) => {
+                persistIncomeCategoriesOrder(api);
+              }}
+            />
+          </div>
         </Space>
-        <div style={{ width: 860 }}>
-          <AgGridReact<CategoryTableItem>
-            ref={incomeRef}
-            columnDefs={getColumnDefs(true)}
-            rowData={dataStores.categoriesStore.tableIncomeItems}
-            readOnlyEdit
-            onCellEditRequest={handleCellEditRequest}
-            domLayout="autoHeight"
-            groupDefaultExpanded={-1}
-            localeText={AG_GRID_LOCALE_RU}
-            rowDragManaged
-            animateRows
-            getRowId={({ data }) => data.id.toString()}
-            singleClickEdit
-            stopEditingWhenCellsLoseFocus
-            onModelUpdated={({ api }) => {
-              persistCategoriesOrder(true, api);
-            }}
-          />
-        </div>
       </Space>
+      <CategoryModal />
     </div>
   );
 });

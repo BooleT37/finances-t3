@@ -12,6 +12,9 @@ const config = {
       parserOptions: {
         project: path.join(__dirname, "tsconfig.json"),
       },
+      rules: {
+        "@typescript-eslint/unbound-method": "off",
+      },
     },
   ],
   parser: "@typescript-eslint/parser",
@@ -19,11 +22,7 @@ const config = {
     project: path.join(__dirname, "tsconfig.json"),
   },
   plugins: ["@typescript-eslint", "mobx"],
-  extends: [
-    "next/core-web-vitals",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:mobx/recommended",
-  ],
+  extends: ["next/core-web-vitals", "plugin:mobx/recommended"],
   rules: {
     "@typescript-eslint/consistent-type-imports": [
       "warn",
