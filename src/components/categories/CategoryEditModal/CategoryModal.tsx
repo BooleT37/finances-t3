@@ -33,6 +33,7 @@ const CategoryModal = observer(function CategoryModal() {
             shortname: currentCategory.shortname,
             isIncome: currentCategory.isIncome,
             isContinuous: currentCategory.isContinuous,
+            type: currentCategory.type ?? undefined,
             subcategories: currentCategory.subcategories,
           });
         } else {
@@ -70,6 +71,7 @@ const CategoryModal = observer(function CategoryModal() {
           isIncome: false,
           isContinuous: false,
           subcategories: [],
+          type: null,
         }}
       >
         <Form.Item name="isIncome" label="Доход" valuePropName="checked">
@@ -108,6 +110,7 @@ const CategoryModal = observer(function CategoryModal() {
           <Switch />
         </Form.Item>
         <Form.Item
+          name="type"
           label="Тип"
           hidden={["FROM_SAVINGS", "TO_SAVINGS"].includes(
             currentCategory?.type ?? ""
