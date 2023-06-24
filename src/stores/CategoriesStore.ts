@@ -1,6 +1,7 @@
 import { type inferRouterOutputs } from "@trpc/server";
 import { makeAutoObservable, observable } from "mobx";
 import { adaptCategoryFromApi } from "~/adapters/category/categoryFromApi";
+import { adaptCategoryToUpdateInput } from "~/adapters/category/categoryToApi";
 import type Category from "~/models/Category";
 import { type CategoryTableItem } from "~/models/Category";
 import { type AppRouter } from "~/server/api/root";
@@ -129,17 +130,12 @@ export default class CategoriesStore
   }
 
   async updateCategory(category: Category) {
+    const currentCategory = this.getById(category.id);
     await trpc.categories.update.mutate({
-      data: {
-        name: category.name,
-        shortname: category.shortname,
-        type: category.type,
-        isContinuous: category.isContinuous,
-        isIncome: category.isIncome,
-      },
+      data: adaptCategoryToUpdateInput(category, currentCategory),
       id: category.id,
     });
-    this.getById(category.id).update(category);
+    currentCategory.update(category);
   }
 
   async updateCategoryField<Field extends keyof CategoryTableItem>(

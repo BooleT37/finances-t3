@@ -20,7 +20,8 @@ export const useHandleCategorySubmit = (form: FormInstance<FormValues>) => {
             values.shortname,
             values.type,
             values.isIncome,
-            values.isContinuous
+            values.isContinuous,
+            values.subcategories
           )
         );
       } else {
@@ -31,7 +32,8 @@ export const useHandleCategorySubmit = (form: FormInstance<FormValues>) => {
             values.shortname,
             values.type,
             values.isIncome,
-            values.isContinuous
+            values.isContinuous,
+            values.subcategories
           )
         );
       }

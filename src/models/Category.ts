@@ -74,7 +74,7 @@ export default class Category {
     };
   }
 
-  update(fields: Partial<CategoryTableItem>) {
+  update(fields: Partial<Category>) {
     if (fields.name !== undefined) {
       this.name = fields.name;
     }
@@ -89,6 +89,9 @@ export default class Category {
     }
     if (fields.type !== undefined) {
       this.type = fields.type;
+    }
+    if (fields.subcategories !== undefined) {
+      this.subcategories = fields.subcategories;
     }
   }
 }

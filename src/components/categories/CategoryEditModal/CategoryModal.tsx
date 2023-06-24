@@ -1,10 +1,12 @@
 import { CategoryType } from "@prisma/client";
 import { Form, Input, Modal, Select, Switch } from "antd";
+import { runInAction } from "mobx";
 import { observer } from "mobx-react";
 import { useEffect } from "react";
 import type Subcategory from "~/models/Subcategory";
 import categoryModalViewModel from "./categoryModalViewModel";
 import { isContinuousTooltip } from "./isContinuousTooltip";
+import { SubcategoriesList } from "./SubcategoriesList";
 import { useHandleCategorySubmit } from "./useHandleCategorySubmit";
 
 export interface FormValues {
@@ -23,20 +25,22 @@ const CategoryModal = observer(function CategoryModal() {
   const { handleSubmit, loading } = useHandleCategorySubmit(form);
 
   useEffect(() => {
-    if (visible) {
-      if (currentCategory) {
-        form.setFieldsValue({
-          name: currentCategory.name,
-          shortname: currentCategory.shortname,
-          isIncome: currentCategory.isIncome,
-          isContinuous: currentCategory.isContinuous,
-          subcategories: currentCategory.subcategories,
-        });
-      } else {
-        form.resetFields();
-        form.setFieldValue("isIncome", isIncome);
+    runInAction(() => {
+      if (visible) {
+        if (currentCategory) {
+          form.setFieldsValue({
+            name: currentCategory.name,
+            shortname: currentCategory.shortname,
+            isIncome: currentCategory.isIncome,
+            isContinuous: currentCategory.isContinuous,
+            subcategories: currentCategory.subcategories,
+          });
+        } else {
+          form.resetFields();
+          form.setFieldValue("isIncome", isIncome);
+        }
       }
-    }
+    });
   }, [currentCategory, form, isIncome, visible]);
 
   return (
@@ -116,6 +120,7 @@ const CategoryModal = observer(function CategoryModal() {
             ]}
           />
         </Form.Item>
+        <SubcategoriesList />
       </Form>
     </Modal>
   );
