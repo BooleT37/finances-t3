@@ -107,7 +107,12 @@ const CategoryModal = observer(function CategoryModal() {
         >
           <Switch />
         </Form.Item>
-        <Form.Item label="Тип">
+        <Form.Item
+          label="Тип"
+          hidden={["FROM_SAVINGS", "TO_SAVINGS"].includes(
+            currentCategory?.type ?? ""
+          )}
+        >
           <Select
             allowClear
             placeholder="Нет типа"
