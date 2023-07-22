@@ -36,7 +36,7 @@ const useColumnDefs = (
           ),
         cellRenderer: CostCellRenderer,
       },
-      { field: "date", width: 130, headerName: "Дата" },
+      { field: "date", width: 130, headerName: "Дата", filter: true },
       {
         field: "name",
         width: 200,
@@ -44,6 +44,12 @@ const useColumnDefs = (
         hide: true,
         resizable: true,
         tooltipField: "name",
+      },
+      {
+        field: "source",
+        width: 130,
+        headerName: "Источник",
+        filter: true,
       },
       {
         field: "category",

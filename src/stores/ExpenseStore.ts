@@ -7,7 +7,7 @@ import { computedFn } from "mobx-utils";
 import { adaptExpenseFromApi } from "~/adapters/expense/expenseFromApi";
 import {
   adaptExpenseToCreateInput,
-  adaptExpenseToUpdateInput,
+  adaptExpenseToUpdateInput
 } from "~/adapters/expense/expenseToApi";
 import type ComparisonData from "~/types/statistics/comparisonData";
 import type DynamicsData from "~/types/statistics/dynamicsData";
@@ -392,6 +392,7 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
       categoryId: subscription.category.id,
       categoryShortname: subscription.category.shortname,
       subcategory: "",
+      source: subscription.source?.name ?? "",
       cost: {
         value: subscription.cost,
         isSubscription: true,

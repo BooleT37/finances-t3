@@ -288,7 +288,7 @@ const DataScreen = observer(function DataScreen() {
           </Checkbox>
         </div>
         {rangeStart && rangeEnd && (
-          <div className="ag-theme-alpine" style={{ width: 800 }}>
+          <div className="ag-theme-alpine" style={{ width: 930 }}>
             <AgGridStyled
               ref={gridRef}
               rowData={dataStores.expenseStore.tableData(
@@ -303,7 +303,7 @@ const DataScreen = observer(function DataScreen() {
                   : undefined
               }
               defaultColDef={{
-                menuTabs: ["generalMenuTab"],
+                menuTabs: ["generalMenuTab", "filterMenuTab"],
               }}
               groupAllowUnbalanced
               columnDefs={columnDefs}
