@@ -12,14 +12,15 @@ export const expenseRouter = createTRPCRouter({
   }),
   create: protectedProcedure
     .input(ExpenseCreateWithoutUserInputObjectSchema)
-    .mutation(({ ctx, input }) =>
-      ctx.prisma.expense.create({
+    .mutation(({ ctx, input }) => {
+      console.log(input);
+      return ctx.prisma.expense.create({
         data: {
           ...input,
           ...connectUser(ctx),
         },
-      })
-    ),
+      });
+    }),
   update: protectedProcedure
     .input(
       z.object({
