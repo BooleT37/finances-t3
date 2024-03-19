@@ -138,6 +138,7 @@ export default async function insertExpense(
         newExpense.personalExpenseId = addedPersonalExpense.id;
       });
     }
+    console.log(newExpense);
     return await dataStores.expenseStore.add(newExpense);
   }
 }

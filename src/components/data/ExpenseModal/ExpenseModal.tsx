@@ -20,10 +20,10 @@ import type Expense from "~/models/Expense";
 import { dataStores } from "~/stores/dataStores";
 import type { Option } from "~/types/types";
 import { DATE_FORMAT } from "~/utils/constants";
-import PersonalExpenses from "./PersonalExpenses";
-import SourceLastExpenses from "./SourceLastExpenses";
 import expenseModalViewModel from "./expenseModalViewModel";
 import { type FormValues, type ValidatedFormValues } from "./models";
+import PersonalExpenses from "./PersonalExpenses";
+import SourceLastExpenses from "./SourceLastExpenses";
 import { insertExpense } from "./utils";
 
 function expenseToFormValues(expense: Expense): FormValues {
@@ -85,6 +85,12 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
   const [hasPersonalExp, setHasPersonalExp] = React.useState(false);
   const { lastSource, isNewExpense } = expenseModalViewModel;
   const { incomeOptions, expenseOptions } = dataStores.categoriesStore;
+
+  console.log({
+    today: today.format("YYYY-MM-DDTHH:mm:ssZ[Z]"),
+    startDate: startDate?.format("YYYY-MM-DDTHH:mm:ssZ[Z]"),
+    endDate: endDate?.format("YYYY-MM-DDTHH:mm:ssZ[Z]"),
+  });
 
   const INITIAL_VALUES: FormValues = React.useMemo(
     () => ({
@@ -227,6 +233,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
   }));
 
   const handleValuesChange = (changedValues: Partial<FormValues>) => {
+    console.log(changedValues);
     if (changedValues.subscription !== undefined) {
       const subscription = dataStores.subscriptionStore.getJsById(
         changedValues.subscription
