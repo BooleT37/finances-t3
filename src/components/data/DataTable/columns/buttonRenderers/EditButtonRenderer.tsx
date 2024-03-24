@@ -1,19 +1,16 @@
 import { EditFilled } from "@ant-design/icons";
-import { type ICellRendererParams } from "ag-grid-enterprise";
 import { Button } from "antd";
-import React from "react";
+import { type MRT_ColumnDef } from "material-react-table";
+import expenseModalViewModel from "~/components/data/ExpenseModal/expenseModalViewModel";
 import { type TableData } from "~/models/Expense";
-import expenseModalViewModel from "../ExpenseModal/expenseModalViewModel";
 
 // eslint-disable-next-line mobx/missing-observer
-const EditButtonRenderer: React.FC<ICellRendererParams<TableData>> = (
-  props
-) => {
+const EditButtonRenderer: MRT_ColumnDef<TableData>["Cell"] = (props) => {
   // if it's a group row or an upcoming subscription
-  if (!props.data || props.data.isUpcomingSubscription) {
+  if (props.row.original.isUpcomingSubscription) {
     return null;
   }
-  const id = props.data.id;
+  const id = props.row.original.id;
   return (
     <Button
       icon={<EditFilled />}

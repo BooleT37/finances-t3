@@ -1,17 +1,17 @@
-import type { IRowNode } from "ag-grid-enterprise";
+import type { Row } from "@tanstack/react-table";
 import { action } from "mobx";
-import { type CostCol, type TableData } from "~/models/Expense";
+import { type TableData } from "~/models/Expense";
 import { dataStores } from "~/stores/dataStores";
 import { type AggCostCol } from "~/types/data";
 import roundCost from "~/utils/roundCost";
 
-export default action(function costAggFunc(
-  values: CostCol[],
-  rowNode: IRowNode<TableData>,
+export default action(function costAggregationFn(
+  rows: Row<TableData>[],
   categoriesForecast: Record<number, number> | null,
   savingSpendingsForecast: number
 ): AggCostCol {
-  if (values.length === 0 || !rowNode.allLeafChildren?.[0]?.data) {
+  const categoryId = rows[0]?.original.categoryId;
+  if (rows.length === 0 || categoryId === undefined) {
     return {
       value: 0,
       diff: null,
@@ -20,9 +20,14 @@ export default action(function costAggFunc(
     };
   }
   const value = roundCost(
-    values.reduce((a, c) => (c.isUpcomingSubscription ? a : a + c.value), 0)
+    rows.reduce(
+      (a, c) =>
+        c.original.isUpcomingSubscription
+          ? a
+          : a + (c.original.cost?.value ?? 0),
+      0
+    )
   );
-  const { categoryId } = rowNode.allLeafChildren[0].data;
   const {
     isIncome,
     isContinuous,

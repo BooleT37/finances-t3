@@ -1,5 +1,6 @@
 import type { Expense as ApiExpense } from "@prisma/client";
 import dayjs from "dayjs";
+import { action } from "mobx";
 import Expense from "~/models/Expense";
 import { dataStores } from "~/stores/dataStores";
 
@@ -16,7 +17,7 @@ function getSavingSpendingByCategoryId(id: number): Expense["savingSpending"] {
   throw new Error(`Can't find spending by category id ${id}`);
 }
 
-export function adaptExpenseFromApi(expense: ApiExpense): Expense {
+export const adaptExpenseFromApi = action((expense: ApiExpense): Expense => {
   const category = dataStores.categoriesStore.getById(expense.categoryId);
   return new Expense(
     expense.id,
@@ -38,4 +39,4 @@ export function adaptExpenseFromApi(expense: ApiExpense): Expense {
       ? null
       : getSavingSpendingByCategoryId(expense.savingSpendingCategoryId)
   );
-}
+});

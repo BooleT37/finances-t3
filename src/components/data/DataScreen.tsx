@@ -6,25 +6,20 @@ import {
   RightOutlined,
   SwapOutlined,
 } from "@ant-design/icons";
-import "ag-grid-enterprise";
-import { AgGridReact } from "ag-grid-react";
 import { Button, Checkbox, DatePicker, Input, Space, Tooltip } from "antd";
 import dayjs, { type Dayjs } from "dayjs";
+import { type MRT_TableInstance } from "material-react-table";
 import { action } from "mobx";
 import { observer } from "mobx-react";
-import React, { useCallback } from "react";
+import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
-import { AG_GRID_LOCALE_RU } from "~/agGridLocale.ru";
 import type Expense from "~/models/Expense";
 import { type TableData } from "~/models/Expense";
 import { dataStores } from "~/stores/dataStores";
 import { DATE_FORMAT, MONTH_DATE_FORMAT } from "~/utils/constants";
+import { DataTable } from "./DataTable/DataTable";
 import ExpenseModal from "./ExpenseModal";
 import expenseModalViewModel from "./ExpenseModal/expenseModalViewModel";
-import { useColumnDefs } from "./gridColumnDefs";
-import autoGroupColumnDef from "./gridColumnDefs/autoGroupColumnDef";
-import { getRowStyle } from "./utils";
-import { useDataTableContext } from "./utils/useDataTableContext";
 
 const { RangePicker } = DatePicker;
 const { Search } = Input;
@@ -41,12 +36,6 @@ const SearchStyled = styled(Search)`
   width: 300px;
 `;
 
-const AgGridStyled = styled(AgGridReact<TableData>)`
-  .data-row-upcoming-subscription {
-    color: darkgray;
-  }
-`;
-
 const DataScreen = observer(function DataScreen() {
   const [rangeStart, setRangeStart] = React.useState<Dayjs | null>(
     today.startOf("day").date(1)
@@ -54,7 +43,6 @@ const DataScreen = observer(function DataScreen() {
   const [rangeEnd, setRangeEnd] = React.useState<Dayjs | null>(
     today.endOf("day").add(1, "month").date(1).subtract(1, "day")
   );
-  const gridRef = React.useRef<AgGridReact>(null);
   const [isRangePicker, setIsRangePicker] = React.useState(false);
   const [search, setSearch] = React.useState("");
   const [upcSubscriptionsShown, setUpcSubscriptionsShown] =
@@ -80,19 +68,6 @@ const DataScreen = observer(function DataScreen() {
       date ? date.endOf("day").add(1, "month").subtract(1, "day") : null
     );
   };
-
-  const expandCategory = React.useCallback((category: string) => {
-    setTimeout(() => {
-      if (!gridRef.current) {
-        return;
-      }
-      gridRef.current.api.forEachNode((node) => {
-        if (node.key === category) {
-          node.setExpanded(true);
-        }
-      });
-    }, 0);
-  }, []);
 
   const handleAdd = action(() => {
     expenseModalViewModel.open(null);
@@ -135,13 +110,27 @@ const DataScreen = observer(function DataScreen() {
     setRangeEnd(boundaryDates[1]);
   }, [boundaryDates]);
 
+  const tableInstanceRef = useRef<MRT_TableInstance<TableData> | null>(null);
+
+  const expandCategory = React.useCallback((category: string) => {
+    setTimeout(() => {
+      if (!tableInstanceRef.current) {
+        return;
+      }
+
+      tableInstanceRef.current
+        .getRow(`category:${category}`)
+        .toggleExpanded(true);
+    }, 0);
+  }, []);
+
   const handleSearch = (value: string) => {
     setIsRangePicker(true);
     setRangeAcrossAllTime();
     setSearch(value);
     if (value) {
       setTimeout(() => {
-        gridRef.current?.api.expandAll();
+        tableInstanceRef.current?.toggleAllRowsExpanded(true);
       });
     }
   };
@@ -149,21 +138,6 @@ const DataScreen = observer(function DataScreen() {
   const handleModalSubmit = useCallback(
     (expense: Expense) => {
       expandCategory(expense.category.name);
-      setTimeout(
-        action(() => {
-          if (!gridRef.current) {
-            return;
-          }
-          const { api } = gridRef.current;
-          const nodeToFlash = api.getRowNode(expense.id.toString());
-          if (nodeToFlash) {
-            api.flashCells({
-              rowNodes: [nodeToFlash],
-            });
-          }
-        }),
-        100
-      );
     },
     [expandCategory]
   );
@@ -178,12 +152,6 @@ const DataScreen = observer(function DataScreen() {
     setIsRangePicker((value) => !value);
   }, [isRangePicker, rangeEnd]);
 
-  const context = useDataTableContext(
-    expandCategory,
-    isRangePicker,
-    rangeStart
-  );
-
   const categoriesForecast =
     isRangePicker || !rangeStart
       ? null
@@ -197,7 +165,15 @@ const DataScreen = observer(function DataScreen() {
         rangeStart.month()
       )
     : 0;
-  const columnDefs = useColumnDefs(categoriesForecast, savingSpendingsForecast);
+  const isCurrentMonth =
+    rangeStart &&
+    today.month() === rangeStart.month() &&
+    today.year() === rangeStart.year();
+  const passedDaysRatio = isRangePicker
+    ? null
+    : isCurrentMonth
+    ? today.date() / rangeStart.daysInMonth()
+    : 1;
 
   return (
     <>
@@ -287,37 +263,23 @@ const DataScreen = observer(function DataScreen() {
             Предстоящие подписки
           </Checkbox>
         </div>
-        {rangeStart && rangeEnd && (
-          <div className="ag-theme-alpine" style={{ width: 930 }}>
-            <AgGridStyled
-              ref={gridRef}
-              rowData={dataStores.expenseStore.tableData(
+        {rangeStart &&
+          rangeEnd &&
+          categoriesForecast &&
+          passedDaysRatio !== null && (
+            <DataTable
+              tableInstanceRef={tableInstanceRef}
+              categoriesForecast={categoriesForecast}
+              data={dataStores.expenseStore.tableData(
                 rangeStart,
                 rangeEnd,
                 search,
                 upcSubscriptionsShown
               )}
-              getRowClass={({ data }) =>
-                data && data.isUpcomingSubscription
-                  ? "data-row-upcoming-subscription"
-                  : undefined
-              }
-              defaultColDef={{
-                menuTabs: ["generalMenuTab", "filterMenuTab"],
-              }}
-              groupAllowUnbalanced
-              columnDefs={columnDefs}
-              getRowId={({ data }) => data.id.toString()}
-              context={context}
-              isGroupOpenByDefault={({ field }) => field === "subcategory"}
-              getRowStyle={getRowStyle}
-              suppressAggFuncInHeader
-              autoGroupColumnDef={autoGroupColumnDef}
-              domLayout="autoHeight"
-              localeText={AG_GRID_LOCALE_RU}
+              passedDaysRatio={passedDaysRatio}
+              savingSpendingsForecast={savingSpendingsForecast}
             />
-          </div>
-        )}
+          )}
       </Space>
       <ExpenseModal
         startDate={rangeStart}

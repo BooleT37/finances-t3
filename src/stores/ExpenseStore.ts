@@ -7,7 +7,7 @@ import { computedFn } from "mobx-utils";
 import { adaptExpenseFromApi } from "~/adapters/expense/expenseFromApi";
 import {
   adaptExpenseToCreateInput,
-  adaptExpenseToUpdateInput
+  adaptExpenseToUpdateInput,
 } from "~/adapters/expense/expenseToApi";
 import type ComparisonData from "~/types/statistics/comparisonData";
 import type DynamicsData from "~/types/statistics/dynamicsData";

@@ -4,19 +4,16 @@ import { type CostCol } from "~/models/Expense";
 import { type AggCostCol } from "~/types/data";
 import costToString from "~/utils/costToString";
 import roundCost from "~/utils/roundCost";
-import { isAggCostCol } from "../utils";
+import isAggCostCol from "../utils/isAggCostCol";
 import CostCellView from "./CostCellView";
 
 interface Props {
-  value: CostCol | AggCostCol | undefined;
-  context: { passedDaysRatio: number };
+  value: CostCol | AggCostCol | null;
+  passedDaysRatio: number;
 }
 
 // eslint-disable-next-line mobx/missing-observer
-const CostCellRenderer: React.FC<Props> = ({
-  value: col,
-  context: { passedDaysRatio },
-}) => {
+const CostCellRenderer: React.FC<Props> = ({ value: col, passedDaysRatio }) => {
   if (!col) {
     return null;
   }
