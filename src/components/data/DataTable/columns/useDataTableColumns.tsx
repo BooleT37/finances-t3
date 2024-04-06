@@ -1,6 +1,8 @@
 import { createMRTColumnHelper } from "material-react-table";
 import { useMemo } from "react";
 import { type TableData } from "~/models/Expense";
+import { type AggCostCol } from "~/types/data";
+import CostAggregatedCellRenderer from "./CostCellRenderer/CostAggregatedCellRenderer";
 import CostCellRenderer from "./CostCellRenderer/CostCellRenderer";
 import costAggregationFn from "./utils/costAggregationFn";
 
@@ -25,12 +27,13 @@ export const useDataTableColumns = ({
             categoriesForecast,
             savingSpendingsForecast
           ),
-        Cell: ({ cell }) => (
-          <CostCellRenderer
+        AggregatedCell: ({ cell }) => (
+          <CostAggregatedCellRenderer
             passedDaysRatio={passedDaysRatio}
-            value={cell.getValue()}
+            value={cell.getValue() as AggCostCol | null}
           />
         ),
+        Cell: ({ cell }) => <CostCellRenderer value={cell.getValue()} />,
       }),
       columnHelper.accessor("date", {
         size: 130,

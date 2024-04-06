@@ -6,9 +6,9 @@ const DiffNode = styled("span")<{ color: string }>`
   color: ${(props) => props.color};
 `;
 
-const BarContainer = styled.div`
+const BarContainer = styled.div<{ $isMuiTable?: boolean }>`
   position: relative;
-  bottom: 8px;
+  bottom: ${(props) => (props.$isMuiTable ? "0" : "8px")};
   border: 1px solid gray;
   height: 4px;
   width: 60px;
@@ -29,11 +29,20 @@ interface Props {
   barWidth: number;
   title?: string;
   barOffset?: number;
+  isMuiTable?: boolean;
 }
 
 // eslint-disable-next-line mobx/missing-observer
 const TotalCostCellView: React.FC<Props> = (props) => {
-  const { cost, suffix, color, title, barOffset = 0, barWidth } = props;
+  const {
+    cost,
+    suffix,
+    color,
+    title,
+    barOffset = 0,
+    barWidth,
+    isMuiTable,
+  } = props;
 
   return (
     <div title={title}>
@@ -41,7 +50,7 @@ const TotalCostCellView: React.FC<Props> = (props) => {
         {cost}&nbsp;
         <DiffNode color={color}>{suffix}</DiffNode>
       </div>
-      <BarContainer>
+      <BarContainer $isMuiTable={isMuiTable}>
         <Bar color={color} width={barWidth} offset={barOffset} />
       </BarContainer>
     </div>
