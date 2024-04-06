@@ -85,6 +85,10 @@ export default class CategoriesStore
     return this.expenseCategories.filter((c) => !c.isPersonal && !c.isSavings);
   }
 
+  get expenseCategoriesTreeOptions() {
+    return this.expenseCategories.map((c) => c.asTreeOption);
+  }
+
   get fromSavingsCategory() {
     const found = this.categories.find((c) => c.fromSavings);
     if (found === undefined) {

@@ -1,5 +1,6 @@
 import type { CategoryType } from "@prisma/client";
 import { makeAutoObservable } from "mobx";
+import { type CategoryTreeSelectOption } from "~/components/data/ExpenseModal/ComponentsModal/CategorySubcategorySelect";
 import type { Option } from "~/types/types";
 import type Subcategory from "./Subcategory";
 
@@ -36,6 +37,23 @@ export default class Category {
     return {
       value: this.id,
       label: this.name,
+    };
+  }
+
+  get asTreeOption(): CategoryTreeSelectOption {
+    return {
+      value: `${this.id}`,
+      displayedText: this.name,
+      label: this.name,
+      ...(this.subcategories.length > 0
+        ? {
+            children: this.subcategories.map((subcategory) => ({
+              label: subcategory.name,
+              displayedText: `${this.name} - ${subcategory.name}`,
+              value: `${this.id}-${subcategory.id}`,
+            })),
+          }
+        : {}),
     };
   }
 

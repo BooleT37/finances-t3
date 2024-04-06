@@ -1,5 +1,7 @@
-import type { Prisma } from "@prisma/client";
+import type { ExpenseComponent, Prisma } from "@prisma/client";
+import { isEqual, omit } from "lodash";
 import type Expense from "~/models/Expense";
+import { isTempId } from "~/utils/tempId";
 import { connectIfExists } from "../connectIfExists";
 
 export function adaptExpenseToCreateInput(
@@ -19,11 +21,59 @@ export function adaptExpenseToCreateInput(
     savingSpendingCategory: connectIfExists(
       expense.savingSpending?.category ?? null
     ),
+    components: {
+      createMany: {
+        data: expense.components.map((component) =>
+          omit(component, ["expenseId", "id"])
+        ),
+      },
+    },
   };
 }
 
 export function adaptExpenseToUpdateInput(
-  expense: Expense
+  expense: Expense,
+  originalComponents: ExpenseComponent[]
 ): Prisma.ExpenseUpdateInput {
-  return adaptExpenseToCreateInput(expense);
+  const newComponents = expense.components
+    .filter(({ id }) => isTempId(id))
+    .map((component) => omit(component, ["expenseId", "id"]));
+  const updatedComponents = expense.components.filter((component) => {
+    if (isTempId(component.id)) {
+      return false;
+    }
+    const originalComponent = originalComponents.find(
+      ({ id }) => id === component.id
+    );
+    if (!originalComponent) {
+      throw new Error(
+        `Can't update the component. The original component with id ${component.id} is not found`
+      );
+    }
+    return !isEqual(originalComponent, component);
+  });
+  const removedComponents = originalComponents.filter(
+    ({ id }) => !expense.components.some((component) => component.id === id)
+  );
+  return {
+    ...adaptExpenseToCreateInput(expense),
+    components: {
+      createMany: {
+        data: newComponents,
+      },
+      update: updatedComponents.map((component) => ({
+        data: {
+          categoryId: component.categoryId,
+          cost: component.cost,
+          subcategoryId: component.subcategoryId,
+        },
+        where: { id: component.id },
+      })),
+      deleteMany: {
+        id: {
+          in: removedComponents.map(({ id }) => id),
+        },
+      },
+    },
+  };
 }

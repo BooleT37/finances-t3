@@ -8,7 +8,10 @@ import { connectUser, filterByUser } from "~/server/api/utils/linkCurrentUser";
 
 export const expenseRouter = createTRPCRouter({
   getAll: protectedProcedure.query(({ ctx }) => {
-    return ctx.prisma.expense.findMany(filterByUser(ctx));
+    return ctx.prisma.expense.findMany({
+      ...filterByUser(ctx),
+      include: { components: true },
+    });
   }),
   create: protectedProcedure
     .input(ExpenseCreateWithoutUserInputObjectSchema)
@@ -19,6 +22,7 @@ export const expenseRouter = createTRPCRouter({
           ...input,
           ...connectUser(ctx),
         },
+        include: { components: true },
       });
     }),
   update: protectedProcedure
@@ -32,6 +36,7 @@ export const expenseRouter = createTRPCRouter({
       ctx.prisma.expense.update({
         data,
         where: { id },
+        include: { components: true },
       })
     ),
   delete: protectedProcedure

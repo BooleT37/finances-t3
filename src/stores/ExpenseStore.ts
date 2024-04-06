@@ -1,4 +1,4 @@
-import type { Expense as ApiExpense } from "@prisma/client";
+import type { Expense as ApiExpense, ExpenseComponent } from "@prisma/client";
 import assert from "assert";
 import dayjs, { type Dayjs } from "dayjs";
 import { groupBy, sum } from "lodash";
@@ -9,6 +9,7 @@ import {
   adaptExpenseToCreateInput,
   adaptExpenseToUpdateInput,
 } from "~/adapters/expense/expenseToApi";
+import { type ExpenseFromApi } from "~/types/apiTypes";
 import type ComparisonData from "~/types/statistics/comparisonData";
 import type DynamicsData from "~/types/statistics/dynamicsData";
 import { type DynamicsDataMonth } from "~/types/statistics/dynamicsData";
@@ -45,7 +46,7 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
     return trpc.expense.getAll.query();
   }
 
-  init(expenses: ApiExpense[]) {
+  init(expenses: ExpenseFromApi[]) {
     this.expenses.replace(expenses.map((e) => adaptExpenseFromApi(e)));
     this.fillPersonalExpenses(expenses);
     this.inited = true;
@@ -118,13 +119,17 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
     });
   }
 
-  async modify(expense: Expense): Promise<Expense> {
+  async modify(
+    expense: Expense,
+    originalComponents: ExpenseComponent[]
+  ): Promise<Expense> {
     const foundIndex = this.expenses.findIndex((e) => e.id === expense.id);
     if (foundIndex !== -1) {
+      // TODO: когда мы добавляем составляющие, и открываем сохраненный расход заново, то составляющие не отображаются
       this.expenses[foundIndex] = expense;
       const response = await trpc.expense.update.mutate({
         id: expense.id,
-        data: adaptExpenseToUpdateInput(expense),
+        data: adaptExpenseToUpdateInput(expense, originalComponents),
       });
       return adaptExpenseFromApi(response);
     } else {

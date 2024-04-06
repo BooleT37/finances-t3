@@ -1,3 +1,4 @@
+import { type ExpenseComponent } from "@prisma/client";
 import { type Dayjs } from "dayjs";
 import { makeAutoObservable } from "mobx";
 import { dataStores } from "~/stores/dataStores";
@@ -33,6 +34,7 @@ export default class Expense {
   id: number;
   name: string;
   cost: number;
+  components: ExpenseComponent[];
   date: Dayjs;
   category: Category;
   subcategory: Subcategory | null;
@@ -47,6 +49,7 @@ export default class Expense {
   constructor(
     id: number,
     cost: number,
+    components: ExpenseComponent[],
     date: Dayjs,
     category: Category,
     subcategory: Subcategory | null,
@@ -62,6 +65,7 @@ export default class Expense {
     makeAutoObservable(this, undefined, { autoBind: true });
     this.id = id;
     this.cost = cost;
+    this.components = components;
     this.date = date;
     this.category = category;
     this.subcategory = subcategory;

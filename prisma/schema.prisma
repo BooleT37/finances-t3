@@ -68,11 +68,12 @@ model VerificationToken {
 }
 
 model Subcategory {
-  id         Int       @id @default(autoincrement())
-  name       String
-  category   Category? @relation(fields: [categoryId], references: [id])
-  categoryId Int?
-  expenses   Expense[]
+  id                Int                @id @default(autoincrement())
+  name              String
+  category          Category?          @relation(fields: [categoryId], references: [id])
+  categoryId        Int?
+  expenses          Expense[]
+  expenseComponents ExpenseComponent[]
 }
 
 enum CategoryType {
@@ -83,18 +84,19 @@ enum CategoryType {
 }
 
 model Category {
-  id            Int            @id @default(autoincrement())
-  name          String         @unique
-  isIncome      Boolean        @default(false)
-  isContinuous  Boolean        @default(false)
-  shortname     String         @db.VarChar(16)
-  type          CategoryType?
-  expenses      Expense[]
-  subcategories Subcategory[]
-  Subscriptions Subscription[]
-  forecast      Forecast[]
-  user          User           @relation(fields: [userId], references: [id])
-  userId        String         @default("clg6kpbtn0000mr081ntz0f8i")
+  id                Int                @id @default(autoincrement())
+  name              String             @unique
+  isIncome          Boolean            @default(false)
+  isContinuous      Boolean            @default(false)
+  shortname         String             @db.VarChar(16)
+  type              CategoryType?
+  expenses          Expense[]
+  subcategories     Subcategory[]
+  Subscriptions     Subscription[]
+  forecast          Forecast[]
+  user              User               @relation(fields: [userId], references: [id])
+  userId            String             @default("clg6kpbtn0000mr081ntz0f8i")
+  expenseComponents ExpenseComponent[]
 }
 
 model Source {
@@ -159,8 +161,23 @@ model Expense {
   savingSpendingCategory   SavingSpendingCategory? @relation(fields: [savingSpendingCategoryId], references: [id])
   savingSpendingCategoryId Int?
   subcategoryId            Int?
+  components               ExpenseComponent[]
   user                     User                    @relation(fields: [userId], references: [id])
   userId                   String                  @default("clg6kpbtn0000mr081ntz0f8i")
+}
+
+model ExpenseComponent {
+  id            Int          @id @default(autoincrement())
+  name          String
+  cost          Float
+  category      Category     @relation(fields: [categoryId], references: [id])
+  categoryId    Int
+  sucategory    Subcategory? @relation(fields: [subcategoryId], references: [id])
+  subcategoryId Int?
+  expense       Expense      @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  expenseId     Int
+
+  @@map("ExpenseComponent")
 }
 
 model Forecast {

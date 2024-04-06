@@ -11,12 +11,12 @@ export function adaptSavingSpendingFromApi(
     savingSpending.name,
     savingSpending.completed,
     savingSpending.categories.map(
-      (savingSpendingc) =>
+      (savingSpending) =>
         new SavingSpendingCategory(
-          savingSpendingc.id,
-          savingSpendingc.name,
-          savingSpendingc.forecast,
-          savingSpendingc.comment
+          savingSpending.id,
+          savingSpending.name,
+          savingSpending.forecast,
+          savingSpending.comment
         )
     )
   );

@@ -1,3 +1,5 @@
+import { BarsOutlined } from "@ant-design/icons";
+import { type ExpenseComponent } from "@prisma/client";
 import {
   Button,
   Checkbox,
@@ -11,7 +13,7 @@ import {
   Space,
 } from "antd";
 import dayjs, { type Dayjs } from "dayjs";
-import { action, reaction, runInAction } from "mobx";
+import { action, runInAction, toJS } from "mobx";
 import { observer, useLocalObservable } from "mobx-react";
 import type { BaseSelectRef } from "rc-select";
 import React, { useCallback, useMemo, useState } from "react";
@@ -20,11 +22,12 @@ import type Expense from "~/models/Expense";
 import { dataStores } from "~/stores/dataStores";
 import type { Option } from "~/types/types";
 import { DATE_FORMAT } from "~/utils/constants";
-import expenseModalViewModel from "./expenseModalViewModel";
+import { parseCategorySubcategoryId } from "./ComponentsModal/categorySubcategoryId";
+import ComponentsModal from "./ComponentsModal/ComponentsModal";
+import vm from "./expenseModalViewModel";
 import { type FormValues, type ValidatedFormValues } from "./models";
 import PersonalExpenses from "./PersonalExpenses";
 import SourceLastExpenses from "./SourceLastExpenses";
-import { insertExpense } from "./utils";
 
 function expenseToFormValues(expense: Expense): FormValues {
   return {
@@ -53,6 +56,8 @@ const ModalStyled = styled(Modal)`
     white-space: nowrap;
   }
 `;
+
+const costRegex = /^\d+(?:\.\d+)?$/;
 
 interface Props {
   startDate: Dayjs | null;
@@ -83,7 +88,20 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
     value: false,
   }));
   const [hasPersonalExp, setHasPersonalExp] = React.useState(false);
-  const { lastSource, isNewExpense } = expenseModalViewModel;
+  const {
+    visible,
+    lastSource,
+    isNewExpense,
+    expenseId,
+    currentComponents,
+    currentExpense,
+    lastExpense,
+    close,
+    setLastExpenseId,
+    reset,
+    insertExpense,
+    setCurrentComponents,
+  } = vm;
   const { incomeOptions, expenseOptions } = dataStores.categoriesStore;
 
   console.log({
@@ -92,9 +110,12 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
     endDate: endDate?.format("YYYY-MM-DDTHH:mm:ssZ[Z]"),
   });
 
+  const [componentsModalOpen, setComponentsModalOpen] = useState(false);
+
   const INITIAL_VALUES: FormValues = React.useMemo(
     () => ({
       cost: "",
+      components: [],
       subscription: undefined,
       category: undefined,
       subcategory: undefined,
@@ -136,11 +157,11 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
           const expense = await insertExpense(values as ValidatedFormValues);
           runInAction(() => {
             if (addMore.value) {
-              expenseModalViewModel.lastExpenseId = expense.id;
-              expenseModalViewModel.expenseId = null;
+              reset();
+              setLastExpenseId(expense.id);
               form.setFieldsValue({ date: values.date });
             } else {
-              expenseModalViewModel.close(values.source);
+              close(values.source);
             }
             setLoading(false);
             onSubmit(expense);
@@ -152,59 +173,55 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
           throw e;
         }
         console.log("Validate Failed:", e);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
   React.useEffect(() => {
-    return reaction(
-      () => expenseModalViewModel.visible,
-      () => {
-        if (expenseModalViewModel.visible) {
-          if (expenseModalViewModel.currentExpense) {
-            form.setFieldsValue(
-              expenseToFormValues(expenseModalViewModel.currentExpense)
-            );
-            setHasPersonalExp(
-              !!expenseModalViewModel.currentExpense.personalExpense
-            );
-            addMore.value = false;
-            isIncome.value =
-              expenseModalViewModel.currentExpense.category.isIncome;
-          } else {
-            form.setFieldsValue(INITIAL_VALUES);
-            setHasPersonalExp(false);
-          }
-          setTimeout(() => {
-            firstFieldRef.current?.focus();
-          }, 0);
+    runInAction(() => {
+      if (visible) {
+        if (currentExpense) {
+          form.setFieldsValue(expenseToFormValues(currentExpense));
+          setHasPersonalExp(!!currentExpense.personalExpense);
+          addMore.value = false;
+          isIncome.value = currentExpense.category.isIncome;
+        } else {
+          form.setFieldsValue(INITIAL_VALUES);
+          setHasPersonalExp(false);
         }
+        setTimeout(() => {
+          firstFieldRef.current?.focus();
+        }, 0);
       }
-    );
-  }, [INITIAL_VALUES, addMore, form, isIncome]);
+    });
+  }, [INITIAL_VALUES, addMore, currentExpense, form, isIncome, visible]);
 
   const handleInsertPreviousClick = () => {
-    if (expenseModalViewModel.lastExpense) {
-      form.setFieldsValue(
-        expenseToFormValues(expenseModalViewModel.lastExpense)
-      );
+    if (lastExpense) {
+      form.setFieldsValue(expenseToFormValues(lastExpense));
     }
   };
 
   const sourceId: number | undefined =
     Form.useWatch("source", form) ?? undefined;
-  const categoryId: number | undefined =
-    Form.useWatch("category", form) ?? undefined;
+  const categoryId: number | null = Form.useWatch("category", form) ?? null;
+  const subcategoryId: number | null =
+    Form.useWatch("subcategory", form) ?? null;
   const category = useMemo(
     () =>
-      categoryId === undefined
+      categoryId === null
         ? null
         : dataStores.categoriesStore.getById(categoryId),
     [categoryId]
   );
   const savingSpendingId: number | undefined =
     Form.useWatch("savingSpendingId", form) ?? undefined;
+  const cost: string = Form.useWatch("cost", form) ?? "";
+  const name = Form.useWatch("name", form) ?? "";
   const currentCategory =
-    categoryId !== undefined
+    categoryId !== null
       ? dataStores.categoriesStore.getById(categoryId)
       : undefined;
   const sourceExtra =
@@ -233,7 +250,6 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
   }));
 
   const handleValuesChange = (changedValues: Partial<FormValues>) => {
-    console.log(changedValues);
     if (changedValues.subscription !== undefined) {
       const subscription = dataStores.subscriptionStore.getJsById(
         changedValues.subscription
@@ -311,21 +327,15 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
 
   return (
     <ModalStyled
-      open={expenseModalViewModel.visible}
-      title={
-        expenseModalViewModel.isNewExpense
-          ? "Новая трата"
-          : "Редактирование траты"
-      }
+      open={visible}
+      title={isNewExpense ? "Новая трата" : "Редактирование траты"}
       onOk={handleSubmit}
       onCancel={() => {
-        expenseModalViewModel.close(
-          form.getFieldValue("source") as FormValues["source"]
-        );
+        close(form.getFieldValue("source") as FormValues["source"]);
       }}
       width={580}
       footer={[
-        expenseModalViewModel.lastExpense && (
+        lastExpense && (
           <Button
             key="insertLast"
             type="link"
@@ -334,7 +344,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
             Подставить предыдущий
           </Button>
         ),
-        expenseModalViewModel.isNewExpense && (
+        isNewExpense && (
           <Checkbox
             checked={addMore.value}
             onChange={(e) =>
@@ -350,9 +360,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
         <Button
           key="cancel"
           onClick={() => {
-            expenseModalViewModel.close(
-              form.getFieldValue("source") as FormValues["source"]
-            );
+            close(form.getFieldValue("source") as FormValues["source"]);
           }}
         >
           Отмена
@@ -468,29 +476,36 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
         )}
         <Form.Item
           name="cost"
-          label="Сумма"
+          label="Сумма (€)"
           rules={[
             { required: true, message: "Введите сумму" },
             {
-              pattern: /^\d+(?:\.\d+)?$/,
+              pattern: costRegex,
               message: "Введите корректную сумму",
-              validateTrigger: "onSubmit",
             },
           ]}
         >
-          <Input addonAfter="€" style={{ width: 130 }} />
+          <Space.Compact>
+            <Input value={cost} style={{ width: 130 }} />
+            <Button
+              disabled={!cost || !costRegex.test(cost)}
+              icon={<BarsOutlined />}
+              onClick={() => {
+                setComponentsModalOpen(true);
+              }}
+            />
+          </Space.Compact>
         </Form.Item>
-        {(categoryId === undefined || !category?.isPersonal) &&
-          !isIncome.value && (
-            <Divider orientation="center">
-              <Checkbox
-                checked={hasPersonalExp}
-                onChange={(e) => setHasPersonalExp(e.target.checked)}
-              >
-                Из личных
-              </Checkbox>
-            </Divider>
-          )}
+        {(categoryId === null || !category?.isPersonal) && !isIncome.value && (
+          <Divider orientation="center">
+            <Checkbox
+              checked={hasPersonalExp}
+              onChange={(e) => setHasPersonalExp(e.target.checked)}
+            >
+              Из личных
+            </Checkbox>
+          </Divider>
+        )}
         {hasPersonalExp && !isIncome.value && (
           <PersonalExpenses
             form={form}
@@ -516,6 +531,30 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
           />
         </Form.Item>
       </Form>
+      <ComponentsModal
+        defaultCategoryId={categoryId}
+        defaultSubcategoryId={subcategoryId}
+        components={toJS(currentComponents)}
+        expenseId={expenseId}
+        expenseName={name}
+        expenseCost={parseFloat(cost)}
+        open={componentsModalOpen}
+        onClose={() => {
+          setComponentsModalOpen(false);
+        }}
+        onSave={({ components }) => {
+          setCurrentComponents(
+            components.map<ExpenseComponent>((c) => ({
+              ...parseCategorySubcategoryId(c.categorySubcategoryId),
+              cost: parseFloat(c.cost),
+              expenseId: expenseId ?? -1,
+              id: c.id,
+              name: c.name,
+            }))
+          );
+          setComponentsModalOpen(false);
+        }}
+      />
     </ModalStyled>
   );
 });
