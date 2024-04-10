@@ -1,5 +1,12 @@
 import { type ExpenseComponent } from "@prisma/client";
-import { makeAutoObservable, observable, runInAction, toJS, trace } from "mobx";
+import {
+  action,
+  makeAutoObservable,
+  observable,
+  runInAction,
+  toJS,
+  trace,
+} from "mobx";
 import Expense from "~/models/Expense";
 import { dataStores } from "~/stores/dataStores";
 import { type ValidatedFormValues } from "./models";
@@ -12,6 +19,8 @@ class ExpenseModalViewModel {
   lastSource: number | undefined = undefined;
   originalComponents = observable.array<ExpenseComponent>();
   currentComponents = observable.array<ExpenseComponent>();
+  componentsModalOpen = false;
+  componentsModalIdHighlighted: number | null = null;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -37,8 +46,12 @@ class ExpenseModalViewModel {
   open(expenseId: number | null): void {
     this.expenseId = expenseId;
     this.visible = true;
-    this.originalComponents.replace(this.currentExpense?.components ?? []);
-    this.currentComponents.replace(this.currentExpense?.components ?? []);
+    this.originalComponents.replace(
+      this.currentExpense?.components.map((c) => c.asJSON) ?? []
+    );
+    this.currentComponents.replace(
+      this.currentExpense?.components.map((c) => c.asJSON) ?? []
+    );
   }
 
   reset(): void {
@@ -219,6 +232,21 @@ class ExpenseModalViewModel {
 
   setCurrentComponents(components: ExpenseComponent[]): void {
     this.currentComponents.replace(components);
+  }
+
+  setComponentsModalOpen(open: boolean) {
+    this.componentsModalOpen = open;
+  }
+
+  highlightComponentInModal(id: number) {
+    this.componentsModalIdHighlighted = id;
+
+    setTimeout(
+      action(() => {
+        this.componentsModalIdHighlighted = null;
+      }),
+      3500
+    );
   }
 }
 

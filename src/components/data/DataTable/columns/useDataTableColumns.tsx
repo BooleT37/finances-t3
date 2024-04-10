@@ -18,6 +18,9 @@ export const useDataTableColumns = ({
   const columnHelper = createMRTColumnHelper<TableData>();
   return useMemo(
     () => [
+      columnHelper.accessor("subcategory", {
+        header: "Подкатегория",
+      }),
       columnHelper.accessor("cost", {
         size: 150,
         header: "Сумма",

@@ -24,7 +24,7 @@ export function adaptExpenseToCreateInput(
     components: {
       createMany: {
         data: expense.components.map((component) =>
-          omit(component, ["expenseId", "id"])
+          omit(component.asJSON, ["expenseId", "id"])
         ),
       },
     },
@@ -35,10 +35,11 @@ export function adaptExpenseToUpdateInput(
   expense: Expense,
   originalComponents: ExpenseComponent[]
 ): Prisma.ExpenseUpdateInput {
-  const newComponents = expense.components
+  const components = expense.components.map((c) => c.asJSON);
+  const newComponents = components
     .filter(({ id }) => isTempId(id))
     .map((component) => omit(component, ["expenseId", "id"]));
-  const updatedComponents = expense.components.filter((component) => {
+  const updatedComponents = components.filter((component) => {
     if (isTempId(component.id)) {
       return false;
     }
@@ -53,7 +54,7 @@ export function adaptExpenseToUpdateInput(
     return !isEqual(originalComponent, component);
   });
   const removedComponents = originalComponents.filter(
-    ({ id }) => !expense.components.some((component) => component.id === id)
+    ({ id }) => !components.some((component) => component.id === id)
   );
   return {
     ...adaptExpenseToCreateInput(expense),

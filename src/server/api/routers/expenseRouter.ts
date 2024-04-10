@@ -44,4 +44,9 @@ export const expenseRouter = createTRPCRouter({
     .mutation(({ ctx, input: { id } }) =>
       ctx.prisma.expense.delete({ where: { id } })
     ),
+  deleteComponent: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(({ ctx, input: { id } }) =>
+      ctx.prisma.expenseComponent.delete({ where: { id } })
+    ),
 });

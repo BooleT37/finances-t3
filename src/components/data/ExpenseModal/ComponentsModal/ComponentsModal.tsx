@@ -3,6 +3,7 @@ import { type ExpenseComponent } from "@prisma/client";
 import { Button, Form, Input, InputNumber, Modal, Space } from "antd";
 import { sum } from "lodash";
 import React, { useCallback, useEffect, useMemo } from "react";
+import styled from "styled-components";
 import { getTempId } from "~/utils/tempId";
 import {
   buildCategorySubcategoryId,
@@ -10,6 +11,34 @@ import {
   type CategorySubcategoryId,
 } from "./categorySubcategoryId";
 import { CategorySubcategorySelect } from "./CategorySubcategorySelect";
+
+const RowSpaceStyled = styled(Space)<{ $highlighted?: boolean }>`
+  display: flex;
+  margin-bottom: 8px;
+  position: relative;
+
+  ${({ $highlighted }) =>
+    $highlighted &&
+    `
+    @keyframes fade-out {
+      from {opacity: 1}
+      to {opacity: 0}
+    }
+    
+    &::after {
+      content: "";
+      position: absolute;
+      left: -12px;
+      right: -12px;
+      bottom: 15px;
+      top: -8px;
+      border-radius: 10px;
+      border: solid royalblue 3px;
+      opacity: 1;
+      animation: fade-out 1s linear 2s 1;
+      animation-fill-mode: forwards;
+  }`};
+`;
 
 interface ExpenseComponentFormValues {
   id: number;
@@ -43,7 +72,8 @@ interface Props {
   components: ExpenseComponent[];
   expenseId: number | null;
   expenseName: string;
-  expenseCost: number;
+  expenseCost: number | null;
+  highlightedComponentId?: number | null;
 }
 
 function costToNumber(cost: string): number {
@@ -64,6 +94,7 @@ const ComponentsModal: React.FC<Props> = (props) => {
     expenseCost,
     defaultCategoryId,
     defaultSubcategoryId,
+    highlightedComponentId,
     onClose,
     onSave,
   } = props;
@@ -121,10 +152,13 @@ const ComponentsModal: React.FC<Props> = (props) => {
               return (
                 <>
                   {fields.map(({ key, name, ...restField }) => (
-                    <Space
+                    <RowSpaceStyled
                       key={key}
-                      style={{ display: "flex", marginBottom: 8 }}
                       align="start"
+                      $highlighted={
+                        highlightedComponentId !== undefined &&
+                        highlightedComponentId === components[name]?.id
+                      }
                     >
                       <Form.Item {...restField} name={[name, "name"]}>
                         <Input placeholder="На что" />
@@ -182,7 +216,7 @@ const ComponentsModal: React.FC<Props> = (props) => {
                           <MinusCircleOutlined onClick={() => remove(name)} />
                         }
                       />
-                    </Space>
+                    </RowSpaceStyled>
                   ))}
                   <Form.Item>
                     <Button
@@ -211,12 +245,15 @@ const ComponentsModal: React.FC<Props> = (props) => {
               );
             }}
           </Form.List>
-          <Space>
-            <div>Осталось в основном расходе:</div>
-            <div>
-              {expenseCost - sum(currentValue.map((c) => costToNumber(c.cost)))}
-            </div>
-          </Space>
+          {expenseCost !== null && (
+            <Space>
+              <div>Осталось в основном расходе:</div>
+              <div>
+                {expenseCost -
+                  sum(currentValue.map((c) => costToNumber(c.cost)))}
+              </div>
+            </Space>
+          )}
         </Space>
       </Form>
     </Modal>

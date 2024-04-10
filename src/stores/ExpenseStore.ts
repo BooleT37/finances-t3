@@ -7,7 +7,7 @@ import { computedFn } from "mobx-utils";
 import { adaptExpenseFromApi } from "~/adapters/expense/expenseFromApi";
 import {
   adaptExpenseToCreateInput,
-  adaptExpenseToUpdateInput,
+  adaptExpenseToUpdateInput
 } from "~/adapters/expense/expenseToApi";
 import { type ExpenseFromApi } from "~/types/apiTypes";
 import type ComparisonData from "~/types/statistics/comparisonData";
@@ -30,6 +30,13 @@ import { dataStores } from "./dataStores/DataStores";
 interface SubscriptionForPeriod {
   subscription: Subscription;
   firstDate: Dayjs;
+}
+
+interface ExpenseOrComponent {
+  name: string;
+  cost: number;
+  date: Dayjs;
+  category: Category;
 }
 
 const today = dayjs();
@@ -79,31 +86,38 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
     searchString: string,
     includeUpcomingSubscriptions: boolean
   ): TableData[] {
-    const rows = this.expenses
-      .filter(
-        (e) =>
-          e.date.isSameOrAfter(startDate) &&
-          e.date.isSameOrBefore(endDate) &&
-          (!searchString ||
-            e.name?.toLowerCase().includes(searchString.toLowerCase()))
-      )
-      .map((ex) => {
-        const tableData = ex.asTableData;
-        const pe = ex.personalExpense;
-        if (tableData.cost && pe && pe.cost !== null) {
-          const cost = costToString(pe.cost);
-          const author =
-            pe.category.id === PersonalExpCategoryIdsRename.Alexey ? "А" : "Л";
-          tableData.cost.personalExpStr = `${cost} личных (${author})`;
-        }
-        return tableData;
-      });
+    const filteredRows = this.expenses.filter(
+      (e) =>
+        e.date.isSameOrAfter(startDate) &&
+        e.date.isSameOrBefore(endDate) &&
+        (!searchString ||
+          e.name?.toLowerCase().includes(searchString.toLowerCase()))
+    );
+    const rows = filteredRows.map((ex) => {
+      const tableData = ex.asTableData;
+      const pe = ex.personalExpense;
+      if (tableData.cost && pe && pe.cost !== null) {
+        const cost = costToString(pe.cost);
+        const author =
+          pe.category.id === PersonalExpCategoryIdsRename.Alexey ? "А" : "Л";
+        tableData.cost.personalExpStr = `${cost} личных (${author})`;
+      }
+      return tableData;
+    });
+    const components = filteredRows.flatMap((e) =>
+      e.components.map((c) => c.asTableData)
+    );
     if (includeUpcomingSubscriptions) {
       return rows.concat(
-        this.availableSubscriptionsAsTableData(startDate, endDate, searchString)
+        ...this.availableSubscriptionsAsTableData(
+          startDate,
+          endDate,
+          searchString
+        ),
+        ...components
       );
     }
-    return rows;
+    return rows.concat(...components);
   }
 
   async add(expense: Expense): Promise<Expense> {
@@ -148,6 +162,19 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
     if (personalExpenseId !== undefined) {
       await this.delete(personalExpenseId);
     }
+  }
+
+  async deleteComponent(id: number, expenseId: number): Promise<void> {
+    const expense = this.getById(expenseId);
+    if (!expense) {
+      throw new Error(`Can't find expense with id ${expenseId}`);
+    }
+    const foundIndex = expense.components.findIndex((c) => c.id === id);
+    if (foundIndex === -1) {
+      throw new Error(`Can't find component with id ${id}`);
+    }
+    expense.components.splice(foundIndex, 1);
+    await trpc.expense.deleteComponent.mutate({ id });
   }
 
   fillPersonalExpenses(expenses: ApiExpense[]) {
@@ -307,6 +334,28 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
     return data;
   }
 
+  get expensesAndComponents(): ExpenseOrComponent[] {
+    return this.expenses
+      .map<ExpenseOrComponent>(
+        ({ costWithoutComponents, date, name, category }) => ({
+          cost: costWithoutComponents,
+          date,
+          name,
+          category,
+        })
+      )
+      .concat(
+        this.expenses.flatMap((e) =>
+          e.components.map(({ cost, parentExpense, name, category }) => ({
+            cost,
+            date: parentExpense.date,
+            name,
+            category,
+          }))
+        )
+      );
+  }
+
   get lastExpensesPerSource(): Record<number, Expense[]> {
     return Object.fromEntries(
       dataStores.sourcesStore.getAll().map<[number, Expense[]]>((s) => {
@@ -324,20 +373,6 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
         }
         return [s.id, []];
       })
-    );
-  }
-
-  totalForMonth(year: number, month: number, isIncome: boolean) {
-    return sum(
-      this.expenses
-        .filter(
-          (expense) =>
-            expense.date.month() === month &&
-            expense.date.year() === year &&
-            expense.category.isIncome === isIncome &&
-            !expense.category.fromSavings
-        )
-        .map((expense) => expense.cost ?? 0)
     );
   }
 
@@ -407,6 +442,7 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
       id: getTempId(),
       isUpcomingSubscription: true,
       name: subscription.name,
+      parentExpenseId: null,
     }));
     if (searchString) {
       rows = rows.filter((data) => data.name.includes(searchString));
@@ -442,5 +478,43 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
       return [today, today];
     }
     return [firstExpense.date, lastExpense.date];
+  }
+
+  totalPerMonth({
+    year,
+    month,
+    isIncome,
+    categoryId,
+  }: {
+    year: number;
+    month: number;
+    isIncome: boolean;
+    categoryId?: number;
+  }): number {
+    const monthExpenses = this.expenses.filter(
+      (expense) =>
+        expense.date.month() === month &&
+        expense.date.year() === year &&
+        expense.category.isIncome === isIncome
+    );
+
+    return (
+      sum(
+        monthExpenses
+          .filter((expense) =>
+            categoryId !== undefined ? expense.category.id === categoryId : true
+          )
+          .map((expense) => expense.costWithoutComponents ?? 0)
+      ) +
+      sum(
+        monthExpenses.flatMap((e) =>
+          e.components
+            .filter((c) =>
+              categoryId !== undefined ? c.category.id === categoryId : true
+            )
+            .map((c) => c.cost)
+        )
+      )
+    );
   }
 }

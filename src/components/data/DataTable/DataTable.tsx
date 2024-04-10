@@ -1,6 +1,5 @@
-import { DeleteOutlined, EditFilled } from "@ant-design/icons";
 import { type TableRowProps } from "@mui/material";
-import { Button, Modal, Space } from "antd";
+import { Space } from "antd";
 import {
   MaterialReactTable,
   MRT_ExpandAllButton,
@@ -14,8 +13,8 @@ import { action } from "mobx";
 import React, { useEffect } from "react";
 import { type TableData } from "~/models/Expense";
 import { dataStores } from "~/stores/dataStores";
-import expenseModalViewModel from "../ExpenseModal/expenseModalViewModel";
 import { useDataTableColumns } from "./columns/useDataTableColumns";
+import { RowActions } from "./RowActions";
 import { sortAllCategoriesByName } from "./utils/sortAllCategoriesByName";
 
 interface Props {
@@ -55,29 +54,17 @@ export const DataTable: React.FC<Props> = ({
       density: "compact",
     },
     enableRowActions: true,
-    renderRowActions: ({ row }) =>
-      row.original.isUpcomingSubscription ? undefined : (
-        <Space>
-          <Button
-            key="edit"
-            icon={<EditFilled />}
-            onClick={() => expenseModalViewModel.open(row.original.id)}
-          />
-          <Button
-            key="delete"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => {
-              Modal.confirm({
-                content: "Вы уверены, что хотите удалить этот расход?",
-                onOk: async () => {
-                  await dataStores.expenseStore.delete(row.original.id);
-                },
-              });
-            }}
-          />
-        </Space>
-      ),
+    renderRowActions: ({ row }) => {
+      if (row.original.isUpcomingSubscription) {
+        return undefined;
+      }
+      return (
+        <RowActions
+          id={row.original.id}
+          parentExpenseId={row.original.parentExpenseId}
+        />
+      );
+    },
     positionActionsColumn: "last",
     displayColumnDefOptions: {
       "mrt-row-expand": {
@@ -91,7 +78,11 @@ export const DataTable: React.FC<Props> = ({
           return (
             <>
               <MRT_ExpandButton row={row} table={table} />
-              {row.getIsGrouped() ? row.original.category : row.original.name}
+              {row.getIsGrouped()
+                ? row.depth === 0
+                  ? row.original.category
+                  : row.original.subcategory ?? "<без подкатегории>"
+                : row.original.name}
             </>
           );
         },

@@ -4,6 +4,7 @@ import { adaptCategoryFromApi } from "~/adapters/category/categoryFromApi";
 import { adaptCategoryToUpdateInput } from "~/adapters/category/categoryToApi";
 import type Category from "~/models/Category";
 import { type CategoryTableItem } from "~/models/Category";
+import type Subcategory from "~/models/Subcategory";
 import { type AppRouter } from "~/server/api/root";
 import { trpc } from "~/utils/api";
 import { sortCategories } from "./categoriesOrder";
@@ -51,6 +52,19 @@ export default class CategoriesStore
       throw new Error(`Cannot find category with id ${id}`);
     }
     return category;
+  }
+
+  getSubcategoryById(categoryId: number, subcategoryId: number): Subcategory {
+    const category = this.getById(categoryId);
+    const subcategory = category.subcategories.find(
+      (subcategory) => subcategory.id === subcategoryId
+    );
+    if (!subcategory) {
+      throw new Error(
+        `Cannot find subcategory with id ${subcategoryId} in category with id ${categoryId}`
+      );
+    }
+    return subcategory;
   }
 
   get expenseCategories() {
@@ -164,6 +178,13 @@ export default class CategoriesStore
       isContinuous: category.isContinuous,
       isIncome: category.isIncome,
       type: category.type,
+      subcategories: {
+        createMany: {
+          data: category.subcategories.map((subcategory) => ({
+            name: subcategory.name,
+          })),
+        },
+      },
     });
     const adaptedCategory = adaptCategoryFromApi(created);
     this.categories.push(adaptedCategory);

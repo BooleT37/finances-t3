@@ -96,31 +96,19 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
               year === prevYear
           )?.sum ?? 0;
 
-        const lastMonthSpendings = roundCost(
-          sum(
-            dataStores.expenseStore.expenses
-              .filter(
-                (e) =>
-                  e.date.month() === prevMonth &&
-                  e.date.year() === prevYear &&
-                  e.category.id === forecast.category.id
-              )
-              .map((e) => e.cost)
-          )
-        );
+        const lastMonthSpendings = dataStores.expenseStore.totalPerMonth({
+          year: prevYear,
+          month: prevMonth,
+          isIncome,
+          categoryId: forecast.category.id,
+        });
 
-        const thisMonthSpendings = roundCost(
-          sum(
-            dataStores.expenseStore.expenses
-              .filter(
-                (e) =>
-                  e.date.month() === month &&
-                  e.date.year() === year &&
-                  e.category.id === forecast.category.id
-              )
-              .map((e) => e.cost)
-          )
-        );
+        const thisMonthSpendings = dataStores.expenseStore.totalPerMonth({
+          year,
+          month,
+          isIncome,
+          categoryId: forecast.category.id,
+        });
 
         const { toSavings } = forecast.category;
 
@@ -131,7 +119,7 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
           categoryType: forecast.category.type,
           average: avgForNonEmpty(
             Object.values(
-              dataStores.expenseStore.expenses
+              dataStores.expenseStore.expensesAndComponents
                 .filter((e) => e.category.id === forecast.category.id)
                 .reduce<Record<string, number>>((a, c) => {
                   const month = c.date.format(MONTH_DATE_FORMAT);
@@ -145,7 +133,7 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
             )
           ),
           monthsWithSpendings: `${countUniqueMonths(
-            dataStores.expenseStore.expenses
+            dataStores.expenseStore.expensesAndComponents
               .filter((e) => e.category.id === forecast.category.id)
               .map((e) => e.date)
           )} / ${dataStores.expenseStore.totalMonths} месяцев`,
@@ -345,16 +333,12 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
       return;
     }
     const prevMonthSpends = roundCost(
-      sum(
-        dataStores.expenseStore.expenses
-          .filter(
-            (e) =>
-              e.date.month() === prevMonth &&
-              e.date.year() === prevYear &&
-              e.category.id === categoryId
-          )
-          .map((e) => e.cost)
-      )
+      dataStores.expenseStore.totalPerMonth({
+        year: prevYear,
+        month: prevMonth,
+        categoryId,
+        isIncome: false,
+      })
     );
 
     const correctedSum = roundCost(

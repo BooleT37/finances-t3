@@ -96,11 +96,14 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
     currentComponents,
     currentExpense,
     lastExpense,
+    componentsModalOpen,
+    componentsModalIdHighlighted,
     close,
     setLastExpenseId,
     reset,
     insertExpense,
     setCurrentComponents,
+    setComponentsModalOpen,
   } = vm;
   const { incomeOptions, expenseOptions } = dataStores.categoriesStore;
 
@@ -109,8 +112,6 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
     startDate: startDate?.format("YYYY-MM-DDTHH:mm:ssZ[Z]"),
     endDate: endDate?.format("YYYY-MM-DDTHH:mm:ssZ[Z]"),
   });
-
-  const [componentsModalOpen, setComponentsModalOpen] = useState(false);
 
   const INITIAL_VALUES: FormValues = React.useMemo(
     () => ({
@@ -532,12 +533,13 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
         </Form.Item>
       </Form>
       <ComponentsModal
+        highlightedComponentId={componentsModalIdHighlighted}
         defaultCategoryId={categoryId}
         defaultSubcategoryId={subcategoryId}
         components={toJS(currentComponents)}
         expenseId={expenseId}
         expenseName={name}
-        expenseCost={parseFloat(cost)}
+        expenseCost={cost ? parseFloat(cost) : null}
         open={componentsModalOpen}
         onClose={() => {
           setComponentsModalOpen(false);

@@ -19,6 +19,8 @@ const CostCellRenderer: React.FC<Props> = ({ value: col }) => {
       personalExpStr={col.personalExpStr}
       isSubscription={col.isSubscription}
       isUpcomingSubscription={col.isUpcomingSubscription}
+      parentExpenseName={col.parentExpenseName}
+      costWithComponents={col.costWithComponents}
     />
   );
 };
