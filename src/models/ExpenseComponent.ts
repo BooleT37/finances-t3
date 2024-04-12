@@ -30,10 +30,23 @@ export class ExpenseComponent implements ExpenseComponentApi {
     this.expenseId = expenseId;
   }
 
+  get tableName(): string {
+    if (this.name) {
+      if (this.parentExpense.name) {
+        return `${this.name} (часть от "${this.parentExpense.name}")`;
+      }
+      return this.name;
+    }
+    if (this.parentExpense.name) {
+      return `Часть от "${this.parentExpense.name}"`;
+    }
+    return "";
+  }
+
   get asTableData(): TableData {
     return {
       id: this.id,
-      name: this.name,
+      name: this.tableName,
       cost:
         this.cost !== null
           ? {
