@@ -1,7 +1,7 @@
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { type ExpenseComponent } from "@prisma/client";
 import { Button, Form, Input, InputNumber, Modal, Space } from "antd";
-import { sum } from "lodash";
+import sum from "lodash/sum";
 import React, { useCallback, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { getTempId } from "~/utils/tempId";

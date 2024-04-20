@@ -1,5 +1,5 @@
 import { EditFilled } from "@ant-design/icons";
-import { DeleteOutlined } from "@mui/icons-material";
+import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
 import { Button, Modal, Space } from "antd";
 import { useCallback } from "react";
 import { dataStores } from "~/stores/dataStores";
