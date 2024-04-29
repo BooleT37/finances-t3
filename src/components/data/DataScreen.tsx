@@ -118,9 +118,13 @@ const DataScreen = observer(function DataScreen() {
         return;
       }
 
-      tableInstanceRef.current
-        .getRow(`category:${category}`)
-        .toggleExpanded(true);
+      try {
+        tableInstanceRef.current
+          .getRow(`category:${category}`)
+          .toggleExpanded(true);
+      } catch {
+        // строка может и не существовать
+      }
     }, 0);
   }, []);
 
