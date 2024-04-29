@@ -12,7 +12,7 @@ export function adaptSubscriptionFromApi(
     subscription.cost,
     dataStores.categoriesStore.getById(subscription.categoryId),
     subscription.period,
-    dayjs(subscription.firstDate),
+    dayjs.utc(subscription.firstDate),
     subscription.active,
     subscription.sourceId === null
       ? null
