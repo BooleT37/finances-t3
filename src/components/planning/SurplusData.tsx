@@ -42,6 +42,7 @@ const SurplusData: React.FC<Props> = observer(function ({ year, month }) {
                 year,
                 month,
                 isIncome: false,
+                excludeTypes: ["FROM_SAVINGS"],
               })
           )
         )}

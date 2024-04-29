@@ -1,4 +1,8 @@
-import type { Expense as ApiExpense, ExpenseComponent } from "@prisma/client";
+import type {
+  Expense as ApiExpense,
+  CategoryType,
+  ExpenseComponent,
+} from "@prisma/client";
 import assert from "assert";
 import dayjs, { type Dayjs } from "dayjs";
 import { groupBy, sum } from "lodash";
@@ -7,7 +11,7 @@ import { computedFn } from "mobx-utils";
 import { adaptExpenseFromApi } from "~/adapters/expense/expenseFromApi";
 import {
   adaptExpenseToCreateInput,
-  adaptExpenseToUpdateInput
+  adaptExpenseToUpdateInput,
 } from "~/adapters/expense/expenseToApi";
 import { type ExpenseFromApi } from "~/types/apiTypes";
 import type ComparisonData from "~/types/statistics/comparisonData";
@@ -485,11 +489,13 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
     month,
     isIncome,
     categoryId,
+    excludeTypes = [],
   }: {
     year: number;
     month: number;
     isIncome: boolean;
     categoryId?: number;
+    excludeTypes?: CategoryType[];
   }): number {
     const monthExpenses = this.expenses.filter(
       (expense) =>
@@ -501,16 +507,27 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
     return (
       sum(
         monthExpenses
-          .filter((expense) =>
-            categoryId !== undefined ? expense.category.id === categoryId : true
+          .filter(
+            (expense) =>
+              (categoryId !== undefined
+                ? expense.category.id === categoryId
+                : true) &&
+              !(
+                expense.category.type &&
+                excludeTypes.includes(expense.category.type)
+              )
           )
           .map((expense) => expense.costWithoutComponents ?? 0)
       ) +
       sum(
         monthExpenses.flatMap((e) =>
           e.components
-            .filter((c) =>
-              categoryId !== undefined ? c.category.id === categoryId : true
+            .filter(
+              (c) =>
+                (categoryId !== undefined
+                  ? c.category.id === categoryId
+                  : true) &&
+                !(c.category.type && excludeTypes.includes(c.category.type))
             )
             .map((c) => c.cost)
         )
