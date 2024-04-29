@@ -4,8 +4,9 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import isBetween from "dayjs/plugin/isBetween";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
-import quarterOfYear from "dayjs/plugin/quarterOfYear";
 import minMax from "dayjs/plugin/minMax";
+import quarterOfYear from "dayjs/plugin/quarterOfYear";
+import utc from "dayjs/plugin/utc";
 
 export default function setupDayJs() {
   dayjs.extend(customParseFormat);
@@ -14,5 +15,6 @@ export default function setupDayJs() {
   dayjs.extend(quarterOfYear);
   dayjs.extend(isBetween);
   dayjs.extend(minMax);
+  dayjs.extend(utc);
   dayjs.locale("ru");
 }
