@@ -57,7 +57,7 @@ const ModalStyled = styled(Modal)`
   }
 `;
 
-const costRegex = /^\d+(?:\.\d+)?$/;
+const costRegex = /^-?\d+(?:\.\d+)?$/;
 
 interface Props {
   startDate: Dayjs | null;
