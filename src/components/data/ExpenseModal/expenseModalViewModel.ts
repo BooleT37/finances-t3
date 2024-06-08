@@ -1,6 +1,7 @@
-import { type ExpenseComponent } from "@prisma/client";
+import { type ExpenseComponent as ExpenseComponentApi } from "@prisma/client";
 import { action, makeAutoObservable, observable, toJS, trace } from "mobx";
 import Expense from "~/models/Expense";
+import { ExpenseComponent } from "~/models/ExpenseComponent";
 import { dataStores } from "~/stores/dataStores";
 import { type ValidatedFormValues } from "./models";
 
@@ -38,12 +39,8 @@ class ExpenseModalViewModel {
   open(expenseId: number | null): void {
     this.expenseId = expenseId;
     this.visible = true;
-    this.originalComponents.replace(
-      this.currentExpense?.components.map((c) => c.asJSON) ?? []
-    );
-    this.currentComponents.replace(
-      this.currentExpense?.components.map((c) => c.asJSON) ?? []
-    );
+    this.originalComponents.replace(this.currentExpense?.components ?? []);
+    this.currentComponents.replace(this.currentExpense?.components ?? []);
   }
 
   reset(): void {
@@ -68,7 +65,7 @@ class ExpenseModalViewModel {
     const newExpense = new Expense(
       -1,
       parseFloat(values.cost),
-      toJS(this.currentComponents),
+      toJS(this.currentComponents.map((c) => c.asJSON)),
       values.date,
       category,
       values.subcategory === undefined
@@ -112,8 +109,33 @@ class ExpenseModalViewModel {
     return this.currentComponents.length;
   }
 
-  setCurrentComponents(components: ExpenseComponent[]): void {
-    this.currentComponents.replace(components);
+  setCurrentComponents(components: ExpenseComponentApi[]): void {
+    const expense = this.currentExpense;
+    if (!expense) {
+      console.error(
+        "Can't set components without current expense. No current expense"
+      );
+      return;
+    }
+    this.currentComponents.replace(
+      components.map(
+        (c) =>
+          new ExpenseComponent(
+            c.id,
+            c.name,
+            c.cost,
+            dataStores.categoriesStore.getById(c.categoryId),
+            c.subcategoryId === null
+              ? null
+              : dataStores.categoriesStore.getSubcategoryById(
+                  c.categoryId,
+                  c.subcategoryId
+                ),
+            c.expenseId,
+            expense
+          )
+      )
+    );
   }
 
   setComponentsModalOpen(open: boolean) {

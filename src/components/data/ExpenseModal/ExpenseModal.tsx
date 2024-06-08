@@ -21,6 +21,7 @@ import type Expense from "~/models/Expense";
 import { dataStores } from "~/stores/dataStores";
 import type { Option } from "~/types/types";
 import { DATE_FORMAT } from "~/utils/constants";
+import { ComponentsHint } from "./ComponentsHint";
 import { parseCategorySubcategoryId } from "./ComponentsModal/categorySubcategoryId";
 import ComponentsModal from "./ComponentsModal/ComponentsModal";
 import vm from "./expenseModalViewModel";
@@ -445,6 +446,14 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
               message: "Введите корректную сумму",
             },
           ]}
+          extra={
+            currentComponents.length > 0 ? (
+              <ComponentsHint
+                cost={parseFloat(cost)}
+                components={currentComponents}
+              />
+            ) : undefined
+          }
         >
           <Space.Compact>
             <Input value={cost} style={{ width: 130 }} />
@@ -480,7 +489,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
         highlightedComponentId={componentsModalIdHighlighted}
         defaultCategoryId={categoryId}
         defaultSubcategoryId={subcategoryId}
-        components={toJS(currentComponents)}
+        components={toJS(currentComponents.map((c) => c.asJSON))}
         expenseId={expenseId}
         expenseName={name}
         expenseCost={cost ? parseFloat(cost) : null}
