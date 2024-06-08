@@ -6,8 +6,6 @@ export default interface FormValues {
   date: Dayjs | undefined;
   category: number | undefined;
   subcategory: number | undefined;
-  personalExpCategoryId: number | undefined;
-  personalExpSpent: string;
   savingSpendingId: number | undefined;
   savingSpendingCategoryId: number | undefined;
   name: string;

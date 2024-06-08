@@ -25,7 +25,6 @@ const CostAggregatedCellRenderer: React.FC<Props> = ({
     return (
       <CostCellView
         cost={costString}
-        personalExpStr={col.personalExpStr}
         isSubscription={col.isSubscription}
         isUpcomingSubscription={col.isUpcomingSubscription}
       />

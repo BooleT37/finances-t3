@@ -4,7 +4,6 @@ import {
   Button,
   Checkbox,
   DatePicker,
-  Divider,
   Form,
   Input,
   Modal,
@@ -16,7 +15,7 @@ import dayjs, { type Dayjs } from "dayjs";
 import { action, runInAction, toJS } from "mobx";
 import { observer, useLocalObservable } from "mobx-react";
 import type { BaseSelectRef } from "rc-select";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import type Expense from "~/models/Expense";
 import { dataStores } from "~/stores/dataStores";
@@ -26,19 +25,14 @@ import { parseCategorySubcategoryId } from "./ComponentsModal/categorySubcategor
 import ComponentsModal from "./ComponentsModal/ComponentsModal";
 import vm from "./expenseModalViewModel";
 import { type FormValues, type ValidatedFormValues } from "./models";
-import PersonalExpenses from "./PersonalExpenses";
 import SourceLastExpenses from "./SourceLastExpenses";
 
 function expenseToFormValues(expense: Expense): FormValues {
   return {
-    cost: expense.personalExpense
-      ? String((expense.personalExpense.cost ?? 0) + (expense.cost ?? 0))
-      : String(expense.cost),
+    cost: String(expense.cost),
     category: expense.category.id ?? null,
     subcategory: expense.subcategory?.id ?? undefined,
     name: expense.name || "",
-    personalExpCategoryId: expense.personalExpense?.category.id ?? undefined,
-    personalExpSpent: String(expense.personalExpense?.cost ?? ""),
     date: expense.date,
     source: expense.source?.id ?? undefined,
     subscription: expense.subscription?.id ?? undefined,
@@ -87,7 +81,6 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
   const isIncome = useLocalObservable<{ value: boolean }>(() => ({
     value: false,
   }));
-  const [hasPersonalExp, setHasPersonalExp] = React.useState(false);
   const {
     visible,
     lastSource,
@@ -107,16 +100,13 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
   } = vm;
   const { incomeOptions, expenseOptions } = dataStores.categoriesStore;
 
-  const INITIAL_VALUES: FormValues = React.useMemo(
-    () => ({
+  const INITIAL_VALUES = React.useMemo(
+    (): FormValues => ({
       cost: "",
-      components: [],
       subscription: undefined,
       category: undefined,
       subcategory: undefined,
       name: "",
-      personalExpCategoryId: undefined,
-      personalExpSpent: "",
       date: today.isBetween(startDate, endDate)
         ? today
         : startDate ?? undefined,
@@ -145,10 +135,6 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
 
           form.resetFields();
           form.setFieldsValue({ source: values.source });
-          if (!hasPersonalExp) {
-            values.personalExpCategoryId = undefined;
-            values.personalExpSpent = "0";
-          }
           const expense = await insertExpense(values as ValidatedFormValues);
           runInAction(() => {
             if (addMore.value) {
@@ -179,12 +165,10 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
       if (visible) {
         if (currentExpense) {
           form.setFieldsValue(expenseToFormValues(currentExpense));
-          setHasPersonalExp(!!currentExpense.personalExpense);
           addMore.value = false;
           isIncome.value = currentExpense.category.isIncome;
         } else {
           form.setFieldsValue(INITIAL_VALUES);
-          setHasPersonalExp(false);
         }
         setTimeout(() => {
           firstFieldRef.current?.focus();
@@ -296,24 +280,6 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
       });
     }
   };
-
-  const handleTransferAllPeClick = useCallback(
-    (categoryId: number) => {
-      const currentName = form.getFieldValue("name") as FormValues["name"];
-      form.setFieldsValue({
-        category: categoryId,
-        personalExpCategoryId: undefined,
-        personalExpSpent: "0",
-        name: currentCategory
-          ? currentName
-            ? `${currentCategory.name} - ${currentName}`
-            : currentCategory.name
-          : currentName,
-      });
-      setHasPersonalExp(false);
-    },
-    [currentCategory, form]
-  );
 
   const setIsIncome = action((value: boolean) => {
     isIncome.value = value;
@@ -491,22 +457,6 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
             />
           </Space.Compact>
         </Form.Item>
-        {(categoryId === null || !category?.isPersonal) && !isIncome.value && (
-          <Divider orientation="center">
-            <Checkbox
-              checked={hasPersonalExp}
-              onChange={(e) => setHasPersonalExp(e.target.checked)}
-            >
-              Из личных
-            </Checkbox>
-          </Divider>
-        )}
-        {hasPersonalExp && !isIncome.value && (
-          <PersonalExpenses
-            form={form}
-            onTransferAll={handleTransferAllPeClick}
-          />
-        )}
         <Form.Item
           name="date"
           label="Дата"

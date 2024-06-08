@@ -13,7 +13,6 @@ import type Subscription from "./Subscription";
 
 export interface CostCol {
   value: number;
-  personalExpStr?: string;
   isSubscription?: boolean;
   isUpcomingSubscription?: boolean;
   parentExpenseName?: string;
@@ -42,7 +41,6 @@ export default class Expense {
   date: Dayjs;
   category: Category;
   subcategory: Subcategory | null;
-  personalExpenseId: number | null;
   source: Source | null;
   subscription: Subscription | null;
   savingSpending: {
@@ -58,7 +56,6 @@ export default class Expense {
     category: Category,
     subcategory: Subcategory | null,
     name: string,
-    personalExpenseId: number | null = null,
     source: Source | null = null,
     subscription: Subscription | null = null,
     savingSpending: {
@@ -91,7 +88,6 @@ export default class Expense {
     this.date = date;
     this.category = category;
     this.subcategory = subcategory;
-    this.personalExpenseId = personalExpenseId;
     this.name = name;
     this.source = source;
     this.subscription = subscription;
@@ -140,12 +136,5 @@ export default class Expense {
       isUpcomingSubscription: false,
       parentExpenseId: null,
     };
-  }
-
-  get personalExpense(): Expense | null {
-    if (this.personalExpenseId === null) {
-      return null;
-    }
-    return dataStores.expenseStore.getById(this.personalExpenseId) ?? null;
   }
 }

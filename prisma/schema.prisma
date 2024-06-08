@@ -151,9 +151,6 @@ model Expense {
   category                 Category                @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   categoryId               Int
   subcategory              Subcategory?            @relation(fields: [subcategoryId], references: [id])
-  personalExpense          Expense?                @relation("personalExpenseLink", fields: [personalExpenseId], references: [id])
-  parentExpense            Expense?                @relation("personalExpenseLink")
-  personalExpenseId        Int?                    @unique
   source                   Source?                 @relation(fields: [sourceId], references: [id], onDelete: SetNull)
   sourceId                 Int?
   subscription             Subscription?           @relation(fields: [subscriptionId], references: [id])

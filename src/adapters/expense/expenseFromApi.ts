@@ -30,7 +30,6 @@ export const adaptExpenseFromApi = action(
         ? null
         : category.findSubcategoryById(expense.subcategoryId),
       expense.name,
-      expense.personalExpenseId,
       expense.sourceId === null
         ? null
         : dataStores.sourcesStore.getById(expense.sourceId),

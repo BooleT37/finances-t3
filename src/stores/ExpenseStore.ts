@@ -1,6 +1,6 @@
 import type {
-  Expense as ApiExpense,
   CategoryType,
+  Expense as ApiExpense,
   ExpenseComponent,
 } from "@prisma/client";
 import assert from "assert";
@@ -23,11 +23,9 @@ import countUniqueMonths from "~/utils/countUniqueMonths";
 import roundCost from "~/utils/roundCost";
 import { getTempId } from "~/utils/tempId";
 import type Category from "../models/Category";
-import { PersonalExpCategoryIdsRename } from "../models/Category";
 import type Expense from "../models/Expense";
 import { type TableData } from "../models/Expense";
 import type Subscription from "../models/Subscription";
-import costToString from "../utils/costToString";
 import { type DataLoader } from "./dataStores";
 import { dataStores } from "./dataStores/DataStores";
 
@@ -59,7 +57,6 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
 
   init(expenses: ExpenseFromApi[]) {
     this.expenses.replace(expenses.map((e) => adaptExpenseFromApi(e)));
-    this.fillPersonalExpenses(expenses);
     this.inited = true;
   }
 
@@ -75,10 +72,6 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
       );
     }
   );
-
-  get personalExpenses() {
-    return this.expenses.filter(({ category }) => category.isPersonal);
-  }
 
   getById(id: number): Expense | undefined {
     return this.expenses.find((e) => e.id === id);
@@ -97,17 +90,7 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
         (!searchString ||
           e.name?.toLowerCase().includes(searchString.toLowerCase()))
     );
-    const rows = filteredRows.map((ex) => {
-      const tableData = ex.asTableData;
-      const pe = ex.personalExpense;
-      if (tableData.cost && pe && pe.cost !== null) {
-        const cost = costToString(pe.cost);
-        const author =
-          pe.category.id === PersonalExpCategoryIdsRename.Alexey ? "А" : "Л";
-        tableData.cost.personalExpStr = `${cost} личных (${author})`;
-      }
-      return tableData;
-    });
+    const rows = filteredRows.map((ex) => ex.asTableData);
     const components = filteredRows.flatMap((e) =>
       e.components.map((c) => c.asTableData)
     );
@@ -160,12 +143,8 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
     if (foundIndex === -1) {
       return;
     }
-    const personalExpenseId = this.expenses[foundIndex]?.personalExpense?.id;
     this.expenses.splice(foundIndex, 1);
     await trpc.expense.delete.mutate({ id });
-    if (personalExpenseId !== undefined) {
-      await this.delete(personalExpenseId);
-    }
   }
 
   async deleteComponent(id: number, expenseId: number): Promise<void> {
@@ -179,17 +158,6 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
     }
     expense.components.splice(foundIndex, 1);
     await trpc.expense.deleteComponent.mutate({ id });
-  }
-
-  fillPersonalExpenses(expenses: ApiExpense[]) {
-    expenses.forEach((apiExpense) => {
-      if (apiExpense.personalExpenseId !== null) {
-        const expense = this.getById(apiExpense.id);
-        if (expense) {
-          expense.personalExpenseId = apiExpense.personalExpenseId;
-        }
-      }
-    });
   }
 
   getSavingSpendingByCategoryId(id: number): Expense["savingSpending"] {

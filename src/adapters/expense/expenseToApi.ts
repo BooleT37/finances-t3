@@ -15,7 +15,6 @@ export function adaptExpenseToCreateInput(
       connect: { id: expense.category.id },
     },
     subcategory: connectIfExists(expense.subcategory),
-    personalExpense: connectIfExists(expense.personalExpense),
     source: connectIfExists(expense.source),
     subscription: connectIfExists(expense.subscription),
     savingSpendingCategory: connectIfExists(

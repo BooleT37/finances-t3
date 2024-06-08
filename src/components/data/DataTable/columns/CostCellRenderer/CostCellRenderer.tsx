@@ -16,7 +16,6 @@ const CostCellRenderer: React.FC<Props> = ({ value: col }) => {
   return (
     <CostCellView
       cost={costString}
-      personalExpStr={col.personalExpStr}
       isSubscription={col.isSubscription}
       isUpcomingSubscription={col.isUpcomingSubscription}
       parentExpenseName={col.parentExpenseName}
