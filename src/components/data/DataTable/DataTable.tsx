@@ -22,6 +22,7 @@ interface Props {
   categoriesForecast: Record<number, number> | null;
   savingSpendingsForecast: number;
   passedDaysRatio: number;
+  groupBySubcategories: boolean;
   tableInstanceRef: React.MutableRefObject<MRT_TableInstance<TableData> | null>;
 }
 
@@ -31,6 +32,7 @@ export const DataTable: React.FC<Props> = ({
   categoriesForecast,
   passedDaysRatio,
   savingSpendingsForecast,
+  groupBySubcategories,
   tableInstanceRef,
 }) => {
   const columns = useDataTableColumns({
@@ -47,11 +49,13 @@ export const DataTable: React.FC<Props> = ({
     enableColumnDragging: false,
     enablePagination: false,
     groupedColumnMode: "remove",
+    enableColumnActions: false,
     initialState: {
       grouping: ["category"],
       expanded: true,
       sorting: [{ id: "category", desc: false }],
       density: "compact",
+      columnVisibility: { subcategory: false },
     },
     enableRowActions: true,
     renderRowActions: ({ row }) => {
@@ -137,6 +141,14 @@ export const DataTable: React.FC<Props> = ({
   useEffect(() => {
     tableInstanceRef.current = table;
   }, [table, tableInstanceRef]);
+
+  useEffect(() => {
+    if (groupBySubcategories) {
+      table.setGrouping(["category", "subcategory"]);
+    } else {
+      table.setGrouping(["category"]);
+    }
+  }, [groupBySubcategories, table]);
 
   return <MaterialReactTable table={table} />;
 };

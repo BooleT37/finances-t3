@@ -24,14 +24,15 @@ export const useDataTableColumns = ({
       columnHelper.accessor("cost", {
         size: 150,
         header: "Сумма",
-        aggregationFn: (columnId, leafRows) =>
+        aggregationFn: (_columnId, leafRows) =>
           costAggregationFn(
             leafRows,
             categoriesForecast,
             savingSpendingsForecast
           ),
-        AggregatedCell: ({ cell }) => (
+        AggregatedCell: ({ cell, row }) => (
           <CostAggregatedCellRenderer
+            isSubcategory={row.depth === 1}
             passedDaysRatio={passedDaysRatio}
             value={cell.getValue() as AggCostCol | null}
           />
@@ -41,7 +42,6 @@ export const useDataTableColumns = ({
       columnHelper.accessor("date", {
         size: 130,
         header: "Дата",
-        // filter: true,
       }),
       columnHelper.accessor("source", {
         size: 130,

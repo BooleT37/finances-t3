@@ -132,7 +132,8 @@ export default class Expense {
           : null,
       source: this.source?.name ?? "",
       category: this.category.name,
-      subcategory: this.subcategory?.name ?? null,
+      subcategory:
+        this.savingSpending?.spending.name ?? this.subcategory?.name ?? null,
       date: this.date.format(DATE_FORMAT),
       categoryId: this.category.id,
       categoryShortname: this.category.shortname,

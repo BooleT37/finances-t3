@@ -47,6 +47,7 @@ const DataScreen = observer(function DataScreen() {
   const [search, setSearch] = React.useState("");
   const [upcSubscriptionsShown, setUpcSubscriptionsShown] =
     React.useState(false);
+  const [groupBySubcategories, setGroupBySubcategories] = React.useState(false);
 
   const handleRangeChange = (
     _dates: [Dayjs | null, Dayjs | null] | null,
@@ -259,14 +260,20 @@ const DataScreen = observer(function DataScreen() {
             )}
           </Space>
         </div>
-        <div>
+        <Space>
           <Checkbox
             checked={upcSubscriptionsShown}
             onChange={(e) => setUpcSubscriptionsShown(e.target.checked)}
           >
             Предстоящие подписки
           </Checkbox>
-        </div>
+          <Checkbox
+            checked={groupBySubcategories}
+            onChange={(e) => setGroupBySubcategories(e.target.checked)}
+          >
+            Сгруппировать по подкатегориям
+          </Checkbox>
+        </Space>
         {rangeStart &&
           rangeEnd &&
           categoriesForecast &&
@@ -281,6 +288,7 @@ const DataScreen = observer(function DataScreen() {
                 upcSubscriptionsShown
               )}
               passedDaysRatio={passedDaysRatio}
+              groupBySubcategories={groupBySubcategories}
               savingSpendingsForecast={savingSpendingsForecast}
             />
           )}

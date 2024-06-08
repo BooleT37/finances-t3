@@ -6,6 +6,7 @@ import roundCost from "~/utils/roundCost";
 import CostCellView from "./CostCellView";
 
 interface Props {
+  isSubcategory: boolean;
   value: AggCostCol | null;
   passedDaysRatio: number;
 }
@@ -13,13 +14,14 @@ interface Props {
 // eslint-disable-next-line mobx/missing-observer
 const CostAggregatedCellRenderer: React.FC<Props> = ({
   value: col,
+  isSubcategory,
   passedDaysRatio,
 }) => {
   if (!col) {
     return null;
   }
   const costString = costToString(col.value);
-  if (col.diff === null) {
+  if (isSubcategory || col.diff === null) {
     return (
       <CostCellView
         cost={costString}

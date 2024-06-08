@@ -107,12 +107,6 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
   } = vm;
   const { incomeOptions, expenseOptions } = dataStores.categoriesStore;
 
-  console.log({
-    today: today.format("YYYY-MM-DDTHH:mm:ssZ[Z]"),
-    startDate: startDate?.format("YYYY-MM-DDTHH:mm:ssZ[Z]"),
-    endDate: endDate?.format("YYYY-MM-DDTHH:mm:ssZ[Z]"),
-  });
-
   const INITIAL_VALUES: FormValues = React.useMemo(
     () => ({
       cost: "",
