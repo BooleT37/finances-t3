@@ -12,7 +12,7 @@ class SavingSpendingModalViewModel {
       name: savingSpending.name,
       costs: savingSpending.categories.map((c) => ({
         comment: c.comment,
-        sum: c.forecast,
+        sum: c.forecast.toNumber(),
         name: c.name,
         id: c.id,
       })),

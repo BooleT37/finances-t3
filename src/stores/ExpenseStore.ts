@@ -5,7 +5,8 @@ import type {
 } from "@prisma/client";
 import assert from "assert";
 import dayjs, { type Dayjs } from "dayjs";
-import { groupBy, sum } from "lodash";
+import Decimal from "decimal.js";
+import { groupBy } from "lodash";
 import { makeAutoObservable, observable, runInAction, toJS } from "mobx";
 import { computedFn } from "mobx-utils";
 import { adaptExpenseFromApi } from "~/adapters/expense/expenseFromApi";
@@ -20,7 +21,7 @@ import { type DynamicsDataMonth } from "~/types/statistics/dynamicsData";
 import { trpc } from "~/utils/api";
 import { DATE_FORMAT, MONTH_DATE_FORMAT } from "~/utils/constants";
 import countUniqueMonths from "~/utils/countUniqueMonths";
-import roundCost from "~/utils/roundCost";
+import { decimalSum } from "~/utils/decimalSum";
 import { getTempId } from "~/utils/tempId";
 import type Category from "../models/Category";
 import type Expense from "../models/Expense";
@@ -36,7 +37,7 @@ interface SubscriptionForPeriod {
 
 interface ExpenseOrComponent {
   name: string;
-  cost: number;
+  cost: Decimal;
   date: Dayjs;
   category: Category;
 }
@@ -62,6 +63,10 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
 
   get expensesByCategoryId(): Record<string, Expense[]> {
     return groupBy(this.expenses, "category.id");
+  }
+
+  getExpensesByCategoryId(categoryId: number): Expense[] {
+    return this.expensesByCategoryId[categoryId] ?? [];
   }
 
   expensesByCategoryIdForYear = computedFn(
@@ -194,15 +199,15 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
         !e.category.toSavings &&
         e.date.isSame(to, granularity)
     );
-    const map: Record<string, { from: number; to: number }> = {};
+    const map: Record<string, { from: Decimal; to: Decimal }> = {};
     expensesFrom.forEach((e) => {
       const categoryId = String(e.category.id);
       if (e.cost !== null) {
         const categoryCosts = map[categoryId];
         if (categoryCosts === undefined) {
-          map[categoryId] = { from: e.cost, to: 0 };
+          map[categoryId] = { from: e.cost, to: new Decimal(0) };
         } else {
-          categoryCosts.from += e.cost;
+          categoryCosts.from = categoryCosts.from.add(e.cost);
         }
       }
     });
@@ -211,9 +216,9 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
       if (e.cost !== null) {
         const categoryCosts = map[categoryId];
         if (categoryCosts === undefined) {
-          map[categoryId] = { from: 0, to: e.cost };
+          map[categoryId] = { from: new Decimal(0), to: e.cost };
         } else {
-          categoryCosts.to += e.cost;
+          categoryCosts.to = categoryCosts.to.add(e.cost);
         }
       }
     });
@@ -221,8 +226,8 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
       Object.entries(map).map(([category, costs]) => ({
         category: dataStores.categoriesStore.getById(parseInt(category))
           .shortname,
-        period1: costs.from,
-        period2: costs.to,
+        period1: costs.from.toNumber(),
+        period2: costs.to.toNumber(),
       }))
     );
   }
@@ -232,7 +237,7 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
     to: Dayjs,
     categoriesIds: number[]
   ): DynamicsData {
-    type MonthEntry = Record<string, number> & { date: Dayjs };
+    type MonthEntry = Record<string, Decimal> & { date: Dayjs };
     const dict: Record<string, MonthEntry> = {};
 
     let filteredExpensed = this.expenses.filter((e) =>
@@ -251,8 +256,9 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
       const month = e.date.format(MONTH_DATE_FORMAT);
       const monthEntry = dict[month];
       if (monthEntry !== undefined) {
-        if (monthEntry[e.category.id] !== undefined) {
-          monthEntry[e.category.id] += e.cost;
+        const monthEntryForCategory = monthEntry[e.category.id];
+        if (monthEntryForCategory !== undefined) {
+          monthEntry[e.category.id] = monthEntryForCategory.add(e.cost);
         } else {
           monthEntry[e.category.id] = e.cost;
         }
@@ -280,7 +286,7 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
       assert(monthEntry); // to make typescript happy
       for (const categoryId of allCategoriesIds) {
         if (monthEntry[categoryId] === undefined) {
-          monthEntry[categoryId] = 0;
+          monthEntry[categoryId] = new Decimal(0);
         }
       }
       interim = interim.add(1, "month");
@@ -298,7 +304,7 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
       Object.keys(m).forEach((k) => {
         const value = m[k];
         if (typeof value === "number") {
-          m[k] = roundCost(value);
+          m[k] = value;
         }
       });
     });
@@ -375,9 +381,8 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
       return [];
     }
     const allExpenses = category
-      ? this.expensesByCategoryId[category.id]
+      ? this.getExpensesByCategoryId(category.id)
       : this.expenses;
-    assert(allExpenses);
     const addedSubscriptionsIds = allExpenses
       .filter(
         (expense): expense is Expense & { subscription: Subscription } =>
@@ -414,7 +419,7 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
       id: getTempId(),
       isUpcomingSubscription: true,
       name: subscription.name,
-      parentExpenseId: null,
+      expenseId: null,
     }));
     if (searchString) {
       rows = rows.filter((data) => data.name.includes(searchString));
@@ -422,9 +427,12 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
     return rows;
   }
 
-  savingSpendingsForecast(year: number, month: number): number {
-    return sum(
-      this.expenses
+  savingSpendingsForecast(year: number, month: number): Decimal {
+    if (this.expenses.length === 0) {
+      return new Decimal(0);
+    }
+    return decimalSum(
+      ...this.expenses
         .filter(
           (
             expense
@@ -464,7 +472,7 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
     isIncome: boolean;
     categoryId?: number;
     excludeTypes?: CategoryType[];
-  }): number {
+  }): Decimal {
     const monthExpenses = this.expenses.filter(
       (expense) =>
         expense.date.month() === month &&
@@ -472,23 +480,22 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
         expense.category.isIncome === isIncome
     );
 
-    return (
-      sum(
-        monthExpenses
-          .filter(
-            (expense) =>
-              (categoryId !== undefined
-                ? expense.category.id === categoryId
-                : true) &&
-              !(
-                expense.category.type &&
-                excludeTypes.includes(expense.category.type)
-              )
-          )
-          .map((expense) => expense.costWithoutComponents ?? 0)
-      ) +
-      sum(
-        monthExpenses.flatMap((e) =>
+    return decimalSum(
+      ...monthExpenses
+        .filter(
+          (expense) =>
+            (categoryId !== undefined
+              ? expense.category.id === categoryId
+              : true) &&
+            !(
+              expense.category.type &&
+              excludeTypes.includes(expense.category.type)
+            )
+        )
+        .map((expense) => expense.costWithoutComponents ?? new Decimal(0))
+    ).plus(
+      decimalSum(
+        ...monthExpenses.flatMap((e) =>
           e.components
             .filter(
               (c) =>

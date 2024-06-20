@@ -3,7 +3,6 @@ import { observer } from "mobx-react";
 import React from "react";
 import { dataStores } from "~/stores/dataStores";
 import costToString from "~/utils/costToString";
-import roundCost from "~/utils/roundCost";
 
 const { Title } = Typography;
 
@@ -21,10 +20,9 @@ const SurplusData: React.FC<Props> = observer(function ({ year, month }) {
           По плану: &nbsp;
         </Tooltip>
         {costToString(
-          roundCost(
-            dataStores.forecastStore.totalForMonth(year, month, true) -
-              dataStores.forecastStore.totalForMonth(year, month, false)
-          )
+          dataStores.forecastStore
+            .totalForMonth(year, month, true)
+            .minus(dataStores.forecastStore.totalForMonth(year, month, false))
         )}
       </div>
       <div>
@@ -32,19 +30,20 @@ const SurplusData: React.FC<Props> = observer(function ({ year, month }) {
           Факт: &nbsp;
         </Tooltip>
         {costToString(
-          roundCost(
-            dataStores.expenseStore.totalPerMonth({
+          dataStores.expenseStore
+            .totalPerMonth({
               year,
               month,
               isIncome: true,
-            }) -
+            })
+            .minus(
               dataStores.expenseStore.totalPerMonth({
                 year,
                 month,
                 isIncome: false,
                 excludeTypes: ["FROM_SAVINGS"],
               })
-          )
+            )
         )}
       </div>
     </div>

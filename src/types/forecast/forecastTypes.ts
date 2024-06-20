@@ -1,4 +1,6 @@
+import type Decimal from "decimal.js";
+
 export interface ForecastSubscriptionsItem {
-  cost: number;
+  cost: Decimal;
   name: string;
 }

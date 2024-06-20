@@ -1,3 +1,4 @@
+import type Decimal from "decimal.js";
 import { makeAutoObservable } from "mobx";
 import type Category from "./Category";
 
@@ -6,7 +7,7 @@ class Forecast {
     public category: Category,
     public month: number,
     public year: number,
-    public sum: number,
+    public sum: Decimal,
     public comment?: string
   ) {
     makeAutoObservable(this);

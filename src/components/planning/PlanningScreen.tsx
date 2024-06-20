@@ -3,6 +3,7 @@ import type { CellEditRequestEvent, IRowNode } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { Button, DatePicker, Space, Tooltip, Typography } from "antd";
 import dayjs from "dayjs";
+import type Decimal from "decimal.js";
 import { action } from "mobx";
 import { observer } from "mobx-react";
 import React, { useCallback } from "react";
@@ -26,7 +27,7 @@ export interface ForecastTableContext {
 }
 
 export interface ForecastMainTableContext extends ForecastTableContext {
-  setForecastSum: (categoryId: number, sum: number) => void;
+  setForecastSum: (categoryId: number, sum: Decimal) => void;
 }
 
 const PlanningScreen = observer(function PlanningScreen() {
@@ -50,7 +51,7 @@ const PlanningScreen = observer(function PlanningScreen() {
       if (field === "sum") {
         const oldValue = params.oldValue as ForecastSum;
         const newValue = params.newValue as ForecastSumFromEdit;
-        if (oldValue.value === newValue.value) {
+        if (oldValue.value?.equals(newValue.value)) {
           return;
         }
         void dataStores.forecastStore.changeForecastSum(
@@ -97,7 +98,7 @@ const PlanningScreen = observer(function PlanningScreen() {
   };
 
   const setForecastSum = useCallback(
-    (categoryId: number, sum: number) => {
+    (categoryId: number, sum: Decimal) => {
       if (date) {
         void dataStores.forecastStore.changeForecastSum(
           dataStores.categoriesStore.getById(categoryId),

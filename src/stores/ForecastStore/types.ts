@@ -1,14 +1,15 @@
 import type { CategoryType } from "@prisma/client";
+import type Decimal from "decimal.js";
 import type { ForecastSubscriptionsItem } from "~/types/forecast/forecastTypes";
 
 export interface MonthSpendings {
-  spendings: number;
-  diff: number;
+  spendings: Decimal;
+  diff: Decimal;
   isIncome: boolean;
 }
 
 export interface ForecastSum {
-  value: number | null;
+  value: Decimal | null;
   subscriptions: ForecastSubscriptionsItem[];
 }
 
@@ -17,7 +18,7 @@ export interface ForecastTableItem {
   categoryId: number;
   categoryShortname: string;
   categoryType: CategoryType | null;
-  average: number;
+  average: Decimal;
   monthsWithSpendings: string;
   lastMonth: MonthSpendings;
   thisMonth: MonthSpendings;

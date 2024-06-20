@@ -4,12 +4,11 @@ import {
 } from "ag-charts-community";
 import { AgChartsReact } from "ag-charts-react";
 import { Button } from "antd";
-import { sum } from "lodash";
 import { observer } from "mobx-react";
 import { useState } from "react";
 import { dataStores } from "~/stores/dataStores";
 import costToString from "~/utils/costToString";
-import roundCost from "~/utils/roundCost";
+import { decimalSum } from "~/utils/decimalSum";
 
 interface BarDatum {
   category: string;
@@ -32,7 +31,7 @@ export const MostSpendingsStep: React.FC = observer(
       })
       .map(([categoryId, expenses]): [string, number] => [
         categoryId,
-        roundCost(sum(expenses.map((e) => e.cost ?? 0))),
+        decimalSum(...expenses.map((e) => e.cost ?? 0)).toNumber(),
       ])
       .sort((e1, e2) => e2[1] - e1[1])
       .slice(0, allCategoriesShown ? Object.keys(expenses).length : 3)
@@ -63,7 +62,7 @@ export const MostSpendingsStep: React.FC = observer(
               title: xValue as string,
               content: `${costToString(
                 yValue as number
-              )} (в среднем ${costToString(roundCost(yValue / 12))}/мес)`,
+              )} (в среднем ${costToString(yValue / 12)}/мес)`,
             }),
           },
           label: allCategoriesShown

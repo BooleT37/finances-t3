@@ -1,7 +1,7 @@
 import { type ExpenseComponent as ExpenseComponentApi } from "@prisma/client";
-import { action, makeAutoObservable, observable, toJS, trace } from "mobx";
-import Expense from "~/models/Expense";
-import { ExpenseComponent } from "~/models/ExpenseComponent";
+import Decimal from "decimal.js";
+import { action, makeAutoObservable, observable } from "mobx";
+import Expense, { type ExpenseComponentData } from "~/models/Expense";
 import { dataStores } from "~/stores/dataStores";
 import { type ValidatedFormValues } from "./models";
 
@@ -10,8 +10,8 @@ class ExpenseModalViewModel {
   expenseId: number | null = null;
   lastExpenseId: number | null = null;
   lastSource: number | undefined = undefined;
-  originalComponents = observable.array<ExpenseComponent>();
-  currentComponents = observable.array<ExpenseComponent>();
+  originalComponents = observable.array<ExpenseComponentApi>();
+  currentComponents = observable.array<ExpenseComponentData>();
   componentsModalOpen = false;
   componentsModalIdHighlighted: number | null = null;
 
@@ -64,8 +64,8 @@ class ExpenseModalViewModel {
     const category = dataStores.categoriesStore.getById(values.category);
     const newExpense = new Expense(
       -1,
-      parseFloat(values.cost),
-      toJS(this.currentComponents.map((c) => c.asJSON)),
+      new Decimal(values.cost),
+      [],
       values.date,
       category,
       values.subcategory === undefined
@@ -84,6 +84,19 @@ class ExpenseModalViewModel {
             values.savingSpendingCategoryId
           )
     );
+    if (this.currentComponents.length > 0) {
+      newExpense.replaceComponents(
+        this.currentComponents.map(
+          (c): ExpenseComponentData => ({
+            id: c.id,
+            name: c.name,
+            cost: new Decimal(c.cost),
+            categoryId: category.id,
+            subcategoryId: c.subcategoryId,
+          })
+        )
+      );
+    }
     // if we are editing the expense
     if (expenseModalViewModel.expenseId !== null) {
       newExpense.id = expenseModalViewModel.expenseId;
@@ -105,37 +118,11 @@ class ExpenseModalViewModel {
   }
 
   get currentComponentsLength(): number {
-    trace();
     return this.currentComponents.length;
   }
 
-  setCurrentComponents(components: ExpenseComponentApi[]): void {
-    const expense = this.currentExpense;
-    if (!expense) {
-      console.error(
-        "Can't set components without current expense. No current expense"
-      );
-      return;
-    }
-    this.currentComponents.replace(
-      components.map(
-        (c) =>
-          new ExpenseComponent(
-            c.id,
-            c.name,
-            c.cost,
-            dataStores.categoriesStore.getById(c.categoryId),
-            c.subcategoryId === null
-              ? null
-              : dataStores.categoriesStore.getSubcategoryById(
-                  c.categoryId,
-                  c.subcategoryId
-                ),
-            c.expenseId,
-            expense
-          )
-      )
-    );
+  setCurrentComponents(components: ExpenseComponentData[]): void {
+    this.currentComponents.replace(components);
   }
 
   setComponentsModalOpen(open: boolean) {

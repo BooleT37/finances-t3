@@ -3,11 +3,11 @@ import {
   type AgChartOptions,
 } from "ag-charts-community";
 import { AgChartsReact } from "ag-charts-react";
-import { groupBy, sum } from "lodash";
+import { groupBy } from "lodash";
 import { observer } from "mobx-react";
 import { dataStores } from "~/stores/dataStores";
 import costToString from "~/utils/costToString";
-import roundCost from "~/utils/roundCost";
+import { decimalSum } from "~/utils/decimalSum";
 
 interface BarDatum {
   event: string;
@@ -31,7 +31,7 @@ export const SavingsSpendingsEventsChart: React.FC = observer(
     )
       .map(([_, expenses]) => ({
         event: expenses[0]?.savingSpending?.spending.name ?? "",
-        total: roundCost(sum(expenses.map((e) => e.cost ?? 0))),
+        total: decimalSum(...expenses.map((e) => e.cost ?? 0)).toNumber(),
       }))
       .sort((d1, d2) => d2.total - d1.total);
 

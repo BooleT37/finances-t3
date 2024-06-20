@@ -1,6 +1,8 @@
-export function negateIf(num: number, condition: boolean) {
+import type Decimal from "decimal.js";
+
+export function negateIf(num: Decimal, condition: boolean) {
   if (condition) {
-    return -num;
+    return num.neg();
   }
   return num;
 }

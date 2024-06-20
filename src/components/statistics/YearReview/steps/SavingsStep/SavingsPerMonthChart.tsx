@@ -4,11 +4,12 @@ import {
 } from "ag-charts-community";
 import { AgChartsReact } from "ag-charts-react";
 import dayjs from "dayjs";
-import { range, sum } from "lodash";
+import Decimal from "decimal.js";
+import { range } from "lodash";
 import { observer } from "mobx-react";
 import { dataStores } from "~/stores/dataStores";
 import costToString from "~/utils/costToString";
-import roundCost from "~/utils/roundCost";
+import { decimalSum } from "~/utils/decimalSum";
 
 interface BarDatum {
   month: string;
@@ -34,20 +35,16 @@ export const SavingsPerMonthChart: React.FC = observer(
 
     const data: BarDatum[] = range(0, 12).map((month) => ({
       month: dayjs().month(month).format("MMMM"),
-      saved: roundCost(
-        sum(
-          savingsExpenses
-            .filter((e) => e.date.month() === month)
-            .map((e) => e.cost ?? 0)
-        )
-      ),
-      spent: roundCost(
-        sum(
-          spendingsExpenses
-            .filter((e) => e.date.month() === month)
-            .map((e) => e.cost ?? 0)
-        )
-      ),
+      saved: decimalSum(
+        ...savingsExpenses
+          .filter((e) => e.date.month() === month)
+          .map((e) => e.cost ?? new Decimal(0))
+      ).toNumber(),
+      spent: decimalSum(
+        ...spendingsExpenses
+          .filter((e) => e.date.month() === month)
+          .map((e) => e.cost ?? new Decimal(0))
+      ).toNumber(),
     }));
 
     const options: AgChartOptions = {

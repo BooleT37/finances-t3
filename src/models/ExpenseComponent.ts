@@ -1,4 +1,5 @@
 import { type ExpenseComponent as ExpenseComponentApi } from "@prisma/client";
+import type Decimal from "decimal.js";
 import { DATE_FORMAT } from "~/utils/constants";
 import type Category from "./Category";
 import type Expense from "./Expense";
@@ -8,18 +9,16 @@ import type Subcategory from "./Subcategory";
 export class ExpenseComponent implements ExpenseComponentApi {
   id: number;
   name: string;
-  cost: number;
+  cost: Decimal;
   category: Category;
   subcategory: Subcategory | null;
-  expenseId: number;
 
   constructor(
     id: number,
     name: string,
-    cost: number,
+    cost: Decimal,
     category: Category,
     subcategory: Subcategory | null,
-    expenseId: number,
     public parentExpense: Expense
   ) {
     this.id = id;
@@ -27,7 +26,10 @@ export class ExpenseComponent implements ExpenseComponentApi {
     this.cost = cost;
     this.category = category;
     this.subcategory = subcategory;
-    this.expenseId = expenseId;
+  }
+
+  get expenseId() {
+    return this.parentExpense.id;
   }
 
   get tableName(): string {
@@ -63,7 +65,7 @@ export class ExpenseComponent implements ExpenseComponentApi {
       subcategory: this.subcategory?.name ?? null,
       source: this.parentExpense.source?.name ?? "",
       isUpcomingSubscription: false,
-      parentExpenseId: this.parentExpense.id,
+      expenseId: this.expenseId,
     };
   }
 

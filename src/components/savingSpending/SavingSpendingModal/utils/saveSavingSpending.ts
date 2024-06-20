@@ -1,3 +1,4 @@
+import Decimal from "decimal.js";
 import { type FormValues } from "~/components/CostsListModal/CostsListForm";
 import type NewSavingSpendingCategory from "~/models/NewSavingSpendingCategory";
 import SavingSpendingCategory from "~/models/SavingSpendingCategory";
@@ -20,7 +21,7 @@ export async function saveSavingSpending(
     if (isTempId(category.id)) {
       const newCategory: NewSavingSpendingCategory = {
         comment: category.comment || "",
-        forecast: category.sum,
+        forecast: new Decimal(category.sum),
         name: category.name,
       };
       spending.categories.push(newCategory);
@@ -29,7 +30,7 @@ export async function saveSavingSpending(
         new SavingSpendingCategory(
           category.id,
           category.name,
-          category.sum || 0,
+          new Decimal(category.sum ?? 0),
           category.comment || ""
         )
       );

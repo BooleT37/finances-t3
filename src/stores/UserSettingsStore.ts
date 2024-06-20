@@ -1,5 +1,6 @@
 import { type inferRouterOutputs } from "@trpc/server";
 import dayjs from "dayjs";
+import Decimal from "decimal.js";
 import { isEqual } from "lodash";
 import { makeAutoObservable } from "mobx";
 import { type AppRouter } from "~/server/api/root";
@@ -9,9 +10,9 @@ import { type DataLoader } from "./dataStores";
 export default class UserSettingsStore
   implements DataLoader<inferRouterOutputs<AppRouter>["userSettings"]["get"]>
 {
-  pePerMonth = 50;
+  pePerMonth: Decimal | null = new Decimal(50);
   savings?: {
-    sum: number;
+    sum: Decimal;
     date: dayjs.Dayjs;
   } = undefined;
   expenseCategoriesOrder: number[] = [];
@@ -44,12 +45,12 @@ export default class UserSettingsStore
     this.inited = true;
   }
 
-  setPePerMonth = async (sum: number) => {
+  setPePerMonth = async (sum: Decimal) => {
     await trpc.userSettings.update.mutate({ pePerMonth: sum });
     this.pePerMonth = sum;
   };
 
-  setSavings = async (sum: number) => {
+  setSavings = async (sum: Decimal) => {
     const today = dayjs();
     await trpc.userSettings.update.mutate({
       savings: sum,

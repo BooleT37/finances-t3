@@ -1,5 +1,6 @@
 import { type TableRowProps } from "@mui/material";
 import { Space } from "antd";
+import type Decimal from "decimal.js";
 import {
   MaterialReactTable,
   MRT_ExpandAllButton,
@@ -19,8 +20,8 @@ import { sortAllCategoriesByName } from "./utils/sortAllCategoriesByName";
 
 interface Props {
   data: TableData[];
-  categoriesForecast: Record<number, number> | null;
-  savingSpendingsForecast: number;
+  categoriesForecast: Record<number, Decimal> | null;
+  savingSpendingsForecast: Decimal;
   passedDaysRatio: number;
   groupBySubcategories: boolean;
   tableInstanceRef: React.MutableRefObject<MRT_TableInstance<TableData> | null>;
@@ -65,7 +66,7 @@ export const DataTable: React.FC<Props> = ({
       return (
         <RowActions
           id={row.original.id}
-          parentExpenseId={row.original.parentExpenseId}
+          parentExpenseId={row.original.expenseId}
         />
       );
     },

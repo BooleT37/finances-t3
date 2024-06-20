@@ -1,23 +1,21 @@
 import { MoneyCollectOutlined } from "@ant-design/icons";
 import { Tooltip } from "antd";
-import { sum } from "lodash";
 import React, { useCallback } from "react";
 import { type ForecastSubscriptionsItem } from "~/types/forecast/forecastTypes";
 import costToString from "~/utils/costToString";
-import roundCost from "~/utils/roundCost";
+
+import type Decimal from "decimal.js";
+import { decimalSum } from "~/utils/decimalSum";
 import { List, TooltipContainer } from "./SubscriptionsTooltip.styled";
 
 interface Props {
   items: ForecastSubscriptionsItem[];
-  onClick(totalCost: number): void;
+  onClick(totalCost: Decimal): void;
 }
 
 // eslint-disable-next-line mobx/missing-observer
 const SubscriptionsTooltip: React.FC<Props> = ({ items, onClick }) => {
-  const total = roundCost(
-    sum(items.map((item) => parseFloat(item.cost.toString())))
-  );
-
+  const total = decimalSum(...items.map((item) => item.cost));
   const handleClick = useCallback(() => {
     onClick(total);
   }, [onClick, total]);
@@ -50,7 +48,7 @@ const SubscriptionsTooltip: React.FC<Props> = ({ items, onClick }) => {
   return (
     <Tooltip title={tooltipText}>
       <TooltipContainer>
-        ({total} <MoneyCollectOutlined onClick={handleClick} />)
+        ({costToString(total)} <MoneyCollectOutlined onClick={handleClick} />)
       </TooltipContainer>
     </Tooltip>
   );

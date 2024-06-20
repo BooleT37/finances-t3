@@ -7,6 +7,7 @@ import {
 import costToString from "~/utils/costToString";
 import type { ForecastMainTableContext } from "../PlanningScreen";
 
+import type Decimal from "decimal.js";
 import SubscriptionsTooltip from "./SubscriptionsTooltip/SubscriptionsTooltip";
 
 type Props = Omit<ICellRendererParams, "value" | "data" | "context"> & {
@@ -18,7 +19,7 @@ type Props = Omit<ICellRendererParams, "value" | "data" | "context"> & {
 // eslint-disable-next-line mobx/missing-observer
 const CostCellRenderer: React.FC<Props> = ({ value, data, context }) => {
   const handleClick = useCallback(
-    (totalCost: number) => {
+    (totalCost: Decimal) => {
       // the "Total" row
       if (data.categoryId !== -1) {
         context.setForecastSum(data.categoryId, totalCost);

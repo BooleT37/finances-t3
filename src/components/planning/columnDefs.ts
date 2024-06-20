@@ -5,6 +5,7 @@ import type {
   ValueFormatterParams,
   ValueParserParams,
 } from "ag-grid-community";
+import Decimal from "decimal.js";
 import { action } from "mobx";
 import { TOTAL_CATEGORY_ID } from "~/models/Category";
 import {
@@ -22,7 +23,7 @@ const costValueFormatter = ({ value }: { value: number }): string =>
   costToString(value);
 
 export interface ForecastSumFromEdit {
-  value: number;
+  value: Decimal;
   subscriptions: ForecastSubscriptionsItem[];
 }
 
@@ -65,18 +66,18 @@ const columnDefs: (
     cellRenderer: CostCellRenderer,
     valueFormatter: (
       params: ValueFormatterParams<ForecastTableItem, ForecastSum>
-    ) => String(params.value.value),
+    ) => params.value.value?.toFixed() ?? "",
     cellEditorParams: {
       useFormatter: true,
     },
     valueParser: (
       params: ValueParserParams<ForecastTableItem>
     ): ForecastSumFromEdit => {
-      const parsed = parseFloat(params.newValue as string);
+      const parsed = new Decimal((params.newValue as string | null) ?? 0);
       const oldValue = params.oldValue as ForecastSum;
-      if (isNaN(parsed)) {
+      if (parsed.isNaN()) {
         return {
-          value: oldValue.value ?? 0,
+          value: oldValue.value ?? new Decimal(0),
           subscriptions: oldValue.subscriptions,
         };
       }

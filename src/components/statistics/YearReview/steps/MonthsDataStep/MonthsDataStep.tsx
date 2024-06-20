@@ -5,12 +5,13 @@ import {
 import { AgChartsReact } from "ag-charts-react";
 import { Checkbox } from "antd";
 import dayjs from "dayjs";
-import { maxBy, range, sum } from "lodash";
+import { maxBy, range } from "lodash";
 import { observer } from "mobx-react";
 import { useState } from "react";
 import { dataStores } from "~/stores/dataStores";
 import costToString from "~/utils/costToString";
-import roundCost from "~/utils/roundCost";
+
+import { decimalSum } from "~/utils/decimalSum";
 import { CategoriesBreakdown } from "./CategoriesBreakdown";
 
 interface Datum {
@@ -28,33 +29,27 @@ export const MonthsDataStep: React.FC = observer(function MonthsDataStep() {
 
   const data: Datum[] = range(0, 12).map((month) => ({
     month: dayjs().month(month).format("MMMM"),
-    spent: roundCost(
-      sum(
-        thisYearExpenses
-          .filter(
-            (e) =>
-              (showFromSavings || !e.category.fromSavings) &&
-              !e.category.isIncome &&
-              !e.category.toSavings &&
-              e.date.month() === month
-          )
-          .map((e) => e.cost ?? 0)
-      )
-    ),
-    earned: roundCost(
-      sum(
-        thisYearExpenses
-          .filter((e) => e.category.isIncome && e.date.month() === month)
-          .map((e) => e.cost ?? 0)
-      )
-    ),
-    saved: roundCost(
-      sum(
-        thisYearExpenses
-          .filter((e) => e.category.toSavings && e.date.month() === month)
-          .map((e) => e.cost ?? 0)
-      )
-    ),
+    spent: decimalSum(
+      ...thisYearExpenses
+        .filter(
+          (e) =>
+            (showFromSavings || !e.category.fromSavings) &&
+            !e.category.isIncome &&
+            !e.category.toSavings &&
+            e.date.month() === month
+        )
+        .map((e) => e.cost ?? 0)
+    ).toNumber(),
+    earned: decimalSum(
+      ...thisYearExpenses
+        .filter((e) => e.category.isIncome && e.date.month() === month)
+        .map((e) => e.cost ?? 0)
+    ).toNumber(),
+    saved: decimalSum(
+      ...thisYearExpenses
+        .filter((e) => e.category.toSavings && e.date.month() === month)
+        .map((e) => e.cost ?? 0)
+    ).toNumber(),
   }));
 
   const options: AgChartOptions = {

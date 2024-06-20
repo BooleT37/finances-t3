@@ -1,5 +1,5 @@
 import { type inferRouterOutputs } from "@trpc/server";
-import sum from "lodash/sum";
+import Decimal from "decimal.js";
 import { makeAutoObservable, observable, runInAction } from "mobx";
 import { adaptSavingSpendingFromApi } from "~/adapters/savingSpending/savingSpendingFromApi";
 import {
@@ -10,6 +10,7 @@ import type SavingSpendingEditing from "~/models/SavingSpendingEditing";
 import { type AppRouter } from "~/server/api/root";
 import type { Option } from "~/types/types";
 import { trpc } from "~/utils/api";
+import { decimalSum } from "~/utils/decimalSum";
 import type SavingSpending from "../models/SavingSpending";
 import { type DataLoader } from "./dataStores";
 import { dataStores } from "./dataStores/DataStores";
@@ -91,7 +92,7 @@ export default class SavingSpendingStore
     return this.getById(id).categories.map((c) => c.asOption);
   }
 
-  get currentSpendings(): number | null {
+  get currentSpendings(): Decimal | null {
     const { savings } = dataStores.userSettingsStore;
     if (!savings) {
       return null;
@@ -100,30 +101,23 @@ export default class SavingSpendingStore
     const { fromSavingsCategory, toSavingsCategory } =
       dataStores.categoriesStore;
 
-    const toSavingsExpenses =
-      toSavingsCategory.id in dataStores.expenseStore.expensesByCategoryId
-        ? dataStores.expenseStore.expensesByCategoryId[toSavingsCategory.id] ??
-          []
-        : [];
-
-    const fromSavingsExpenses =
-      fromSavingsCategory.id in dataStores.expenseStore.expensesByCategoryId
-        ? dataStores.expenseStore.expensesByCategoryId[
-            fromSavingsCategory.id
-          ] ?? []
-        : [];
-
-    return (
-      sum(
-        toSavingsExpenses
-          .concat(fromSavingsExpenses)
-          .filter((expense) => expense.date.isSameOrAfter(savings.date, "date"))
-          .map((expense) =>
-            expense.category.type === "FROM_SAVINGS"
-              ? -(expense.cost ?? 0)
-              : expense.cost
-          )
-      ) + savings.sum
+    const toSavingsExpenses = dataStores.expenseStore.getExpensesByCategoryId(
+      toSavingsCategory.id
     );
+
+    const fromSavingsExpenses = dataStores.expenseStore.getExpensesByCategoryId(
+      fromSavingsCategory.id
+    );
+
+    return decimalSum(
+      ...toSavingsExpenses
+        .concat(fromSavingsExpenses)
+        .filter((expense) => expense.date.isSameOrAfter(savings.date, "date"))
+        .map((expense) =>
+          expense.category.type === "FROM_SAVINGS"
+            ? (expense.cost ?? new Decimal(0)).negated()
+            : expense.cost
+        )
+    ).plus(savings.sum);
   }
 }

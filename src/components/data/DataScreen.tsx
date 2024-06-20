@@ -8,6 +8,7 @@ import {
 } from "@ant-design/icons";
 import { Button, Checkbox, DatePicker, Input, Space, Tooltip } from "antd";
 import dayjs, { type Dayjs } from "dayjs";
+import Decimal from "decimal.js";
 import { type MRT_TableInstance } from "material-react-table";
 import { action } from "mobx";
 import { observer } from "mobx-react";
@@ -169,7 +170,7 @@ const DataScreen = observer(function DataScreen() {
         rangeStart.year(),
         rangeStart.month()
       )
-    : 0;
+    : new Decimal(0);
   const isCurrentMonth =
     rangeStart &&
     today.month() === rangeStart.month() &&

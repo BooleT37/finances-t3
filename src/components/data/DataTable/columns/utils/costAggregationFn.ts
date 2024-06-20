@@ -1,32 +1,30 @@
 import type { Row } from "@tanstack/react-table";
+import Decimal from "decimal.js";
 import { action } from "mobx";
 import { type TableData } from "~/models/Expense";
 import { dataStores } from "~/stores/dataStores";
 import { type AggCostCol } from "~/types/data";
-import roundCost from "~/utils/roundCost";
 
 export default action(function costAggregationFn(
   rows: Row<TableData>[],
-  categoriesForecast: Record<number, number> | null,
-  savingSpendingsForecast: number
+  categoriesForecast: Record<number, Decimal> | null,
+  savingSpendingsForecast: Decimal
 ): AggCostCol {
   const categoryId = rows[0]?.original.categoryId;
   if (rows.length === 0 || categoryId === undefined) {
     return {
-      value: 0,
+      value: new Decimal(0),
       diff: null,
       isIncome: false,
       isContinuous: false,
     };
   }
-  const value = roundCost(
-    rows.reduce(
-      (a, c) =>
-        c.original.isUpcomingSubscription
-          ? a
-          : a + (c.original.cost?.value ?? 0),
-      0
-    )
+  const value = rows.reduce(
+    (a, c) =>
+      c.original.isUpcomingSubscription
+        ? a
+        : a.add(c.original.cost?.value ?? 0),
+    new Decimal(0)
   );
   const {
     isIncome,
@@ -36,7 +34,7 @@ export default action(function costAggregationFn(
   const forecast = isSavingSpending
     ? savingSpendingsForecast
     : categoriesForecast?.[categoryId];
-  const diff = forecast !== undefined ? roundCost(forecast - value) : -value;
+  const diff = forecast !== undefined ? forecast.minus(value) : value.neg();
   // TODO count diff differently for saving spendings
 
   return {

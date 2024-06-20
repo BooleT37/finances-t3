@@ -1,16 +1,27 @@
+import type Decimal from "decimal.js";
+import { runInAction } from "mobx";
 import { observer } from "mobx-react";
-import { type ExpenseComponent } from "~/models/ExpenseComponent";
+import { type ExpenseComponentData } from "~/models/Expense";
+import { dataStores } from "~/stores/dataStores";
 import costToString from "~/utils/costToString";
+import { decimalSum } from "~/utils/decimalSum";
 
 interface Props {
-  cost: number;
-  components: ExpenseComponent[];
+  cost: Decimal;
+  components: ExpenseComponentData[];
 }
 
-function componentCategoryToString(component: ExpenseComponent): string {
-  return component.subcategory
-    ? `${component.category.name} - ${component.subcategory.name}`
-    : component.category.name;
+function componentCategoryToString(component: ExpenseComponentData): string {
+  return runInAction(() => {
+    const category = dataStores.categoriesStore.getById(component.categoryId);
+    const subcategory =
+      component.subcategoryId === null
+        ? null
+        : category.findSubcategoryById(component.subcategoryId);
+    return subcategory
+      ? `${category.name} - ${subcategory.name}`
+      : category.name;
+  });
 }
 
 export const ComponentsHint: React.FC<Props> = observer(
@@ -35,7 +46,7 @@ export const ComponentsHint: React.FC<Props> = observer(
             </ul>
             (остаток:{" "}
             {costToString(
-              cost - components.reduce((acc, c) => acc + c.cost, 0)
+              cost.minus(decimalSum(...components.map((c) => c.cost, 0)))
             )}
             )
           </>
