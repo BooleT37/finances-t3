@@ -1,5 +1,7 @@
+import type Decimal from "decimal.js";
+
 export default interface NewSavingSpendingCategory {
   name: string;
-  forecast: number;
+  forecast: Decimal;
   comment: string;
 }

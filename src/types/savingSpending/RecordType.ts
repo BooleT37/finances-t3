@@ -1,6 +1,8 @@
+import type Decimal from "decimal.js";
+
 export interface RecordType {
   id: string;
   name: string;
-  forecast: number;
-  expenses: number;
+  forecast: Decimal;
+  expenses: Decimal;
 }

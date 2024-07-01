@@ -1,9 +1,11 @@
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
-import { type ExpenseComponent } from "@prisma/client";
 import { Button, Form, Input, InputNumber, Modal, Space } from "antd";
-import sum from "lodash/sum";
+import Decimal from "decimal.js";
 import React, { useCallback, useEffect, useMemo } from "react";
 import styled from "styled-components";
+import { type ExpenseComponentData } from "~/models/Expense";
+import costToString from "~/utils/costToString";
+import { decimalSum } from "~/utils/decimalSum";
 import { getTempId } from "~/utils/tempId";
 import {
   buildCategorySubcategoryId,
@@ -69,19 +71,19 @@ interface Props {
   open: boolean;
   onClose(): void;
   onSave(values: ValidatedFormValues): void;
-  components: ExpenseComponent[];
+  components: ExpenseComponentData[];
   expenseId: number | null;
   expenseName: string;
-  expenseCost: number | null;
+  expenseCost: Decimal | null;
   highlightedComponentId?: number | null;
 }
 
-function costToNumber(cost: string): number {
-  if (cost === "") {
-    return 0;
+function costToDecimal(cost: string | null): Decimal {
+  if (cost === "" || cost === null) {
+    return new Decimal(0);
   }
-  const parsed = parseFloat(cost);
-  return isNaN(parsed) ? 0 : parsed;
+  const parsed = new Decimal(cost);
+  return parsed.isNaN() ? new Decimal(0) : parsed;
 }
 
 // eslint-disable-next-line mobx/missing-observer
@@ -109,7 +111,7 @@ const ComponentsModal: React.FC<Props> = (props) => {
   const initialValues = useMemo<FormValues>(
     () => ({
       components: components.map(
-        ({ cost, expenseId, id, name, categoryId, subcategoryId }) => ({
+        ({ cost, id, name, categoryId, subcategoryId }) => ({
           id,
           expenseId,
           name: name ?? "",
@@ -121,7 +123,7 @@ const ComponentsModal: React.FC<Props> = (props) => {
         })
       ),
     }),
-    [components]
+    [components, expenseId]
   );
 
   // This function exists with a single purpose of casting FormValues to ValidatedFormValues
@@ -249,8 +251,13 @@ const ComponentsModal: React.FC<Props> = (props) => {
             <Space>
               <div>Осталось в основном расходе:</div>
               <div>
-                {expenseCost -
-                  sum(currentValue.map((c) => costToNumber(c.cost)))}
+                {costToString(
+                  expenseCost.minus(
+                    decimalSum(
+                      ...currentValue.map((c) => costToDecimal(c.cost))
+                    )
+                  )
+                )}
               </div>
             </Space>
           )}

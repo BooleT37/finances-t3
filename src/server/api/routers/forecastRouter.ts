@@ -1,3 +1,4 @@
+import Decimal from "decimal.js";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { connectUser, filterByUser } from "~/server/api/utils/linkCurrentUser";
@@ -13,7 +14,7 @@ export const forecastRouter = createTRPCRouter({
           categoryId: z.number(),
           month: z.number(),
           year: z.number(),
-          sum: z.number().optional(),
+          sum: z.instanceof(Decimal).optional(),
           comment: z.string().optional(),
         })
         .refine(
@@ -40,7 +41,7 @@ export const forecastRouter = createTRPCRouter({
           month: input.month,
           year: input.year,
           comment: input.comment ?? "",
-          sum: input.sum ?? 0,
+          sum: input.sum ?? new Decimal(0),
           ...connectUser(ctx),
         },
         update:

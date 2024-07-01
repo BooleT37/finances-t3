@@ -19,6 +19,7 @@ function getSavingSpendingByCategoryId(id: number): Expense["savingSpending"] {
 
 export const adaptExpenseFromApi = action(
   (expense: ExpenseFromApi): Expense => {
+    console.log(expense.cost, typeof expense.cost);
     const category = dataStores.categoriesStore.getById(expense.categoryId);
     return new Expense(
       expense.id,

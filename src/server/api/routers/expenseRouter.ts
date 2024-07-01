@@ -7,16 +7,15 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { connectUser, filterByUser } from "~/server/api/utils/linkCurrentUser";
 
 export const expenseRouter = createTRPCRouter({
-  getAll: protectedProcedure.query(({ ctx }) => {
-    return ctx.prisma.expense.findMany({
+  getAll: protectedProcedure.query(({ ctx }) =>
+    ctx.prisma.expense.findMany({
       ...filterByUser(ctx),
       include: { components: true },
-    });
-  }),
+    })
+  ),
   create: protectedProcedure
     .input(ExpenseCreateWithoutUserInputObjectSchema)
     .mutation(({ ctx, input }) => {
-      console.log(input);
       return ctx.prisma.expense.create({
         data: {
           ...input,

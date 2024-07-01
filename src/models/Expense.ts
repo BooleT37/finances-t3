@@ -1,8 +1,10 @@
 import { type ExpenseComponent as ExpenseComponentApi } from "@prisma/client";
 import { type Dayjs } from "dayjs";
+import type Decimal from "decimal.js";
 import { makeAutoObservable, observable } from "mobx";
 import { dataStores } from "~/stores/dataStores";
 import { DATE_FORMAT } from "~/utils/constants";
+import { decimalSum } from "~/utils/decimalSum";
 import type Category from "./Category";
 import { ExpenseComponent } from "./ExpenseComponent";
 import type SavingSpending from "./SavingSpending";
@@ -12,11 +14,11 @@ import type Subcategory from "./Subcategory";
 import type Subscription from "./Subscription";
 
 export interface CostCol {
-  value: number;
+  value: Decimal;
   isSubscription?: boolean;
   isUpcomingSubscription?: boolean;
   parentExpenseName?: string;
-  costWithComponents?: number;
+  costWithComponents?: Decimal;
 }
 
 export interface TableData {
@@ -30,13 +32,16 @@ export interface TableData {
   subcategory: string | null;
   source: string;
   isUpcomingSubscription: boolean;
-  parentExpenseId: number | null;
+  expenseId: number | null;
 }
+
+// for new expenses we don't have expense id
+export type ExpenseComponentData = Omit<ExpenseComponentApi, "expenseId">;
 
 export default class Expense {
   id: number;
   name: string;
-  cost: number;
+  cost: Decimal;
   components = observable.array<ExpenseComponent>();
   date: Dayjs;
   category: Category;
@@ -50,7 +55,7 @@ export default class Expense {
 
   constructor(
     id: number,
-    cost: number,
+    cost: Decimal,
     components: ExpenseComponentApi[],
     date: Dayjs,
     category: Category,
@@ -66,8 +71,19 @@ export default class Expense {
     makeAutoObservable(this, undefined, { autoBind: true });
     this.id = id;
     this.cost = cost;
+    this.replaceComponents(components);
+    this.date = date;
+    this.category = category;
+    this.subcategory = subcategory;
+    this.name = name;
+    this.source = source;
+    this.subscription = subscription;
+    this.savingSpending = savingSpending;
+  }
+
+  replaceComponents(newComponents: ExpenseComponentData[]): void {
     this.components.replace(
-      components.map(
+      newComponents.map(
         (c) =>
           new ExpenseComponent(
             c.id,
@@ -80,18 +96,10 @@ export default class Expense {
                   c.categoryId,
                   c.subcategoryId
                 ),
-            c.expenseId,
             this
           )
       )
     );
-    this.date = date;
-    this.category = category;
-    this.subcategory = subcategory;
-    this.name = name;
-    this.source = source;
-    this.subscription = subscription;
-    this.savingSpending = savingSpending;
   }
 
   get tableDataName(): string {
@@ -108,8 +116,8 @@ export default class Expense {
     return name;
   }
 
-  get costWithoutComponents(): number {
-    return this.cost - this.components.reduce((acc, c) => acc + c.cost, 0);
+  get costWithoutComponents(): Decimal {
+    return this.cost.minus(decimalSum(...this.components.map((c) => c.cost)));
   }
 
   get asTableData(): TableData {
@@ -134,7 +142,7 @@ export default class Expense {
       categoryId: this.category.id,
       categoryShortname: this.category.shortname,
       isUpcomingSubscription: false,
-      parentExpenseId: null,
+      expenseId: null,
     };
   }
 }

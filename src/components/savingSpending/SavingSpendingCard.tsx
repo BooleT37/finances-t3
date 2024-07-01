@@ -1,13 +1,13 @@
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Row, Switch, Table, Tooltip } from "antd";
 import type { ColumnType, TableProps } from "antd/lib/table";
-import { sum } from "lodash";
+import type Decimal from "decimal.js";
 import { observer } from "mobx-react";
 import type { FC } from "react";
 import styled from "styled-components";
 import type SavingSpending from "~/models/SavingSpending";
 import costToString from "~/utils/costToString";
-import roundCost from "~/utils/roundCost";
+import { decimalSum } from "~/utils/decimalSum";
 
 interface Props {
   spending: SavingSpending;
@@ -18,8 +18,8 @@ interface Props {
 export interface RecordType {
   id: string;
   name: string;
-  forecast: number;
-  expenses: number;
+  forecast: Decimal;
+  expenses: Decimal;
 }
 
 const tableColumnsForSingleCategory: ColumnType<RecordType>[] = [
@@ -115,12 +115,12 @@ const SavingSpendingCard: React.FC<Props> = observer(
                   <Table.Summary.Cell index={0}>Всего:</Table.Summary.Cell>
                   <Table.Summary.Cell index={1}>
                     {costToString(
-                      roundCost(sum(pageData.map((r) => r.forecast)))
+                      decimalSum(...pageData.map((r) => r.forecast))
                     )}
                   </Table.Summary.Cell>
                   <Table.Summary.Cell index={2}>
                     {costToString(
-                      roundCost(sum(pageData.map((r) => r.expenses)))
+                      decimalSum(...pageData.map((r) => r.expenses))
                     )}
                   </Table.Summary.Cell>
                 </Table.Summary.Row>

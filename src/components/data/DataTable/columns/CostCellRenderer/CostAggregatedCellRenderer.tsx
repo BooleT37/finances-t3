@@ -2,7 +2,7 @@ import React from "react";
 import TotalCostCellView from "~/components/TotalCostCellView";
 import { type AggCostCol } from "~/types/data";
 import costToString from "~/utils/costToString";
-import roundCost from "~/utils/roundCost";
+
 import CostCellView from "./CostCellView";
 
 interface Props {
@@ -30,15 +30,17 @@ const CostAggregatedCellRenderer: React.FC<Props> = ({
       />
     );
   }
-  const diffSum = costToString(Math.abs(col.diff));
+  const diffNumber = col.diff.toNumber();
+  const valueNumber = col.value.toNumber();
+  const diffSum = costToString(col.diff.abs());
   if (col.isIncome) {
-    if (col.diff >= 0) {
+    if (col.diff.isPositive()) {
       return (
         <TotalCostCellView
           cost={costString}
           suffix={`-${diffSum}`}
           color="red"
-          barWidth={col.diff / (col.diff + col.value)}
+          barWidth={diffNumber / col.diff.plus(col.value).toNumber()}
           isMuiTable
         />
       );
@@ -48,21 +50,19 @@ const CostAggregatedCellRenderer: React.FC<Props> = ({
         cost={costString}
         suffix={`+${diffSum}`}
         color="green"
-        barWidth={-col.diff / col.value}
-        barOffset={col.diff / col.value + 1}
+        barWidth={-diffNumber / valueNumber}
+        barOffset={diffNumber / valueNumber + 1}
         isMuiTable
       />
     );
   }
-  if (col.diff >= 0) {
-    const spentRatio = col.value / (col.diff + col.value);
+  if (col.diff.isPositive()) {
+    const spentRatio = valueNumber / (diffNumber + valueNumber);
     const exceedingForecast = col.isContinuous && spentRatio > passedDaysRatio;
     const color = exceedingForecast ? "orange" : "green";
 
     const exceedingAmount = exceedingForecast
-      ? costToString(
-          roundCost(col.value - passedDaysRatio * (col.value + col.diff))
-        )
+      ? costToString(valueNumber - passedDaysRatio * (valueNumber + diffNumber))
       : undefined;
     const title = exceedingAmount
       ? `Превышение на ${exceedingAmount}`
@@ -80,8 +80,8 @@ const CostAggregatedCellRenderer: React.FC<Props> = ({
     );
   }
 
-  const spentRatio = Math.min(-col.diff / col.value, 1);
-  const offset = Math.max(col.diff / col.value + 1, 0);
+  const spentRatio = Math.min(-diffNumber / valueNumber, 1);
+  const offset = Math.max(diffNumber / valueNumber + 1, 0);
 
   return (
     <TotalCostCellView

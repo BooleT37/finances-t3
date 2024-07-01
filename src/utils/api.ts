@@ -7,9 +7,19 @@
 import { createTRPCProxyClient, httpBatchLink, loggerLink } from "@trpc/client";
 import { createTRPCNext, type WithTRPCConfig } from "@trpc/next";
 import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
+import Decimal from "decimal.js";
 import superjson from "superjson";
 
 import { type AppRouter } from "~/server/api/root";
+
+superjson.registerCustom<Decimal, string>(
+  {
+    isApplicable: (v): v is Decimal => Decimal.isDecimal(v),
+    serialize: (v) => v.toJSON(),
+    deserialize: (v) => new Decimal(v),
+  },
+  "decimal.js"
+);
 
 const getBaseUrl = () => {
   if (typeof window !== "undefined") return ""; // browser should use relative url

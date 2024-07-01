@@ -1,8 +1,8 @@
 import dayjs, { type Dayjs } from "dayjs";
+import type Decimal from "decimal.js";
 import { makeAutoObservable } from "mobx";
 import { trpc } from "~/utils/api";
 import costToString from "~/utils/costToString";
-import roundCost from "~/utils/roundCost";
 import type Category from "./Category";
 import type Source from "./Source";
 
@@ -34,7 +34,7 @@ export default class Subscription {
 
   id: number;
   name: string;
-  cost: number;
+  cost: Decimal;
   category: Category;
   period: number;
   firstDate: Dayjs;
@@ -44,7 +44,7 @@ export default class Subscription {
   constructor(
     id: number,
     name: string,
-    cost: number,
+    cost: Decimal,
     category: Category,
     period: number,
     firstDate: Dayjs,
@@ -81,7 +81,7 @@ export default class Subscription {
     return {
       id: this.id,
       name: this.name,
-      cost: String(this.cost),
+      cost: this.cost.toFixed(2),
       categoryId: this.category.id ?? null,
       period: this.period,
       firstDate: this.firstDate,
@@ -89,8 +89,8 @@ export default class Subscription {
     };
   }
 
-  get costPerMonth(): number {
-    return roundCost(this.cost / this.period);
+  get costPerMonth(): Decimal {
+    return this.cost.div(this.period);
   }
 
   async setActive(active: boolean) {

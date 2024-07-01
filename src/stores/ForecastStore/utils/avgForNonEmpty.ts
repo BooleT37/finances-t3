@@ -1,12 +1,12 @@
+import Decimal from "decimal.js";
 import isNil from "lodash/isNil";
-import sum from "lodash/sum";
-import roundCost from "~/utils/roundCost";
+import { decimalSum } from "~/utils/decimalSum";
 
-export default function avgForNonEmpty(values: number[]): number {
+export default function avgForNonEmpty(values: Decimal[]): Decimal {
   if (values.length === 0) {
-    return 0;
+    return new Decimal(0);
   }
   const filtered = values.filter((value) => !isNil(value));
 
-  return roundCost(sum(filtered) / filtered.length);
+  return decimalSum(...filtered).div(filtered.length);
 }

@@ -12,7 +12,8 @@ import {
   Space,
 } from "antd";
 import dayjs, { type Dayjs } from "dayjs";
-import { action, runInAction, toJS } from "mobx";
+import Decimal from "decimal.js";
+import { action, runInAction } from "mobx";
 import { observer, useLocalObservable } from "mobx-react";
 import type { BaseSelectRef } from "rc-select";
 import React, { useMemo, useState } from "react";
@@ -449,7 +450,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
           extra={
             currentComponents.length > 0 ? (
               <ComponentsHint
-                cost={parseFloat(cost)}
+                cost={cost ? new Decimal(cost) : new Decimal(0)}
                 components={currentComponents}
               />
             ) : undefined
@@ -489,10 +490,10 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
         highlightedComponentId={componentsModalIdHighlighted}
         defaultCategoryId={categoryId}
         defaultSubcategoryId={subcategoryId}
-        components={toJS(currentComponents.map((c) => c.asJSON))}
+        components={currentComponents}
         expenseId={expenseId}
         expenseName={name}
-        expenseCost={cost ? parseFloat(cost) : null}
+        expenseCost={cost ? new Decimal(cost) : null}
         open={componentsModalOpen}
         onClose={() => {
           setComponentsModalOpen(false);
@@ -501,7 +502,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
           setCurrentComponents(
             components.map<ExpenseComponent>((c) => ({
               ...parseCategorySubcategoryId(c.categorySubcategoryId),
-              cost: parseFloat(c.cost),
+              cost: new Decimal(c.cost),
               expenseId: expenseId ?? -1,
               id: c.id,
               name: c.name,

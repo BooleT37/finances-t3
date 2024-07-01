@@ -1,9 +1,9 @@
-import { sum } from "lodash";
+import type Decimal from "decimal.js";
 import { makeAutoObservable } from "mobx";
 import { dataStores } from "~/stores/dataStores";
 import type { RecordType } from "~/types/savingSpending/RecordType";
 import type { Option } from "~/types/types";
-import roundCost from "~/utils/roundCost";
+import { decimalSum } from "~/utils/decimalSum";
 import type NewSavingSpendingCategory from "./NewSavingSpendingCategory";
 
 export default class SavingSpendingCategory
@@ -11,10 +11,10 @@ export default class SavingSpendingCategory
 {
   id: number;
   name: string;
-  forecast: number;
+  forecast: Decimal;
   comment: string;
 
-  constructor(id: number, name: string, forecast: number, comment: string) {
+  constructor(id: number, name: string, forecast: Decimal, comment: string) {
     makeAutoObservable(this);
 
     this.id = id;
@@ -33,14 +33,12 @@ export default class SavingSpendingCategory
   }
 
   get expenses() {
-    return roundCost(
-      sum(
-        dataStores.expenseStore.expenses
-          .filter(
-            (e) => e.savingSpending && e.savingSpending.category.id === this.id
-          )
-          .map((e) => e.cost ?? 0)
-      )
+    return decimalSum(
+      ...dataStores.expenseStore.expenses
+        .filter(
+          (e) => e.savingSpending && e.savingSpending.category.id === this.id
+        )
+        .map((e) => e.cost ?? 0)
     );
   }
 

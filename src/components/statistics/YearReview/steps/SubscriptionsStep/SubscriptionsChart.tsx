@@ -3,8 +3,8 @@ import {
   type AgChartOptions,
 } from "ag-charts-community";
 import { AgChartsReact } from "ag-charts-react";
+import Decimal from "decimal.js";
 import costToString from "~/utils/costToString";
-import roundCost from "~/utils/roundCost";
 
 export interface SubscriptionDatum {
   name: string;
@@ -39,7 +39,7 @@ export const SubscriptionsChart: React.FC<Props> = (props) => {
           }: AgCartesianSeriesTooltipRendererParams) => ({
             title: (datum as { name: string }).name,
             content: `${costToString(yValue as number)} (${costToString(
-              roundCost(yValue / 12)
+              new Decimal(yValue as number).div(12)
             )}/мес)`,
           }),
         },

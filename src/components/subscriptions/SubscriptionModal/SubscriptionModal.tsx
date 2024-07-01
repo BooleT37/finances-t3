@@ -8,6 +8,7 @@ import {
   type InputRef,
 } from "antd";
 import dayjs, { type Dayjs } from "dayjs";
+import Decimal from "decimal.js";
 import { runInAction } from "mobx";
 import { observer } from "mobx-react";
 import React from "react";
@@ -34,7 +35,7 @@ function formValuesToSubscription(
   return new Subscription(
     id ?? NEW_SUBSCRIPTION_ID,
     values.name,
-    parseFloat(values.cost),
+    new Decimal(values.cost),
     dataStores.categoriesStore.getById(values.categoryId),
     values.period,
     values.firstDate,

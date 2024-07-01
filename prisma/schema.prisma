@@ -121,7 +121,7 @@ model SavingSpending {
 model SavingSpendingCategory {
   id               Int             @id @default(autoincrement())
   name             String
-  forecast         Float
+  forecast         Decimal         @db.Decimal(9, 2)
   comment          String
   savingSpending   SavingSpending? @relation(fields: [savingSpendingId], references: [id], onDelete: Cascade)
   savingSpendingId Int?
@@ -131,7 +131,7 @@ model SavingSpendingCategory {
 model Subscription {
   id         Int       @id @default(autoincrement())
   name       String
-  cost       Float
+  cost       Decimal   @db.Decimal(9, 2)
   category   Category  @relation(fields: [categoryId], references: [id])
   period     Int       @db.SmallInt
   firstDate  DateTime  @db.Date
@@ -147,7 +147,7 @@ model Subscription {
 model Expense {
   id                       Int                     @id @default(autoincrement())
   name                     String
-  cost                     Float
+  cost                     Decimal                 @db.Decimal(9, 2)
   date                     DateTime                @db.Date
   category                 Category                @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   categoryId               Int
@@ -167,7 +167,7 @@ model Expense {
 model ExpenseComponent {
   id            Int          @id @default(autoincrement())
   name          String
-  cost          Float
+  cost          Decimal      @db.Decimal(9, 2)
   category      Category     @relation(fields: [categoryId], references: [id])
   categoryId    Int
   sucategory    Subcategory? @relation(fields: [subcategoryId], references: [id])
@@ -184,7 +184,7 @@ model Forecast {
   categoryId Int
   month      Int      @db.SmallInt
   year       Int      @db.SmallInt
-  sum        Float    @default(0)
+  sum        Decimal  @default(0) @db.Decimal(9, 2)
   comment    String   @default("")
   user       User     @relation(fields: [userId], references: [id])
   userId     String   @default("clg6kpbtn0000mr081ntz0f8i")
@@ -194,8 +194,8 @@ model Forecast {
 
 model UserSetting {
   id                     Int       @id @default(autoincrement())
-  pePerMonth             Int       @default(50)
-  savings                Float?
+  pePerMonth             Decimal?  @db.Decimal(9, 2)
+  savings                Decimal?  @db.Decimal(9, 2)
   savingsDate            DateTime? @db.Date
   User                   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId                 String    @unique

@@ -1,9 +1,10 @@
 import { Checkbox, Space, Typography } from "antd";
-import { groupBy, sum } from "lodash";
+import { groupBy } from "lodash";
 import { observer } from "mobx-react";
 import { useState } from "react";
 import { dataStores } from "~/stores/dataStores";
-import roundCost from "~/utils/roundCost";
+
+import { decimalSum } from "~/utils/decimalSum";
 import {
   SubscriptionsChart,
   type SubscriptionDatum,
@@ -34,7 +35,7 @@ export const SubscriptionsStep: React.FC = observer(
     )
       .map(([categoryId, expenses]) => ({
         name: dataStores.categoriesStore.getById(parseInt(categoryId)).name,
-        spent: roundCost(sum(expenses.map((e) => e.cost ?? 0))),
+        spent: decimalSum(...expenses.map((e) => e.cost ?? 0)).toNumber(),
       }))
       .sort((d1, d2) => d2.spent - d1.spent);
 
@@ -43,7 +44,7 @@ export const SubscriptionsStep: React.FC = observer(
     )
       .map(([name, expenses]) => ({
         name,
-        spent: roundCost(sum(expenses.map((e) => e.cost ?? 0))),
+        spent: decimalSum(...expenses.map((e) => e.cost ?? 0)).toNumber(),
       }))
       .sort((d1, d2) => d2.spent - d1.spent);
 
@@ -52,7 +53,9 @@ export const SubscriptionsStep: React.FC = observer(
     )
       .map(([categoryId, subscriptions]) => ({
         name: dataStores.categoriesStore.getById(parseInt(categoryId)).name,
-        spent: roundCost(sum(subscriptions.map((s) => s.costPerMonth * 12))),
+        spent: decimalSum(
+          ...subscriptions.map((s) => s.costPerMonth.times(12))
+        ).toNumber(),
       }))
       .sort((d1, d2) => d2.spent - d1.spent);
 
@@ -61,7 +64,9 @@ export const SubscriptionsStep: React.FC = observer(
     )
       .map(([name, subscriptions]) => ({
         name,
-        spent: roundCost(sum(subscriptions.map((s) => s.costPerMonth * 12))),
+        spent: decimalSum(
+          ...subscriptions.map((s) => s.costPerMonth.times(12))
+        ).toNumber(),
       }))
       .sort((d1, d2) => d2.spent - d1.spent);
 

@@ -1,3 +1,4 @@
+import type Decimal from "decimal.js";
 import { createMRTColumnHelper } from "material-react-table";
 import { useMemo } from "react";
 import { type TableData } from "~/models/Expense";
@@ -11,8 +12,8 @@ export const useDataTableColumns = ({
   savingSpendingsForecast,
   passedDaysRatio,
 }: {
-  categoriesForecast: Record<number, number> | null;
-  savingSpendingsForecast: number;
+  categoriesForecast: Record<number, Decimal> | null;
+  savingSpendingsForecast: Decimal;
   passedDaysRatio: number;
 }) => {
   const columnHelper = createMRTColumnHelper<TableData>();

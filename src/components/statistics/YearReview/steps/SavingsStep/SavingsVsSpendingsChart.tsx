@@ -3,11 +3,10 @@ import {
   type AgChartOptions,
 } from "ag-charts-community";
 import { AgChartsReact } from "ag-charts-react";
-import { sum } from "lodash";
 import { observer } from "mobx-react";
 import { dataStores } from "~/stores/dataStores";
 import costToString from "~/utils/costToString";
-import roundCost from "~/utils/roundCost";
+import { decimalSum } from "~/utils/decimalSum";
 
 interface BarDatum {
   category: string;
@@ -20,22 +19,16 @@ export const SavingsVsSpendingsChart: React.FC = observer(
     const { toSavingsCategory, fromSavingsCategory } =
       dataStores.categoriesStore;
 
-    const totalSavings = roundCost(
-      sum(
-        expensesByCategoryIdForYear(2022)[toSavingsCategory.id.toString()]?.map(
-          (e) => e.cost ?? 0
-        )
-      )
-    );
-
-    const totalSpendings = roundCost(
-      sum(
-        expensesByCategoryIdForYear(2022)[
-          fromSavingsCategory.id.toString()
-        ]?.map((e) => e.cost ?? 0)
-      )
-    );
-
+    const totalSavings = decimalSum(
+      ...(expensesByCategoryIdForYear(2022)[
+        toSavingsCategory.id.toString()
+      ]?.map((e) => e.cost ?? 0) ?? [])
+    ).toNumber();
+    const totalSpendings = decimalSum(
+      ...(expensesByCategoryIdForYear(2022)[
+        fromSavingsCategory.id.toString()
+      ]?.map((e) => e.cost ?? 0) ?? [])
+    ).toNumber();
     const data: BarDatum[] = [
       {
         category: "Отложено",
@@ -66,7 +59,7 @@ export const SavingsVsSpendingsChart: React.FC = observer(
               title: xValue as string,
               content: `${costToString(
                 yValue as number
-              )} (в среднем ${costToString(roundCost(yValue / 12))}/мес)`,
+              )} (в среднем ${costToString(yValue / 12)}/мес)`,
             }),
           },
           label: {
@@ -82,7 +75,7 @@ export const SavingsVsSpendingsChart: React.FC = observer(
         <AgChartsReact options={options}></AgChartsReact>
         <div>
           Всего мы за год сохранили{" "}
-          <b>{costToString(roundCost(totalSavings - totalSpendings))}</b>
+          <b>{costToString(totalSavings - totalSpendings)}</b>
         </div>
       </div>
     );

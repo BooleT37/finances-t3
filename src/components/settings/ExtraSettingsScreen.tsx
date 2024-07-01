@@ -5,6 +5,7 @@ import {
   LoadingOutlined,
 } from "@ant-design/icons";
 import { Button, Col, Row, Space, Tooltip } from "antd";
+import Decimal from "decimal.js";
 import { debounce } from "lodash";
 import { observer } from "mobx-react";
 import React, { useCallback, useMemo } from "react";
@@ -30,11 +31,13 @@ const ExtraSettingsScreen: React.FC = observer(function ExtraSettingsScreen() {
     removeSavings,
   } = dataStores.userSettingsStore;
   const [peSum, setPeSum] = React.useState(savedPeSum);
-  const [savings, setSavings] = React.useState(savedSavings?.sum ?? 0);
+  const [savings, setSavings] = React.useState(
+    savedSavings?.sum ?? new Decimal(0)
+  );
 
   const setSavedPeSumIfChanged = useCallback(
-    (newPeSum: number) => {
-      if (newPeSum !== savedPeSum) {
+    (newPeSum: Decimal) => {
+      if (savedPeSum === null || !newPeSum.equals(savedPeSum)) {
         void setSavedPeSum(newPeSum);
       }
     },
@@ -51,20 +54,20 @@ const ExtraSettingsScreen: React.FC = observer(function ExtraSettingsScreen() {
       if (value === null) {
         return;
       }
-      const numberValue = parseFloat(value);
-      setPeSum(numberValue);
-      debouncedSetSavedPeSum(numberValue);
+      const decimalValue = new Decimal(value);
+      setPeSum(decimalValue);
+      debouncedSetSavedPeSum(decimalValue);
     },
     [debouncedSetSavedPeSum]
   );
 
   const setSavedSavingsIfChanged = useCallback(
-    (newSavings: number) => {
-      if (newSavings !== savedSavings?.sum) {
+    (newSavings: Decimal) => {
+      if (savedSavings === undefined || !newSavings.equals(savedSavings.sum)) {
         void setSavedSavings(newSavings);
       }
     },
-    [savedSavings?.sum, setSavedSavings]
+    [savedSavings, setSavedSavings]
   );
 
   const debouncedSetSavedSavings = useMemo(
@@ -77,20 +80,20 @@ const ExtraSettingsScreen: React.FC = observer(function ExtraSettingsScreen() {
       if (value === null) {
         return;
       }
-      const numberValue = parseFloat(value);
-      setSavings(numberValue);
-      debouncedSetSavedSavings(numberValue);
+      const decimalValue = new Decimal(value);
+      setSavings(decimalValue);
+      debouncedSetSavedSavings(decimalValue);
     },
     [debouncedSetSavedSavings]
   );
 
   const handleAddSavings = useCallback(() => {
-    setSavings(0);
-    void setSavedSavings(0);
+    setSavings(new Decimal(0));
+    void setSavedSavings(new Decimal(0));
   }, [setSavedSavings]);
 
   const handleRemoveSavings = useCallback(() => {
-    setSavings(0);
+    setSavings(new Decimal(0));
     void removeSavings();
   }, [removeSavings]);
 

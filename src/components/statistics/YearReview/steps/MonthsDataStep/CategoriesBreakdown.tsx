@@ -3,12 +3,10 @@ import {
   type AgChartOptions,
 } from "ag-charts-community";
 import { AgChartsReact } from "ag-charts-react";
-
-import { sum } from "lodash";
 import { observer } from "mobx-react";
 import { dataStores } from "~/stores/dataStores";
 import costToString from "~/utils/costToString";
-import roundCost from "~/utils/roundCost";
+import { decimalSum } from "~/utils/decimalSum";
 
 interface BarDatum {
   category: string;
@@ -35,13 +33,11 @@ export const CategoriesBreakdown: React.FC<Props> = observer(
       })
       .map(([categoryId, expenses]): [string, number] => [
         categoryId,
-        roundCost(
-          sum(
-            expenses
-              .filter((e) => e.date.month() === month)
-              .map((e) => e.cost ?? 0)
-          )
-        ),
+        decimalSum(
+          ...expenses
+            .filter((e) => e.date.month() === month)
+            .map((e) => e.cost ?? 0)
+        ).toNumber(),
       ])
       .sort((e1, e2) => e2[1] - e1[1])
       .slice(0, 3)

@@ -28,12 +28,12 @@ const Green = styled(Diff)`
 const LastMonthCellRenderer: React.FC<Props> = ({ value: col }) => {
   return (
     <>
-      <WithOffset offset={col.diff ? 3 : 0}>
+      <WithOffset offset={col.diff.isPositive() ? 3 : 0}>
         {costToString(col.spendings)}
       </WithOffset>
-      {col.diff ? (
+      {col.diff.isPositive() ? (
         <>
-          {col.diff >= 0 ? (
+          {col.diff.isPositive() ? (
             <Green offset={29}>+{costToString(col.diff)}</Green>
           ) : (
             <Red offset={29}>{costToString(col.diff)}</Red>

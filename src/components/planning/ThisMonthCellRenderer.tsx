@@ -14,15 +14,21 @@ function divideWithFallbackToOne(divident: number, divider: number) {
 // eslint-disable-next-line mobx/missing-observer
 const ThisMonthCellRenderer: React.FC<Props> = ({ value: col }) => {
   const costString = costToString(col.spendings);
-  const diffSum = costToString(Math.abs(col.diff));
+  const diffSum = costToString(col.diff.abs());
+  const diffNumber = col.diff.toNumber();
+  const spendingsNumber = col.spendings.toNumber();
+
   if (col.isIncome) {
-    if (col.diff >= 0) {
+    if (col.diff.isPositive()) {
       return (
         <TotalCostCellView
           cost={costString}
           suffix={`-${diffSum}`}
           color="red"
-          barWidth={divideWithFallbackToOne(col.diff, col.diff + col.spendings)}
+          barWidth={divideWithFallbackToOne(
+            diffNumber,
+            col.diff.add(col.spendings).toNumber()
+          )}
         />
       );
     }
@@ -31,30 +37,30 @@ const ThisMonthCellRenderer: React.FC<Props> = ({ value: col }) => {
         cost={costString}
         suffix={`+${diffSum}`}
         color="green"
-        barWidth={divideWithFallbackToOne(-col.diff, col.spendings)}
-        barOffset={col.diff / col.spendings + 1}
+        barWidth={divideWithFallbackToOne(-diffNumber, spendingsNumber)}
+        barOffset={diffNumber / spendingsNumber + 1}
       />
     );
   }
-  if (col.diff >= 0) {
+  if (col.diff.isPositive()) {
     return (
       <TotalCostCellView
         cost={costString}
         suffix={`+${diffSum}`}
         color="green"
         barWidth={divideWithFallbackToOne(
-          col.spendings,
-          col.diff + col.spendings
+          spendingsNumber,
+          diffNumber + spendingsNumber
         )}
       />
     );
   }
 
   const spentRatio = Math.min(
-    divideWithFallbackToOne(-col.diff, col.spendings),
+    divideWithFallbackToOne(-diffNumber, spendingsNumber),
     1
   );
-  const offset = Math.max(col.diff / col.spendings + 1, 0);
+  const offset = Math.max(diffNumber / spendingsNumber + 1, 0);
 
   return (
     <TotalCostCellView

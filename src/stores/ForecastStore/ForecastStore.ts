@@ -1,15 +1,15 @@
-import sum from "lodash/sum";
 import { makeAutoObservable, observable } from "mobx";
 import { computedFn } from "mobx-utils";
 import { adaptForecastFromApi } from "~/adapters/forecast/forecastFromApi";
 import { MONTH_DATE_FORMAT } from "~/utils/constants";
 import countUniqueMonths from "~/utils/countUniqueMonths";
-import roundCost from "~/utils/roundCost";
 
 import type { Forecast as ApiForecast } from "@prisma/client";
+import Decimal from "decimal.js";
 import type Category from "~/models/Category";
 import Forecast from "~/models/Forecast";
 import { trpc } from "~/utils/api";
+import { decimalSum } from "~/utils/decimalSum";
 import { negateIf } from "~/utils/negateIf";
 import type { DataLoader } from "../dataStores";
 import { dataStores } from "../dataStores/DataStores";
@@ -80,10 +80,10 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
         .sort((a, b) => a.id - b.id)
         .forEach((category) => {
           if (filtered.every((f) => f.category.id !== category.id)) {
-            filtered.push(new Forecast(category, month, year, 0));
+            filtered.push(new Forecast(category, month, year, new Decimal(0)));
           }
         });
-      const data = filtered.map((forecast) => {
+      const data: ForecastTableItem[] = filtered.map((forecast) => {
         const { month: prevMonth, year: prevYear } = getPreviousMonth(
           forecast.month,
           forecast.year
@@ -94,7 +94,7 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
               category === forecast.category &&
               month === prevMonth &&
               year === prevYear
-          )?.sum ?? 0;
+          )?.sum ?? new Decimal(0);
 
         const lastMonthSpendings = dataStores.expenseStore.totalPerMonth({
           year: prevYear,
@@ -121,10 +121,11 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
             Object.values(
               dataStores.expenseStore.expensesAndComponents
                 .filter((e) => e.category.id === forecast.category.id)
-                .reduce<Record<string, number>>((a, c) => {
+                .reduce<Record<string, Decimal>>((a, c) => {
                   const month = c.date.format(MONTH_DATE_FORMAT);
-                  if (a[month] !== undefined) {
-                    a[month] += c.cost ?? 0;
+                  const averageForMonth = a[month];
+                  if (averageForMonth !== undefined) {
+                    a[month] = averageForMonth.plus(c.cost ?? new Decimal(0));
                   } else {
                     a[month] = c.cost ?? 0;
                   }
@@ -140,9 +141,9 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
           lastMonth: {
             spendings: lastMonthSpendings,
             diff: forecast.category.fromSavings
-              ? 0
+              ? new Decimal(0)
               : negateIf(
-                  roundCost(lastMonthForecast - lastMonthSpendings),
+                  lastMonthForecast.minus(lastMonthSpendings),
                   isIncome || toSavings
                 ),
             isIncome: forecast.category.isIncome,
@@ -150,9 +151,9 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
           thisMonth: {
             spendings: thisMonthSpendings,
             diff: forecast.category.fromSavings
-              ? 0
+              ? new Decimal(0)
               : negateIf(
-                  roundCost(forecast.sum - thisMonthSpendings),
+                  forecast.sum.minus(thisMonthSpendings),
                   isIncome || toSavings
                 ),
             isIncome: forecast.category.isIncome,
@@ -167,12 +168,12 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
               ),
           },
           comment: forecast.comment || "",
-        };
+        } satisfies ForecastTableItem;
       });
 
       if (!isPersonal) {
         data.push({
-          average: roundCost(sum(data.map((d) => d.average))),
+          average: decimalSum(...data.map((d) => d.average)),
           monthsWithSpendings: "",
           category: "Всего",
           categoryId: -1,
@@ -180,31 +181,27 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
           categoryType: null,
           comment: "",
           lastMonth: {
-            spendings: roundCost(
-              sum(
-                data.map((d) =>
-                  negateIf(
-                    d.lastMonth.spendings,
-                    d.categoryType === "FROM_SAVINGS"
-                  )
+            spendings: decimalSum(
+              ...data.map((d) =>
+                negateIf(
+                  d.lastMonth.spendings,
+                  d.categoryType === "FROM_SAVINGS"
                 )
               )
             ),
             diff: isSavings
-              ? 0
-              : roundCost(sum(data.map((d) => d.lastMonth.diff))),
+              ? new Decimal(0)
+              : decimalSum(...data.map((d) => d.lastMonth.diff)),
             isIncome: false,
           },
           sum: {
             value: isSavings
               ? null
-              : roundCost(
-                  sum(
-                    data.map((d) =>
-                      negateIf(
-                        d.sum.value ?? 0,
-                        d.categoryType === "FROM_SAVINGS"
-                      )
+              : decimalSum(
+                  ...data.map((d) =>
+                    negateIf(
+                      d.sum.value ?? new Decimal(0),
+                      d.categoryType === "FROM_SAVINGS"
                     )
                   )
                 ),
@@ -217,19 +214,17 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
                 ),
           },
           thisMonth: {
-            spendings: roundCost(
-              sum(
-                data.map((d) =>
-                  negateIf(
-                    d.thisMonth.spendings,
-                    d.categoryType === "FROM_SAVINGS"
-                  )
+            spendings: decimalSum(
+              ...data.map((d) =>
+                negateIf(
+                  d.thisMonth.spendings,
+                  d.categoryType === "FROM_SAVINGS"
                 )
               )
             ),
             diff: isSavings
-              ? 0
-              : roundCost(sum(data.map((d) => d.thisMonth.diff))),
+              ? new Decimal(0)
+              : decimalSum(...data.map((d) => d.thisMonth.diff)),
             isIncome: false,
           },
         });
@@ -240,8 +235,8 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
   );
 
   totalForMonth(year: number, month: number, isIncome: boolean) {
-    return sum(
-      this.forecasts
+    return decimalSum(
+      ...this.forecasts
         .filter(
           (forecast) =>
             forecast.month === month &&
@@ -254,7 +249,7 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
   }
 
   categoriesForecast = computedFn(
-    (year: number, month: number): Record<number, number> => {
+    (year: number, month: number): Record<number, Decimal> => {
       const forecast = Object.fromEntries(
         this.forecasts
           .filter((f) => f.month === month && f.year === year)
@@ -268,7 +263,7 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
     category: Category,
     month: number,
     year: number,
-    sum: number
+    sum: Decimal
   ): Promise<Forecast> {
     const forecast = this.forecasts.find(
       (f) =>
@@ -302,7 +297,7 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
       category,
       month,
       year,
-      0,
+      new Decimal(0),
       comment
     );
     if (forecast) {
@@ -332,18 +327,15 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
       alert("Сначала заполните прогноз за прошлый месяц!");
       return;
     }
-    const prevMonthSpends = roundCost(
-      dataStores.expenseStore.totalPerMonth({
-        year: prevYear,
-        month: prevMonth,
-        categoryId,
-        isIncome: false,
-      })
-    );
-
-    const correctedSum = roundCost(
-      prevMonthForecast.sum - prevMonthSpends + pePerMonth
-    );
+    const prevMonthSpends = dataStores.expenseStore.totalPerMonth({
+      year: prevYear,
+      month: prevMonth,
+      categoryId,
+      isIncome: false,
+    });
+    const correctedSum = prevMonthForecast.sum
+      .minus(prevMonthSpends)
+      .plus(pePerMonth ?? new Decimal(0));
     return this.changeForecastSum(category, month, year, correctedSum);
   }
 }
