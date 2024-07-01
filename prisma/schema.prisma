@@ -6,7 +6,8 @@ generator client {
 }
 
 generator zod {
-  provider = "prisma-zod-generator"
+  provider      = "node ./prisma/prizma-zod-generator/generator.js"
+  useDecimalLib = true
 }
 
 datasource db {

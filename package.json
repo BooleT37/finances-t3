@@ -6,7 +6,7 @@
     "build": "next build",
     "vercel-build": "prisma migrate deploy && next build",
     "dev": "next dev",
-    "postinstall": "prisma generate",
+    "postinstall": "npm i --prefix prisma/prizma-zod-generator && prisma generate",
     "lint": "next lint",
     "start": "next start",
     "prisma:format": "prisma format",
