@@ -41,7 +41,6 @@ const CostAggregatedCellRenderer: React.FC<Props> = ({
           suffix={`-${diffSum}`}
           color="red"
           barWidth={diffNumber / col.diff.plus(col.value).toNumber()}
-          isMuiTable
         />
       );
     }
@@ -52,7 +51,6 @@ const CostAggregatedCellRenderer: React.FC<Props> = ({
         color="green"
         barWidth={-diffNumber / valueNumber}
         barOffset={diffNumber / valueNumber + 1}
-        isMuiTable
       />
     );
   }
@@ -75,7 +73,6 @@ const CostAggregatedCellRenderer: React.FC<Props> = ({
         color={color}
         barWidth={spentRatio}
         title={title}
-        isMuiTable
       />
     );
   }
@@ -90,7 +87,6 @@ const CostAggregatedCellRenderer: React.FC<Props> = ({
       color="red"
       barWidth={spentRatio}
       barOffset={offset}
-      isMuiTable
     />
   );
 };

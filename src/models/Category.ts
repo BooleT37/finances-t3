@@ -4,7 +4,7 @@ import { type CategoryTreeSelectOption } from "~/components/data/ExpenseModal/Co
 import type { Option } from "~/types/types";
 import type Subcategory from "./Subcategory";
 
-export const TOTAL_CATEGORY_ID = -1;
+export const TOTAL_ROW_CATEGORY_ID = -1;
 
 // TODO this will not work for other users, need to rework
 export enum PersonalExpCategoryIdsRename {

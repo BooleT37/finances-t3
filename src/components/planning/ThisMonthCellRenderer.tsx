@@ -38,7 +38,9 @@ const ThisMonthCellRenderer: React.FC<Props> = ({ value: col }) => {
         suffix={`+${diffSum}`}
         color="green"
         barWidth={divideWithFallbackToOne(-diffNumber, spendingsNumber)}
-        barOffset={diffNumber / spendingsNumber + 1}
+        barOffset={
+          spendingsNumber === 0 ? undefined : diffNumber / spendingsNumber + 1
+        }
       />
     );
   }
@@ -60,7 +62,10 @@ const ThisMonthCellRenderer: React.FC<Props> = ({ value: col }) => {
     divideWithFallbackToOne(-diffNumber, spendingsNumber),
     1
   );
-  const offset = Math.max(diffNumber / spendingsNumber + 1, 0);
+  const offset =
+    spendingsNumber === 0
+      ? undefined
+      : Math.max(diffNumber / spendingsNumber + 1, 0);
 
   return (
     <TotalCostCellView

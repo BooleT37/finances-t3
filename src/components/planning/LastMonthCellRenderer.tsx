@@ -7,12 +7,9 @@ interface Props {
   value: MonthSpendings;
 }
 
-const WithOffset = styled("div")<{ offset: number }>`
-  position: ${(props) => (props.offset ? "relative" : "static")};
-  bottom: ${(props) => (props.offset ? `${props.offset}px` : "auto")};
-`;
-
-const Diff = styled(WithOffset)`
+const Diff = styled.div`
+  position: absolute;
+  bottom: 0;
   font-size: 10px;
 `;
 
@@ -28,15 +25,13 @@ const Green = styled(Diff)`
 const LastMonthCellRenderer: React.FC<Props> = ({ value: col }) => {
   return (
     <>
-      <WithOffset offset={col.diff.isPositive() ? 3 : 0}>
-        {costToString(col.spendings)}
-      </WithOffset>
+      {costToString(col.spendings)}
       {col.diff.isPositive() ? (
         <>
           {col.diff.isPositive() ? (
-            <Green offset={29}>+{costToString(col.diff)}</Green>
+            <Green>+{costToString(col.diff)}</Green>
           ) : (
-            <Red offset={29}>{costToString(col.diff)}</Red>
+            <Red>{costToString(col.diff)}</Red>
           )}
         </>
       ) : null}

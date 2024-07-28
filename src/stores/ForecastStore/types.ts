@@ -13,7 +13,14 @@ export interface ForecastSum {
   subscriptions: ForecastSubscriptionsItem[];
 }
 
+export type ForecastTableItemGroup =
+  | "expense"
+  | "savings"
+  | "personal"
+  | "income";
+
 export interface ForecastTableItem {
+  group: ForecastTableItemGroup;
   category: string;
   categoryId: number;
   categoryShortname: string;

@@ -7,7 +7,7 @@ import type {
 } from "ag-grid-community";
 import Decimal from "decimal.js";
 import { action } from "mobx";
-import { TOTAL_CATEGORY_ID } from "~/models/Category";
+import { TOTAL_ROW_CATEGORY_ID } from "~/models/Category";
 import {
   type ForecastSum,
   type ForecastTableItem,
@@ -87,7 +87,7 @@ const columnDefs: (
       };
     },
     editable: ({ data }) =>
-      data?.categoryId !== TOTAL_CATEGORY_ID &&
+      data?.categoryId !== TOTAL_ROW_CATEGORY_ID &&
       data?.categoryType !== "FROM_SAVINGS",
   },
   {

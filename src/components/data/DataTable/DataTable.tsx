@@ -13,10 +13,10 @@ import { MRT_Localization_RU } from "material-react-table/locales/ru";
 import { action } from "mobx";
 import React, { useEffect } from "react";
 import { type TableData } from "~/models/Expense";
+import { sortAllCategoriesByName } from "~/stores/categoriesOrder";
 import { dataStores } from "~/stores/dataStores";
 import { useDataTableColumns } from "./columns/useDataTableColumns";
 import { RowActions } from "./RowActions";
-import { sortAllCategoriesByName } from "./utils/sortAllCategoriesByName";
 
 interface Props {
   data: TableData[];
@@ -96,14 +96,14 @@ export const DataTable: React.FC<Props> = ({
       },
     },
     sortingFns: {
-      sortCategories: action((rowA, rowB) => {
+      sortCategories: (rowA, rowB) => {
         return rowA.getIsGrouped() && rowB.getIsGrouped()
           ? sortAllCategoriesByName(
               (rowA.getGroupingValue("category") as string) ?? "",
               (rowB.getGroupingValue("category") as string) ?? ""
             )
           : 0;
-      }),
+      },
     },
     localization: MRT_Localization_RU,
     muiTableBodyRowProps: action(

@@ -1,6 +1,6 @@
 import type {
-  CategoryType,
   Expense as ApiExpense,
+  CategoryType,
   ExpenseComponent,
 } from "@prisma/client";
 import assert from "assert";
@@ -464,13 +464,11 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
     year,
     month,
     isIncome,
-    categoryId,
     excludeTypes = [],
   }: {
     year: number;
     month: number;
     isIncome: boolean;
-    categoryId?: number;
     excludeTypes?: CategoryType[];
   }): Decimal {
     const monthExpenses = this.expenses.filter(
@@ -484,9 +482,6 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
       ...monthExpenses
         .filter(
           (expense) =>
-            (categoryId !== undefined
-              ? expense.category.id === categoryId
-              : true) &&
             !(
               expense.category.type &&
               excludeTypes.includes(expense.category.type)
@@ -499,11 +494,37 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
           e.components
             .filter(
               (c) =>
-                (categoryId !== undefined
-                  ? c.category.id === categoryId
-                  : true) &&
                 !(c.category.type && excludeTypes.includes(c.category.type))
             )
+            .map((c) => c.cost)
+        )
+      )
+    );
+  }
+
+  totalPerMonthForCategory({
+    year,
+    month,
+    categoryId,
+  }: {
+    year: number;
+    month: number;
+    categoryId: number;
+  }): Decimal {
+    const monthExpenses = this.expenses.filter(
+      (expense) =>
+        expense.date.month() === month && expense.date.year() === year
+    );
+
+    return decimalSum(
+      ...monthExpenses
+        .filter((expense) => expense.category.id === categoryId)
+        .map((expense) => expense.costWithoutComponents ?? new Decimal(0))
+    ).plus(
+      decimalSum(
+        ...monthExpenses.flatMap((e) =>
+          e.components
+            .filter((c) => c.category.id === categoryId)
             .map((c) => c.cost)
         )
       )

@@ -1,38 +1,52 @@
-import type { ICellRendererParams } from "ag-grid-community";
+import { RightOutlined } from "@ant-design/icons";
 import { useCallback } from "react";
 import {
   type ForecastSum,
   type ForecastTableItem,
 } from "~/stores/ForecastStore/types";
 import costToString from "~/utils/costToString";
-import type { ForecastMainTableContext } from "../PlanningScreen";
 
+import { Button, Space } from "antd";
 import type Decimal from "decimal.js";
+import styled from "styled-components";
 import SubscriptionsTooltip from "./SubscriptionsTooltip/SubscriptionsTooltip";
 
-type Props = Omit<ICellRendererParams, "value" | "data" | "context"> & {
+const TransferPeIcon = styled(RightOutlined)`
+  font-size: 12px;
+  color: gray;
+  cursor: pointer;
+`;
+
+interface Props {
   value: ForecastSum;
   data: ForecastTableItem;
-  context: ForecastMainTableContext;
-};
+  saveSum: (categoryId: number, sum: Decimal) => Promise<void>;
+  transferPersonalExpense: (categoryId: number) => Promise<void>;
+}
 
 // eslint-disable-next-line mobx/missing-observer
-const CostCellRenderer: React.FC<Props> = ({ value, data, context }) => {
+const CostCellRenderer: React.FC<Props> = ({
+  value,
+  data,
+  saveSum,
+  transferPersonalExpense,
+}) => {
+  const { categoryId } = data;
   const handleClick = useCallback(
     (totalCost: Decimal) => {
       // the "Total" row
-      if (data.categoryId !== -1) {
-        context.setForecastSum(data.categoryId, totalCost);
+      if (categoryId !== -1) {
+        void saveSum(categoryId, totalCost);
       }
     },
-    [context, data.categoryId]
+    [categoryId, saveSum]
   );
   if (value.value === null) {
     return <>-</>;
   }
 
   return (
-    <>
+    <Space>
       {costToString(value.value)}
       {value.subscriptions.length > 0 && (
         <SubscriptionsTooltip
@@ -40,7 +54,18 @@ const CostCellRenderer: React.FC<Props> = ({ value, data, context }) => {
           onClick={handleClick}
         />
       )}
-    </>
+      {data.categoryType === "PERSONAL_EXPENSE" && (
+        <Button
+          size="small"
+          shape="circle"
+          title="Рассчитать персональные расходы"
+          icon={<TransferPeIcon />}
+          onClick={() => {
+            void transferPersonalExpense(data.categoryId);
+          }}
+        />
+      )}
+    </Space>
   );
 };
 
