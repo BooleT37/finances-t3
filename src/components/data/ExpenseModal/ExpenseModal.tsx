@@ -493,7 +493,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
         components={currentComponents}
         expenseId={expenseId}
         expenseName={name}
-        expenseCost={cost ? new Decimal(cost) : null}
+        expenseCost={cost ? new Decimal(parseFloat(cost)) : null}
         open={componentsModalOpen}
         onClose={() => {
           setComponentsModalOpen(false);
