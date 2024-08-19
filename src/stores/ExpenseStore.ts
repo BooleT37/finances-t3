@@ -303,8 +303,8 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
     data.forEach((m) => {
       Object.keys(m).forEach((k) => {
         const value = m[k];
-        if (typeof value === "number") {
-          m[k] = value;
+        if (Decimal.isDecimal(value)) {
+          m[k] = value.toNumber();
         }
       });
     });
