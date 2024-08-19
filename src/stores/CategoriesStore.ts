@@ -139,12 +139,10 @@ export default class CategoriesStore
     return this.incomeCategories.map((c) => c.asOption);
   }
 
-  get tableIncomeItems() {
-    return this.incomeCategories.map((c) => c.tableItem);
-  }
-
-  get tableExpenseItems() {
-    return this.expenseCategories.map((c) => c.tableItem);
+  get tableItems() {
+    return this.expenseCategories
+      .concat(this.incomeCategories)
+      .map((c) => c.tableItem);
   }
 
   async updateCategory(category: Category) {

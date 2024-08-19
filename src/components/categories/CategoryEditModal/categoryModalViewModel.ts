@@ -21,7 +21,15 @@ class CategoryModalViewModel {
     return this.currentCategory === undefined;
   }
 
-  open(isIncome: boolean, expenseId: number | null): void {
+  open(
+    {
+      isIncome,
+      expenseId,
+    }: {
+      isIncome: boolean;
+      expenseId: number | null;
+    } = { isIncome: false, expenseId: null }
+  ): void {
     this.isIncome = isIncome;
     this.categoryId = expenseId;
     this.visible = true;

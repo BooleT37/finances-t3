@@ -12,7 +12,7 @@ interface Props {
 const EditButtonRenderer: React.FC<Props> = ({ id, isIncome }) => {
   const { open } = categoryModalViewModel;
   const handleClick = React.useCallback(() => {
-    open(isIncome, id);
+    open({ isIncome, expenseId: id });
   }, [id, isIncome, open]);
 
   return (
