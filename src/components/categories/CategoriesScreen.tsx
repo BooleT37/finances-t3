@@ -46,7 +46,6 @@ const CategoriesScreen: React.FC = observer(function CategoriesScreen() {
     initialState: {
       grouping: ["isIncome"],
       expanded: true,
-      sorting: [{ id: "isIncome", desc: false }],
       density: "compact",
       columnVisibility: { isIncome: false },
     },
@@ -99,6 +98,9 @@ const CategoriesScreen: React.FC = observer(function CategoriesScreen() {
       "mrt-row-drag": {
         header: "",
         size: 40,
+      },
+      "mrt-row-actions": {
+        header: "",
       },
     },
   });

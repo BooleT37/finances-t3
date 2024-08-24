@@ -2,18 +2,7 @@ import type { MRT_TableInstance } from "material-react-table";
 import { runInAction } from "mobx";
 import { type CategoryTableItem } from "~/models/Category";
 import { dataStores } from "~/stores/dataStores";
-
-function moveItem<T>(array: T[], item: T, moveAfter: T): T[] {
-  const fromIndex = array.indexOf(item);
-  const toIndex = array.indexOf(moveAfter);
-  if (fromIndex === -1 || toIndex === -1) {
-    return array;
-  }
-  const result = [...array];
-  result.splice(fromIndex, 1);
-  result.splice(toIndex, 0, item);
-  return result;
-}
+import { moveItem } from "../../../utils/arrays";
 
 function getCategoriesOrder(
   table: MRT_TableInstance<CategoryTableItem>,

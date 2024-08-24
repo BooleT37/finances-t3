@@ -1,58 +1,83 @@
 import { PlusOutlined } from "@ant-design/icons";
-import { AgGridReact } from "ag-grid-react";
 import { Button, Space } from "antd";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import { MRT_Localization_RU } from "material-react-table/locales/ru";
 import { observer } from "mobx-react";
-import { useRef } from "react";
-import { AG_GRID_LOCALE_RU } from "~/agGridLocale.ru";
-import { type SourceTableItem } from "~/models/Source";
+import React from "react";
 import { dataStores } from "~/stores/dataStores";
-import { сolumnDefs } from "./columnDefs";
 import { useHandleCreateSource } from "./hooks/useHandleCreateSource";
-import { useHandleSourceCellEditRequest } from "./hooks/useHandleSourceCellEditRequest";
 import { usePersistSourcesOrder } from "./hooks/usePersistSourcesOrder";
+import { useSourcesTableColumns } from "./hooks/useSourcesTableColumns";
+import { RowActions } from "./RowActions";
 
-const SourcesScreen = observer(function SourcesScreen() {
-  const handleCellEditRequest = useHandleSourceCellEditRequest();
-  const ref = useRef<AgGridReact<SourceTableItem>>(null);
+const SourcesScreen: React.FC = observer(function SourcesScreen() {
+  const columns = useSourcesTableColumns(
+    dataStores.sourcesStore.editSourceName
+  );
+  const persistSourcesOrder = usePersistSourcesOrder();
 
-  const handleCreateCategory = useHandleCreateSource();
-  const persistCategoriesOrder = usePersistSourcesOrder();
+  const table = useMaterialReactTable({
+    editDisplayMode: "cell",
+    columns,
+    data: dataStores.sourcesStore.asTableItems,
+    enableEditing: true,
+    enableTopToolbar: false,
+    enableBottomToolbar: false,
+    enablePagination: false,
+    enableColumnActions: false,
+    enableColumnDragging: false,
+    enableRowOrdering: true,
+    enableSorting: false,
+    enableExpanding: false,
+    enableExpandAll: false,
+    getRowId: ({ id }) => id.toString(),
+    initialState: {
+      sorting: [{ id: "isIncome", desc: false }],
+      density: "compact",
+      columnVisibility: { isIncome: false },
+    },
+    muiRowDragHandleProps: ({ table }) => ({
+      onDragEnd: () => {
+        persistSourcesOrder(table);
+      },
+    }),
+    enableRowActions: true,
+    renderRowActions: ({ row }) => {
+      return <RowActions id={row.original.id} />;
+    },
+    positionActionsColumn: "last",
+    localization: MRT_Localization_RU,
+    displayColumnDefOptions: {
+      "mrt-row-drag": {
+        header: "",
+        size: 40,
+      },
+      "mrt-row-actions": {
+        header: "",
+      },
+    },
+  });
+
+  const handleCreateSource = useHandleCreateSource(table);
 
   return (
-    <div className="ag-theme-alpine">
+    <>
       <Space direction="vertical">
         <Button
           type="primary"
           onClick={() => {
-            void handleCreateCategory(ref);
+            void handleCreateSource();
           }}
         >
           <PlusOutlined />
           Добавить источник
         </Button>
-        <div style={{ width: 250 }}>
-          <AgGridReact<SourceTableItem>
-            ref={ref}
-            columnDefs={сolumnDefs}
-            rowData={dataStores.sourcesStore.asTableItems}
-            readOnlyEdit
-            onCellEditRequest={handleCellEditRequest}
-            domLayout="autoHeight"
-            groupDefaultExpanded={-1}
-            localeText={AG_GRID_LOCALE_RU}
-            rowDragManaged
-            animateRows
-            singleClickEdit
-            stopEditingWhenCellsLoseFocus
-            headerHeight={0}
-            getRowId={({ data }) => data.id.toString()}
-            onModelUpdated={({ api }) => {
-              persistCategoriesOrder(api);
-            }}
-          />
-        </div>
+        <MaterialReactTable table={table} />
       </Space>
-    </div>
+    </>
   );
 });
 

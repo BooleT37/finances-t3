@@ -1,28 +1,25 @@
-import { type GridApi } from "ag-grid-community";
-import { debounce } from "lodash";
+import type { MRT_TableInstance } from "material-react-table";
 import { runInAction } from "mobx";
-import { useMemo } from "react";
-import { type SourceTableItem } from "~/models/Source";
+import type { SourceTableItem } from "~/models/Source";
 import { dataStores } from "~/stores/dataStores";
+import { moveItem } from "../../../utils/arrays";
 
-function getSourcesOrder(api: GridApi<SourceTableItem>): number[] {
-  const order: number[] = [];
-  api.forEachNodeAfterFilterAndSort((node) => {
-    if (node.data?.id !== undefined) {
-      order.push(node.data?.id);
-    }
-  });
-  return order;
+function getSourcesOrder(table: MRT_TableInstance<SourceTableItem>): number[] {
+  return table.getSortedRowModel().flatRows.map((row) => row.original.id);
 }
 
 export const usePersistSourcesOrder = () => {
-  const persistFn = (api: GridApi<SourceTableItem>) => {
+  return (table: MRT_TableInstance<SourceTableItem>) =>
     runInAction(() => {
-      const order = getSourcesOrder(api);
+      const { draggingRow, hoveredRow } = table.getState();
+      if (!draggingRow || !hoveredRow || !hoveredRow.original) {
+        return;
+      }
+      const order = moveItem(
+        getSourcesOrder(table),
+        draggingRow.original.id,
+        hoveredRow.original.id
+      );
       void dataStores.userSettingsStore.persistSourcesOrder(order);
     });
-  };
-  const debouncedPersist = useMemo(() => debounce(persistFn, 500), []);
-
-  return debouncedPersist;
 };

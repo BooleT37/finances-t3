@@ -14,7 +14,7 @@ export default class SourcesStore implements DataLoader<ApiSource[]> {
   inited = false;
 
   constructor() {
-    makeAutoObservable(this);
+    makeAutoObservable(this, undefined, { autoBind: true });
   }
 
   async loadData() {
@@ -84,6 +84,8 @@ export default class SourcesStore implements DataLoader<ApiSource[]> {
     await trpc.sources.delete.mutate({
       id,
     });
-    this.sources.remove(source);
+    runInAction(() => {
+      this.sources.remove(source);
+    });
   }
 }
