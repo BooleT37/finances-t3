@@ -79,6 +79,16 @@ superjson.registerCustom<Decimal, string>(
   "decimal.js"
 );
 
+superjson.registerCustom<Date, string>(
+  {
+    isApplicable: (v): v is Date => v instanceof Date,
+    serialize: (v) =>
+      new Date(v.getTime() - v.getTimezoneOffset() * 60000).toISOString(),
+    deserialize: (v) => new Date(v),
+  },
+  "date"
+);
+
 const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer: superjson,
   errorFormatter({ shape, error }) {

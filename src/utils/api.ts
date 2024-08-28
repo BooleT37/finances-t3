@@ -21,6 +21,16 @@ superjson.registerCustom<Decimal, string>(
   "decimal.js"
 );
 
+superjson.registerCustom<Date, string>(
+  {
+    isApplicable: (v): v is Date => v instanceof Date,
+    serialize: (v) =>
+      new Date(v.getTime() - v.getTimezoneOffset() * 60000).toISOString(),
+    deserialize: (v) => new Date(v),
+  },
+  "date"
+);
+
 const getBaseUrl = () => {
   if (typeof window !== "undefined") return ""; // browser should use relative url
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`; // SSR should use vercel url
