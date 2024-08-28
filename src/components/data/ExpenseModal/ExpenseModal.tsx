@@ -202,6 +202,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
     Form.useWatch("savingSpendingId", form) ?? undefined;
   const cost: string = Form.useWatch("cost", form) ?? "";
   const name = Form.useWatch("name", form) ?? "";
+  const date = Form.useWatch("date", form);
   const currentCategory =
     categoryId !== null
       ? dataStores.categoriesStore.getById(categoryId)
@@ -489,6 +490,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
         </Form.Item>
       </Form>
       <ComponentsModal
+        date={date}
         highlightedComponentId={componentsModalIdHighlighted}
         defaultCategoryId={categoryId}
         defaultSubcategoryId={subcategoryId}

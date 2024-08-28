@@ -1,9 +1,11 @@
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Form, Input, InputNumber, Modal, Space } from "antd";
+import type { Dayjs } from "dayjs";
 import Decimal from "decimal.js";
 import React, { useCallback, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { type ExpenseComponentData } from "~/models/Expense";
+import { dataStores } from "~/stores/dataStores";
 import costToString from "~/utils/costToString";
 import { decimalSum } from "~/utils/decimalSum";
 import { getTempId } from "~/utils/tempId";
@@ -13,6 +15,7 @@ import {
   type CategorySubcategoryId,
 } from "./categorySubcategoryId";
 import { CategorySubcategorySelect } from "./CategorySubcategorySelect";
+import { useGetForecastSum } from "./useForecastSum";
 
 const RowSpaceStyled = styled(Space)<{ $highlighted?: boolean }>`
   display: flex;
@@ -76,6 +79,7 @@ interface Props {
   expenseName: string;
   expenseCost: Decimal | null;
   highlightedComponentId?: number | null;
+  date: Dayjs | undefined;
 }
 
 function costToDecimal(cost: string | null): Decimal {
@@ -97,12 +101,14 @@ const ComponentsModal: React.FC<Props> = (props) => {
     defaultCategoryId,
     defaultSubcategoryId,
     highlightedComponentId,
+    date,
     onClose,
     onSave,
   } = props;
 
   const [form] = Form.useForm<FormValues>();
   const currentValue = Form.useWatch("components", form) ?? [];
+  const getForecastSum = useGetForecastSum(date);
 
   const handleOk = () => {
     form?.submit();
@@ -153,73 +159,95 @@ const ComponentsModal: React.FC<Props> = (props) => {
             {(fields, { add, remove }) => {
               return (
                 <>
-                  {fields.map(({ key, name, ...restField }) => (
-                    <RowSpaceStyled
-                      key={key}
-                      align="start"
-                      $highlighted={
-                        highlightedComponentId !== undefined &&
-                        highlightedComponentId === components[name]?.id
+                  {fields.map(({ key, name, ...restField }) => {
+                    const currentComponent = currentValue[key];
+                    let personalExpForecastSum: Decimal | undefined;
+                    if (
+                      currentComponent &&
+                      currentComponent.categorySubcategoryId
+                    ) {
+                      const { categoryId } = parseCategorySubcategoryId(
+                        currentComponent.categorySubcategoryId
+                      );
+                      const category =
+                        dataStores.categoriesStore.getById(categoryId);
+                      if (category.isPersonal) {
+                        personalExpForecastSum = getForecastSum(categoryId);
                       }
-                    >
-                      <Form.Item {...restField} name={[name, "name"]}>
-                        <Input placeholder="На что" />
-                      </Form.Item>
-                      <Form.Item
-                        rules={[{ required: true, message: "Введите сумму" }]}
-                        {...restField}
-                        name={[name, "cost"]}
-                      >
-                        <InputNumber
-                          placeholder="Сколько"
-                          addonAfter="€"
-                          style={{ width: 130 }}
-                        />
-                      </Form.Item>
-                      <Form.Item
-                        {...restField}
-                        rules={[
-                          { required: true, message: "Выберите категорию" },
-                          {
-                            validator(rule, value) {
-                              const { categoryId, subcategoryId } =
-                                parseCategorySubcategoryId(
-                                  value as CategorySubcategoryId
-                                );
-                              if (categoryId !== defaultCategoryId) {
-                                return Promise.resolve();
-                              }
-                              if (subcategoryId === defaultSubcategoryId) {
-                                return Promise.reject(
-                                  "Категория должна отличаться"
-                                );
-                              }
-                              if (
-                                defaultSubcategoryId === null &&
-                                subcategoryId === null
-                              ) {
-                                return Promise.reject(
-                                  "Категория должна отличаться"
-                                );
-                              }
-                              return Promise.resolve();
-                            },
-                          },
-                        ]}
-                        name={[name, "categorySubcategoryId"]}
-                      >
-                        <CategorySubcategorySelect
-                          currentSelectedCategoryId={defaultCategoryId}
-                        />
-                      </Form.Item>
-                      <Button
-                        type="link"
-                        icon={
-                          <MinusCircleOutlined onClick={() => remove(name)} />
+                    }
+                    return (
+                      <RowSpaceStyled
+                        key={key}
+                        align="start"
+                        $highlighted={
+                          highlightedComponentId !== undefined &&
+                          highlightedComponentId === components[name]?.id
                         }
-                      />
-                    </RowSpaceStyled>
-                  ))}
+                      >
+                        <Form.Item {...restField} name={[name, "name"]}>
+                          <Input placeholder="На что" />
+                        </Form.Item>
+                        <Form.Item
+                          rules={[{ required: true, message: "Введите сумму" }]}
+                          {...restField}
+                          name={[name, "cost"]}
+                        >
+                          <InputNumber
+                            placeholder="Сколько"
+                            addonAfter="€"
+                            style={{ width: 130 }}
+                          />
+                        </Form.Item>
+                        <Form.Item
+                          {...restField}
+                          extra={
+                            personalExpForecastSum !== undefined
+                              ? `Макс: ${costToString(personalExpForecastSum)}`
+                              : undefined
+                          }
+                          rules={[
+                            { required: true, message: "Выберите категорию" },
+                            {
+                              validator(rule, value) {
+                                const { categoryId, subcategoryId } =
+                                  parseCategorySubcategoryId(
+                                    value as CategorySubcategoryId
+                                  );
+                                if (categoryId !== defaultCategoryId) {
+                                  return Promise.resolve();
+                                }
+                                if (subcategoryId === defaultSubcategoryId) {
+                                  return Promise.reject(
+                                    "Категория должна отличаться"
+                                  );
+                                }
+                                if (
+                                  defaultSubcategoryId === null &&
+                                  subcategoryId === null
+                                ) {
+                                  return Promise.reject(
+                                    "Категория должна отличаться"
+                                  );
+                                }
+                                return Promise.resolve();
+                              },
+                            },
+                          ]}
+                          name={[name, "categorySubcategoryId"]}
+                        >
+                          <CategorySubcategorySelect
+                            currentSelectedCategoryId={defaultCategoryId}
+                          />
+                        </Form.Item>
+                        <Button
+                          type="link"
+                          icon={
+                            <MinusCircleOutlined onClick={() => remove(name)} />
+                          }
+                        />
+                      </RowSpaceStyled>
+                    );
+                  })}
                   <Form.Item>
                     <Button
                       type="dashed"
