@@ -14,7 +14,7 @@ export const useDataTableColumns = ({
 }: {
   categoriesForecast: Record<number, Decimal> | null;
   savingSpendingsForecast: Decimal;
-  passedDaysRatio: number;
+  passedDaysRatio: number | null;
 }) => {
   const columnHelper = createMRTColumnHelper<TableData>();
   return useMemo(

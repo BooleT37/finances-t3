@@ -22,7 +22,7 @@ interface Props {
   data: TableData[];
   categoriesForecast: Record<number, Decimal> | null;
   savingSpendingsForecast: Decimal;
-  passedDaysRatio: number;
+  passedDaysRatio: number | null;
   groupBySubcategories: boolean;
   tableInstanceRef: React.MutableRefObject<MRT_TableInstance<TableData> | null>;
 }

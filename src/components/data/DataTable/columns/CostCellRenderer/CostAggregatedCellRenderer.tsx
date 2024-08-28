@@ -8,7 +8,7 @@ import CostCellView from "./CostCellView";
 interface Props {
   isSubcategory: boolean;
   value: AggCostCol | null;
-  passedDaysRatio: number;
+  passedDaysRatio: number | null;
 }
 
 // eslint-disable-next-line mobx/missing-observer
@@ -62,7 +62,10 @@ const CostAggregatedCellRenderer: React.FC<Props> = ({
   }
   if (col.diff.isPositive()) {
     const spentRatio = valueNumber / (diffNumber + valueNumber);
-    const exceedingForecast = col.isContinuous && spentRatio > passedDaysRatio;
+    const exceedingForecast =
+      col.isContinuous &&
+      passedDaysRatio !== null &&
+      spentRatio > passedDaysRatio;
     const color = exceedingForecast ? "orange" : "green";
 
     const exceedingAmount = exceedingForecast

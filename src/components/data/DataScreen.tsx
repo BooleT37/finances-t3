@@ -175,6 +175,7 @@ const DataScreen = observer(function DataScreen() {
     rangeStart &&
     today.month() === rangeStart.month() &&
     today.year() === rangeStart.year();
+
   const passedDaysRatio = isRangePicker
     ? null
     : isCurrentMonth
@@ -275,24 +276,21 @@ const DataScreen = observer(function DataScreen() {
             Сгруппировать по подкатегориям
           </Checkbox>
         </Space>
-        {rangeStart &&
-          rangeEnd &&
-          categoriesForecast &&
-          passedDaysRatio !== null && (
-            <DataTable
-              tableInstanceRef={tableInstanceRef}
-              categoriesForecast={categoriesForecast}
-              data={dataStores.expenseStore.tableData(
-                rangeStart,
-                rangeEnd,
-                search,
-                upcSubscriptionsShown
-              )}
-              passedDaysRatio={passedDaysRatio}
-              groupBySubcategories={groupBySubcategories}
-              savingSpendingsForecast={savingSpendingsForecast}
-            />
-          )}
+        {rangeStart && rangeEnd && (
+          <DataTable
+            tableInstanceRef={tableInstanceRef}
+            categoriesForecast={categoriesForecast}
+            data={dataStores.expenseStore.tableData(
+              rangeStart,
+              rangeEnd,
+              search,
+              upcSubscriptionsShown
+            )}
+            passedDaysRatio={passedDaysRatio}
+            groupBySubcategories={groupBySubcategories}
+            savingSpendingsForecast={savingSpendingsForecast}
+          />
+        )}
       </Space>
       <ExpenseModal
         startDate={rangeStart}
