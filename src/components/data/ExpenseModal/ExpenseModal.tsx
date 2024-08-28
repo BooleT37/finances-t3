@@ -89,7 +89,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
     lastSource,
     isNewExpense,
     expenseId,
-    currentComponents,
+    currentComponentsImmutable: currentComponents,
     currentExpense,
     lastExpense,
     componentsModalOpen,

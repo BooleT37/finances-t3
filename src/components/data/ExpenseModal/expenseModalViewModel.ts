@@ -1,6 +1,6 @@
 import { type ExpenseComponent as ExpenseComponentApi } from "@prisma/client";
 import Decimal from "decimal.js";
-import { action, makeAutoObservable, observable } from "mobx";
+import { action, makeAutoObservable, observable, toJS } from "mobx";
 import Expense, { type ExpenseComponentData } from "~/models/Expense";
 import { dataStores } from "~/stores/dataStores";
 import { type ValidatedFormValues } from "./models";
@@ -11,7 +11,7 @@ class ExpenseModalViewModel {
   lastExpenseId: number | null = null;
   lastSource: number | undefined = undefined;
   originalComponents = observable.array<ExpenseComponentApi>();
-  currentComponents = observable.array<ExpenseComponentData>();
+  private currentComponents = observable.array<ExpenseComponentData>();
   componentsModalOpen = false;
   componentsModalIdHighlighted: number | null = null;
 
@@ -24,6 +24,10 @@ class ExpenseModalViewModel {
       ({ id }) => this.expenseId === id
     );
     return res;
+  }
+
+  get currentComponentsImmutable(): ExpenseComponentData[] {
+    return toJS(this.currentComponents);
   }
 
   get lastExpense(): Expense | undefined {
@@ -91,7 +95,7 @@ class ExpenseModalViewModel {
             id: c.id,
             name: c.name,
             cost: new Decimal(c.cost),
-            categoryId: category.id,
+            categoryId: c.categoryId,
             subcategoryId: c.subcategoryId,
           })
         )

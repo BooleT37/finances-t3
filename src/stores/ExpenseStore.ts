@@ -131,13 +131,15 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
   ): Promise<Expense> {
     const foundIndex = this.expenses.findIndex((e) => e.id === expense.id);
     if (foundIndex !== -1) {
-      // TODO: когда мы добавляем составляющие, и открываем сохраненный расход заново, то составляющие не отображаются
       this.expenses[foundIndex] = expense;
       const response = await trpc.expense.update.mutate({
         id: expense.id,
         data: adaptExpenseToUpdateInput(expense, originalComponents),
       });
-      return adaptExpenseFromApi(response);
+      const adaptedExpense = adaptExpenseFromApi(response);
+      // this is needed to update component ids to real ones
+      this.expenses[foundIndex] = adaptedExpense;
+      return adaptedExpense;
     } else {
       throw new Error(`Can't find expense with id ${expense.id}`);
     }
