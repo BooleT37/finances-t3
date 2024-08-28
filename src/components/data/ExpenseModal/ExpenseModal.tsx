@@ -4,6 +4,7 @@ import {
   Button,
   Checkbox,
   DatePicker,
+  Divider,
   Form,
   Input,
   Modal,
@@ -358,6 +359,14 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
           </Space>
         </RadioGroup>
         <Form.Item
+          name="date"
+          label="Дата"
+          rules={[{ required: true, message: "Введите дату" }]}
+        >
+          <DatePicker format={DATE_FORMAT} allowClear={false} />
+        </Form.Item>
+        <Divider />
+        <Form.Item
           name="category"
           label="Категория"
           rules={[
@@ -466,13 +475,6 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
               }}
             />
           </Space.Compact>
-        </Form.Item>
-        <Form.Item
-          name="date"
-          label="Дата"
-          rules={[{ required: true, message: "Введите дату" }]}
-        >
-          <DatePicker format={DATE_FORMAT} allowClear={false} />
         </Form.Item>
         <Form.Item name="name" label="Коментарий">
           <Input />
