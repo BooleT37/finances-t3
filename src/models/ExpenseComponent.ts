@@ -1,9 +1,10 @@
 import { type ExpenseComponent as ExpenseComponentApi } from "@prisma/client";
 import type Decimal from "decimal.js";
+import { makeAutoObservable } from "mobx";
 import { DATE_FORMAT } from "~/utils/constants";
 import type Category from "./Category";
 import type Expense from "./Expense";
-import { type TableData } from "./Expense";
+import { type ExpenseComponentData, type TableData } from "./Expense";
 import type Subcategory from "./Subcategory";
 
 export class ExpenseComponent implements ExpenseComponentApi {
@@ -21,6 +22,7 @@ export class ExpenseComponent implements ExpenseComponentApi {
     subcategory: Subcategory | null,
     public parentExpense: Expense
   ) {
+    makeAutoObservable(this, {}, { autoBind: true });
     this.id = id;
     this.name = name;
     this.cost = cost;
@@ -77,13 +79,19 @@ export class ExpenseComponent implements ExpenseComponentApi {
     return this.subcategory?.id ?? null;
   }
 
-  get asJSON(): ExpenseComponentApi {
+  get asData(): ExpenseComponentData {
     return {
       id: this.id,
       name: this.name,
       cost: this.cost,
       categoryId: this.categoryId,
       subcategoryId: this.subcategory?.id ?? null,
+    };
+  }
+
+  get asApi(): ExpenseComponentApi {
+    return {
+      ...this.asData,
       expenseId: this.expenseId,
     };
   }

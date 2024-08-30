@@ -10,7 +10,7 @@ class ExpenseModalViewModel {
   expenseId: number | null = null;
   lastExpenseId: number | null = null;
   lastSource: number | undefined = undefined;
-  originalComponents = observable.array<ExpenseComponentApi>();
+  private originalComponents = observable.array<ExpenseComponentApi>();
   private currentComponents = observable.array<ExpenseComponentData>();
   componentsModalOpen = false;
   componentsModalIdHighlighted: number | null = null;
@@ -26,7 +26,7 @@ class ExpenseModalViewModel {
     return res;
   }
 
-  get currentComponentsImmutable(): ExpenseComponentData[] {
+  get currentComponentsImmutable() {
     return toJS(this.currentComponents);
   }
 
@@ -43,8 +43,12 @@ class ExpenseModalViewModel {
   open(expenseId: number | null): void {
     this.expenseId = expenseId;
     this.visible = true;
-    this.originalComponents.replace(this.currentExpense?.components ?? []);
-    this.currentComponents.replace(this.currentExpense?.components ?? []);
+    this.originalComponents.replace(
+      this.currentExpense?.components.map((c) => c.asApi) ?? []
+    );
+    this.currentComponents.replace(
+      this.currentExpense?.components.map((c) => c.asData) ?? []
+    );
   }
 
   reset(): void {

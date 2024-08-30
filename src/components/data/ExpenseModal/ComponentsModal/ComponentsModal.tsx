@@ -1,49 +1,17 @@
-import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Form, Input, InputNumber, Modal, Space } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import { Button, Form, Modal, Space } from "antd";
 import type { Dayjs } from "dayjs";
 import Decimal from "decimal.js";
 import React, { useCallback, useEffect, useMemo } from "react";
-import styled from "styled-components";
 import { type ExpenseComponentData } from "~/models/Expense";
-import { dataStores } from "~/stores/dataStores";
 import costToString from "~/utils/costToString";
 import { decimalSum } from "~/utils/decimalSum";
 import { getTempId } from "~/utils/tempId";
 import {
   buildCategorySubcategoryId,
-  parseCategorySubcategoryId,
   type CategorySubcategoryId,
 } from "./categorySubcategoryId";
-import { CategorySubcategorySelect } from "./CategorySubcategorySelect";
-import { useGetForecastSum } from "./useForecastSum";
-
-const RowSpaceStyled = styled(Space)<{ $highlighted?: boolean }>`
-  display: flex;
-  margin-bottom: 8px;
-  position: relative;
-
-  ${({ $highlighted }) =>
-    $highlighted &&
-    `
-    @keyframes fade-out {
-      from {opacity: 1}
-      to {opacity: 0}
-    }
-    
-    &::after {
-      content: "";
-      position: absolute;
-      left: -12px;
-      right: -12px;
-      bottom: 15px;
-      top: -8px;
-      border-radius: 10px;
-      border: solid royalblue 3px;
-      opacity: 1;
-      animation: fade-out 1s linear 2s 1;
-      animation-fill-mode: forwards;
-  }`};
-`;
+import { ComponentsModalRow } from "./ComponentsModalRow";
 
 interface ExpenseComponentFormValues {
   id: number;
@@ -108,7 +76,6 @@ const ComponentsModal: React.FC<Props> = (props) => {
 
   const [form] = Form.useForm<FormValues>();
   const currentValue = Form.useWatch("components", form) ?? [];
-  const getForecastSum = useGetForecastSum(date);
 
   const handleOk = () => {
     form?.submit();
@@ -159,95 +126,18 @@ const ComponentsModal: React.FC<Props> = (props) => {
             {(fields, { add, remove }) => {
               return (
                 <>
-                  {fields.map(({ key, name, ...restField }) => {
-                    const currentComponent = currentValue[key];
-                    let personalExpForecastSum: Decimal | undefined;
-                    if (
-                      currentComponent &&
-                      currentComponent.categorySubcategoryId
-                    ) {
-                      const { categoryId } = parseCategorySubcategoryId(
-                        currentComponent.categorySubcategoryId
-                      );
-                      const category =
-                        dataStores.categoriesStore.getById(categoryId);
-                      if (category.isPersonal) {
-                        personalExpForecastSum = getForecastSum(categoryId);
-                      }
-                    }
-                    return (
-                      <RowSpaceStyled
-                        key={key}
-                        align="start"
-                        $highlighted={
-                          highlightedComponentId !== undefined &&
-                          highlightedComponentId === components[name]?.id
-                        }
-                      >
-                        <Form.Item {...restField} name={[name, "name"]}>
-                          <Input placeholder="На что" />
-                        </Form.Item>
-                        <Form.Item
-                          rules={[{ required: true, message: "Введите сумму" }]}
-                          {...restField}
-                          name={[name, "cost"]}
-                        >
-                          <InputNumber
-                            placeholder="Сколько"
-                            addonAfter="€"
-                            style={{ width: 130 }}
-                          />
-                        </Form.Item>
-                        <Form.Item
-                          {...restField}
-                          extra={
-                            personalExpForecastSum !== undefined
-                              ? `Макс: ${costToString(personalExpForecastSum)}`
-                              : undefined
-                          }
-                          rules={[
-                            { required: true, message: "Выберите категорию" },
-                            {
-                              validator(rule, value) {
-                                const { categoryId, subcategoryId } =
-                                  parseCategorySubcategoryId(
-                                    value as CategorySubcategoryId
-                                  );
-                                if (categoryId !== defaultCategoryId) {
-                                  return Promise.resolve();
-                                }
-                                if (subcategoryId === defaultSubcategoryId) {
-                                  return Promise.reject(
-                                    "Категория должна отличаться"
-                                  );
-                                }
-                                if (
-                                  defaultSubcategoryId === null &&
-                                  subcategoryId === null
-                                ) {
-                                  return Promise.reject(
-                                    "Категория должна отличаться"
-                                  );
-                                }
-                                return Promise.resolve();
-                              },
-                            },
-                          ]}
-                          name={[name, "categorySubcategoryId"]}
-                        >
-                          <CategorySubcategorySelect
-                            currentSelectedCategoryId={defaultCategoryId}
-                          />
-                        </Form.Item>
-                        <Button
-                          type="link"
-                          icon={
-                            <MinusCircleOutlined onClick={() => remove(name)} />
-                          }
-                        />
-                      </RowSpaceStyled>
-                    );
-                  })}
+                  {fields.map(({ key, name, ...restField }) => (
+                    <ComponentsModalRow
+                      date={date}
+                      defaultCategoryId={defaultCategoryId}
+                      defaultSubcategoryId={defaultSubcategoryId}
+                      key={key}
+                      name={name}
+                      remove={remove}
+                      highlightedComponentId={highlightedComponentId}
+                      {...restField}
+                    />
+                  ))}
                   <Form.Item>
                     <Button
                       type="dashed"

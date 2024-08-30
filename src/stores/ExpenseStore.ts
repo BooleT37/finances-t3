@@ -138,7 +138,9 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
       });
       const adaptedExpense = adaptExpenseFromApi(response);
       // this is needed to update component ids to real ones
-      this.expenses[foundIndex] = adaptedExpense;
+      runInAction(() => {
+        this.expenses[foundIndex] = adaptedExpense;
+      });
       return adaptedExpense;
     } else {
       throw new Error(`Can't find expense with id ${expense.id}`);

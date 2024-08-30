@@ -1,6 +1,5 @@
 import type Decimal from "decimal.js";
 import { runInAction } from "mobx";
-import { observer } from "mobx-react";
 import { type ExpenseComponentData } from "~/models/Expense";
 import { dataStores } from "~/stores/dataStores";
 import costToString from "~/utils/costToString";
@@ -24,7 +23,8 @@ function componentCategoryToString(component: ExpenseComponentData): string {
   });
 }
 
-export const ComponentsHint: React.FC<Props> = observer(
+export const ComponentsHint: React.FC<Props> =
+  // eslint-disable-next-line mobx/missing-observer
   ({ cost, components }) => {
     return (
       <>
@@ -53,5 +53,4 @@ export const ComponentsHint: React.FC<Props> = observer(
         )}
       </>
     );
-  }
-);
+  };
