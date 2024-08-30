@@ -15,6 +15,7 @@ import type Subscription from "./Subscription";
 
 export interface CostCol {
   value: Decimal;
+  isIncome: boolean;
   isSubscription?: boolean;
   isUpcomingSubscription?: boolean;
   parentExpenseName?: string;
@@ -132,6 +133,7 @@ export default class Expense {
               isUpcomingSubscription: false,
               costWithComponents:
                 this.components.length > 0 ? this.cost : undefined,
+              isIncome: this.category.isIncome,
             }
           : null,
       source: this.source?.name ?? "",

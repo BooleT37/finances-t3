@@ -24,6 +24,7 @@ const CostAggregatedCellRenderer: React.FC<Props> = ({
   if (isSubcategory || col.diff === null) {
     return (
       <CostCellView
+        isIncome={col.isIncome}
         cost={costString}
         isSubscription={col.isSubscription}
         isUpcomingSubscription={col.isUpcomingSubscription}
@@ -35,11 +36,19 @@ const CostAggregatedCellRenderer: React.FC<Props> = ({
   const diffSum = costToString(col.diff.abs());
   if (col.isIncome) {
     if (col.diff.isZero()) {
-      return <TotalCostCellView cost={costString} color="white" barWidth={1} />;
+      return (
+        <TotalCostCellView
+          addPlus
+          cost={costString}
+          color="white"
+          barWidth={1}
+        />
+      );
     }
     if (col.diff.isPositive()) {
       return (
         <TotalCostCellView
+          addPlus
           cost={costString}
           suffix={`-${diffSum}`}
           color="red"
@@ -49,6 +58,7 @@ const CostAggregatedCellRenderer: React.FC<Props> = ({
     }
     return (
       <TotalCostCellView
+        addPlus
         cost={costString}
         suffix={`+${diffSum}`}
         color="green"

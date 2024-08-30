@@ -408,7 +408,7 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
   ): TableData[] {
     const subscriptions = this.getAvailableSubscriptions(startDate, endDate);
 
-    let rows = subscriptions.map(({ subscription, firstDate }) => ({
+    let rows = subscriptions.map<TableData>(({ subscription, firstDate }) => ({
       category: subscription.category.name,
       categoryId: subscription.category.id,
       categoryShortname: subscription.category.shortname,
@@ -418,6 +418,7 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
         value: subscription.cost,
         isSubscription: true,
         isUpcomingSubscription: true,
+        isIncome: false,
       },
       date: firstDate.format(DATE_FORMAT),
       id: getTempId(),

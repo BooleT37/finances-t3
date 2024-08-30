@@ -58,6 +58,7 @@ export class ExpenseComponent implements ExpenseComponentApi {
               isSubscription: false,
               isUpcomingSubscription: false,
               parentExpenseName: this.parentExpense.name,
+              isIncome: this.category.isIncome,
             }
           : null,
       date: this.parentExpense.date.format(DATE_FORMAT),

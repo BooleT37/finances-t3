@@ -29,15 +29,25 @@ interface Props {
   barWidth: number;
   title?: string;
   barOffset?: number;
+  addPlus?: boolean;
 }
 
 // eslint-disable-next-line mobx/missing-observer
 const TotalCostCellView: React.FC<Props> = (props) => {
-  const { cost, suffix, color, title, barOffset = 0, barWidth } = props;
+  const {
+    cost,
+    suffix,
+    color,
+    title,
+    barOffset = 0,
+    barWidth,
+    addPlus,
+  } = props;
 
   return (
     <div title={title}>
       <div>
+        {addPlus && "+"}
         {cost}&nbsp;
         {suffix && <DiffNode color={color}>{suffix}</DiffNode>}
       </div>

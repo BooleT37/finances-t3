@@ -15,6 +15,7 @@ const CostCellRenderer: React.FC<Props> = ({ value: col }) => {
   const costString = costToString(col.value);
   return (
     <CostCellView
+      isIncome={col.isIncome}
       cost={costString}
       isSubscription={col.isSubscription}
       isUpcomingSubscription={col.isUpcomingSubscription}
