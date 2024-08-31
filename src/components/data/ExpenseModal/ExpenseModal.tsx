@@ -378,7 +378,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
         <Form.Item
           name="date"
           label="Дата"
-          rules={[{ required: actualDateShown, message: "Введите дату" }]}
+          rules={[{ required: true, message: "Введите дату" }]}
           extra={
             !actualDateShown && (
               <Button
@@ -399,17 +399,23 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
           name="actualDate"
           label="Реальная дата"
           tooltip='Дата, под которой трата записана в банковском приложении. Учитывается только в подсказке "последние траты" под источником.'
-          rules={[
-            { required: true, message: "Введите дату" },
-            {
-              validator: (_, value: Dayjs | undefined) => {
-                if (value && value.isSame(date, "day")) {
-                  return Promise.reject("Реальная дата должна отличаться");
-                }
-                return Promise.resolve();
-              },
-            },
-          ]}
+          rules={
+            actualDateShown
+              ? [
+                  { required: true, message: "Введите дату" },
+                  {
+                    validator: (_, value: Dayjs | undefined) => {
+                      if (value && value.isSame(date, "day")) {
+                        return Promise.reject(
+                          "Реальная дата должна отличаться"
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]
+              : []
+          }
           hidden={!actualDateShown}
           extra={
             actualDateShown && (
