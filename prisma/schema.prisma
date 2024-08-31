@@ -149,6 +149,7 @@ model Expense {
   name                     String
   cost                     Decimal                 @db.Decimal(9, 2)
   date                     DateTime                @db.Date
+  actualDate               DateTime?               @db.Date
   category                 Category                @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   categoryId               Int
   subcategory              Subcategory?            @relation(fields: [subcategoryId], references: [id])

@@ -30,7 +30,7 @@ const SourceLastExpenses: React.FC<Props> = observer(
     const expensesDate =
       lastExpenses.length === 0
         ? "Никогда"
-        : lastExpenses[0].date.format(DATE_FORMAT);
+        : lastExpenses[0].calculatedActualDate.format(DATE_FORMAT);
     const tooltipContent =
       lastExpenses.length === 0 ? null : (
         <>

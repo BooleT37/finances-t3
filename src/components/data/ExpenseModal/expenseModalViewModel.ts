@@ -14,6 +14,7 @@ class ExpenseModalViewModel {
   private currentComponents = observable.array<ExpenseComponentData>();
   componentsModalOpen = false;
   componentsModalIdHighlighted: number | null = null;
+  actualDateShown = false;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -90,7 +91,8 @@ class ExpenseModalViewModel {
         ? null
         : dataStores.expenseStore.getSavingSpendingByCategoryId(
             values.savingSpendingCategoryId
-          )
+          ),
+      this.actualDateShown ? values.actualDate ?? null : null
     );
     if (this.currentComponents.length > 0) {
       newExpense.replaceComponents(
@@ -146,6 +148,10 @@ class ExpenseModalViewModel {
       }),
       3500
     );
+  }
+
+  setActualDateShown(shown: boolean) {
+    this.actualDateShown = shown;
   }
 }
 

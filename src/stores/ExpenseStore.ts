@@ -345,11 +345,13 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
           (e) => e.source?.id === s.id
         );
         if (expensesWithSource.length > 0) {
-          const lastDate = dayjs.max(expensesWithSource.map((e) => e.date));
+          const lastDate = dayjs.max(
+            expensesWithSource.map((e) => e.calculatedActualDate)
+          );
           return [
             s.id,
             expensesWithSource.filter((expense) =>
-              expense.date.isSame(lastDate, "date")
+              expense.calculatedActualDate.isSame(lastDate, "date")
             ),
           ];
         }

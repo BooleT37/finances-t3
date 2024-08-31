@@ -11,6 +11,7 @@ export function adaptExpenseToCreateInput(
     name: expense.name,
     cost: expense.cost,
     date: expense.date.toDate(),
+    actualDate: expense.actualDate ? expense.actualDate.toDate() : null,
     category: {
       connect: { id: expense.category.id },
     },

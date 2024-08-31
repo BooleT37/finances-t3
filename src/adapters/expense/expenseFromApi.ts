@@ -38,7 +38,8 @@ export const adaptExpenseFromApi = action(
         : dataStores.subscriptionStore.getById(expense.subscriptionId),
       expense.savingSpendingCategoryId === null
         ? null
-        : getSavingSpendingByCategoryId(expense.savingSpendingCategoryId)
+        : getSavingSpendingByCategoryId(expense.savingSpendingCategoryId),
+      expense.actualDate ? dayjs(expense.actualDate) : null
     );
   }
 );

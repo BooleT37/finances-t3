@@ -45,6 +45,7 @@ function expenseToFormValues(expense: Expense): FormValues {
     savingSpendingCategoryId: expense.savingSpending
       ? expense.savingSpending.category.id
       : undefined,
+    actualDate: expense.actualDate ?? undefined,
   };
 }
 
@@ -94,12 +95,14 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
     lastExpense,
     componentsModalOpen,
     componentsModalIdHighlighted,
+    actualDateShown,
     close,
     setLastExpenseId,
     reset,
     insertExpense,
     setCurrentComponents,
     setComponentsModalOpen,
+    setActualDateShown,
   } = vm;
   const { incomeOptions, expenseOptions } = dataStores.categoriesStore;
 
@@ -116,6 +119,7 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
       source: lastSource,
       savingSpendingId: undefined,
       savingSpendingCategoryId: undefined,
+      actualDate: undefined,
     }),
     [endDate, startDate, lastSource]
   );
@@ -170,6 +174,10 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
           form.setFieldsValue(expenseToFormValues(currentExpense));
           addMore.value = false;
           isIncome.value = currentExpense.category.isIncome;
+          if (currentExpense.actualDate) {
+            console.log(currentExpense);
+            setActualDateShown(true);
+          }
         } else {
           form.setFieldsValue(INITIAL_VALUES);
         }
@@ -178,7 +186,15 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
         }, 0);
       }
     });
-  }, [INITIAL_VALUES, addMore, currentExpense, form, isIncome, visible]);
+  }, [
+    INITIAL_VALUES,
+    addMore,
+    currentExpense,
+    form,
+    isIncome,
+    setActualDateShown,
+    visible,
+  ]);
 
   const handleInsertPreviousClick = () => {
     if (lastExpense) {
@@ -362,9 +378,54 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
         <Form.Item
           name="date"
           label="Дата"
-          rules={[{ required: true, message: "Введите дату" }]}
+          rules={[{ required: actualDateShown, message: "Введите дату" }]}
+          extra={
+            !actualDateShown && (
+              <Button
+                type="link"
+                style={{ paddingLeft: 0, paddingRight: 0 }}
+                onClick={() => {
+                  setActualDateShown(true);
+                }}
+              >
+                Реальная дата отличается
+              </Button>
+            )
+          }
         >
           <DatePicker format={DATE_FORMAT} allowClear={false} />
+        </Form.Item>
+        <Form.Item
+          name="actualDate"
+          label="Реальная дата"
+          tooltip='Дата, под которой трата записана в банковском приложении. Учитывается только в подсказке "последние траты" под источником.'
+          rules={[
+            { required: true, message: "Введите дату" },
+            {
+              validator: (_, value: Dayjs | undefined) => {
+                if (value && value.isSame(date, "day")) {
+                  return Promise.reject("Реальная дата должна отличаться");
+                }
+                return Promise.resolve();
+              },
+            },
+          ]}
+          hidden={!actualDateShown}
+          extra={
+            actualDateShown && (
+              <Button
+                type="link"
+                style={{ paddingLeft: 0, paddingRight: 0 }}
+                onClick={() => {
+                  setActualDateShown(false);
+                }}
+              >
+                Реальная дата не отличается
+              </Button>
+            )
+          }
+        >
+          <DatePicker format={DATE_FORMAT} allowClear />
         </Form.Item>
         <Divider />
         <Form.Item

@@ -53,6 +53,7 @@ export default class Expense {
     spending: SavingSpending;
     category: SavingSpendingCategory;
   } | null;
+  actualDate: Dayjs | null;
 
   constructor(
     id: number,
@@ -67,7 +68,8 @@ export default class Expense {
     savingSpending: {
       spending: SavingSpending;
       category: SavingSpendingCategory;
-    } | null = null
+    } | null = null,
+    actualDate: Dayjs | null
   ) {
     makeAutoObservable(this, undefined, { autoBind: true });
     this.id = id;
@@ -80,6 +82,7 @@ export default class Expense {
     this.source = source;
     this.subscription = subscription;
     this.savingSpending = savingSpending;
+    this.actualDate = actualDate;
   }
 
   replaceComponents(newComponents: ExpenseComponentData[]): void {
@@ -146,5 +149,9 @@ export default class Expense {
       isUpcomingSubscription: false,
       expenseId: null,
     };
+  }
+
+  get calculatedActualDate() {
+    return this.actualDate ?? this.date;
   }
 }
