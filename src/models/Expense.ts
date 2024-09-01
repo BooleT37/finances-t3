@@ -34,6 +34,7 @@ export interface TableData {
   source: string;
   isUpcomingSubscription: boolean;
   expenseId: number | null;
+  isIncome: boolean;
 }
 
 // for new expenses we don't have expense id
@@ -148,6 +149,7 @@ export default class Expense {
       categoryShortname: this.category.shortname,
       isUpcomingSubscription: false,
       expenseId: null,
+      isIncome: this.category.isIncome,
     };
   }
 

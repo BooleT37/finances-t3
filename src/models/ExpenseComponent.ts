@@ -69,6 +69,7 @@ export class ExpenseComponent implements ExpenseComponentApi {
       source: this.parentExpense.source?.name ?? "",
       isUpcomingSubscription: false,
       expenseId: this.expenseId,
+      isIncome: this.category.isIncome,
     };
   }
 

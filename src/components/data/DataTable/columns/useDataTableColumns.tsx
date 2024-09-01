@@ -19,6 +19,10 @@ export const useDataTableColumns = ({
   const columnHelper = createMRTColumnHelper<TableData>();
   return useMemo(
     () => [
+      columnHelper.accessor("isIncome", {
+        header: "Тип",
+        getGroupingValue: (row) => (row.isIncome ? "Доход" : "Расход"),
+      }),
       columnHelper.accessor("subcategory", {
         header: "Подкатегория",
       }),

@@ -427,6 +427,7 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
       isUpcomingSubscription: true,
       name: subscription.name,
       expenseId: null,
+      isIncome: false,
     }));
     if (searchString) {
       rows = rows.filter((data) => data.name.includes(searchString));

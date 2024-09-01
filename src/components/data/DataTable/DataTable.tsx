@@ -1,4 +1,3 @@
-import { type TableRowProps } from "@mui/material";
 import { Space } from "antd";
 import type Decimal from "decimal.js";
 import {
@@ -6,15 +5,12 @@ import {
   MRT_ExpandAllButton,
   MRT_ExpandButton,
   useMaterialReactTable,
-  type MRT_Row,
   type MRT_TableInstance,
 } from "material-react-table";
 import { MRT_Localization_RU } from "material-react-table/locales/ru";
-import { action } from "mobx";
 import React, { useEffect } from "react";
 import { type TableData } from "~/models/Expense";
 import { sortAllCategoriesByName } from "~/stores/categoriesOrder";
-import { dataStores } from "~/stores/dataStores";
 import { useDataTableColumns } from "./columns/useDataTableColumns";
 import { RowActions } from "./RowActions";
 
@@ -52,7 +48,7 @@ export const DataTable: React.FC<Props> = ({
     groupedColumnMode: "remove",
     enableColumnActions: true,
     initialState: {
-      grouping: ["category"],
+      grouping: ["isIncome", "category"],
       expanded: true,
       sorting: [{ id: "category", desc: false }],
       density: "compact",
@@ -76,7 +72,7 @@ export const DataTable: React.FC<Props> = ({
         Header: () => (
           <Space align="center">
             <MRT_ExpandAllButton table={table} />
-            <div>Расход</div>
+            <div>Имя</div>
           </Space>
         ),
         Cell: ({ row, table }) => {
@@ -85,7 +81,9 @@ export const DataTable: React.FC<Props> = ({
               <MRT_ExpandButton row={row} table={table} />
               {row.getIsGrouped()
                 ? row.depth === 0
-                  ? row.original.category
+                  ? row.getGroupingValue("isIncome")
+                  : row.depth === 1
+                  ? row.getGroupingValue("category")
                   : row.original.subcategory ?? "<без подкатегории>"
                 : row.original.name}
             </>
@@ -106,19 +104,6 @@ export const DataTable: React.FC<Props> = ({
       },
     },
     localization: MRT_Localization_RU,
-    muiTableBodyRowProps: action(
-      ({ row }: { row: MRT_Row<TableData> }): TableRowProps => ({
-        sx: {
-          fontStyle:
-            row.getIsGrouped() &&
-            dataStores.categoriesStore.incomeCategoriesNames.includes(
-              row.getGroupingValue("category") as string
-            )
-              ? "italic"
-              : undefined,
-        },
-      })
-    ),
     muiTableBodyCellProps: ({ row }) => ({
       sx: {
         color: row.original.isUpcomingSubscription ? "darkgray" : undefined,
@@ -145,9 +130,9 @@ export const DataTable: React.FC<Props> = ({
 
   useEffect(() => {
     if (groupBySubcategories) {
-      table.setGrouping(["category", "subcategory"]);
+      table.setGrouping(["isIncome", "category", "subcategory"]);
     } else {
-      table.setGrouping(["category"]);
+      table.setGrouping(["isIncome", "category"]);
     }
   }, [groupBySubcategories, table]);
 
