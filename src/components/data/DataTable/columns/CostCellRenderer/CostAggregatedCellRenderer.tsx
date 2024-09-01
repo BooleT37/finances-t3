@@ -35,16 +35,6 @@ const CostAggregatedCellRenderer: React.FC<Props> = ({
   const valueNumber = col.value.toNumber();
   const diffSum = costToString(col.diff.abs());
   if (col.isIncome) {
-    if (col.diff.isZero()) {
-      return (
-        <TotalCostCellView
-          addPlus
-          cost={costString}
-          color="white"
-          barWidth={1}
-        />
-      );
-    }
     if (col.diff.isPositive()) {
       return (
         <TotalCostCellView
@@ -66,9 +56,6 @@ const CostAggregatedCellRenderer: React.FC<Props> = ({
         barOffset={diffNumber / valueNumber + 1}
       />
     );
-  }
-  if (col.diff.isZero()) {
-    return <TotalCostCellView cost={costString} color="white" barWidth={1} />;
   }
   if (col.diff.isPositive()) {
     const spentRatio = valueNumber / (diffNumber + valueNumber);

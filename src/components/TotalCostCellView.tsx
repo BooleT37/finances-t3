@@ -24,8 +24,8 @@ const Bar = styled("div")<{ color: string; width: number; offset?: number }>`
 
 interface Props {
   cost: string;
-  suffix?: string;
-  color: "red" | "orange" | "green" | "white";
+  suffix: string;
+  color: "red" | "orange" | "green";
   barWidth: number;
   title?: string;
   barOffset?: number;
@@ -49,7 +49,7 @@ const TotalCostCellView: React.FC<Props> = (props) => {
       <div>
         {addPlus && "+"}
         {cost}&nbsp;
-        {suffix && <DiffNode color={color}>{suffix}</DiffNode>}
+        <DiffNode color={color}>{suffix}</DiffNode>
       </div>
       <BarContainer>
         <Bar color={color} width={barWidth} offset={barOffset} />

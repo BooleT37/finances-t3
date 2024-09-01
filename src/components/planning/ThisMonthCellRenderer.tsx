@@ -19,9 +19,6 @@ const ThisMonthCellRenderer: React.FC<Props> = ({ value: col }) => {
   const spendingsNumber = col.spendings.toNumber();
 
   if (col.isIncome) {
-    if (col.diff.isZero()) {
-      return <TotalCostCellView cost={costString} color="white" barWidth={1} />;
-    }
     if (col.diff.isPositive()) {
       return (
         <TotalCostCellView
@@ -46,9 +43,6 @@ const ThisMonthCellRenderer: React.FC<Props> = ({ value: col }) => {
         }
       />
     );
-  }
-  if (col.diff.isZero()) {
-    return <TotalCostCellView cost={costString} color="white" barWidth={1} />;
   }
   if (col.diff.isPositive()) {
     return (
