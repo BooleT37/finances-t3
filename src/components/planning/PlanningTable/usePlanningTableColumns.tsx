@@ -108,7 +108,8 @@ const usePlanningTableColumns = ({
         size: 200,
         Cell: ({ cell }) => (
           <CostCellRenderer
-            value={cell.getValue()}
+            cost={cell.getValue()}
+            subscriptions={cell.row.original.subscriptions}
             data={cell.row.original}
             saveSum={saveSum}
             transferPersonalExpense={transferPersonalExpense}
@@ -118,9 +119,8 @@ const usePlanningTableColumns = ({
           depth > 0 &&
           original?.categoryId !== TOTAL_ROW_CATEGORY_ID &&
           original?.categoryType !== "FROM_SAVINGS",
-        muiEditTextFieldProps: ({ cell, row }) => ({
+        muiEditTextFieldProps: ({ row, table }) => ({
           type: "number",
-          defaultValue: cell.getValue()?.value?.toFixed() ?? "",
           onBlur: (event) => {
             const { value } = event.target;
             const parsed = new Decimal(value || 0);
@@ -128,10 +128,16 @@ const usePlanningTableColumns = ({
               void saveSum(row.original.categoryId, parsed);
             }
           },
+          onKeyDown: (event) => {
+            if (event.key === "Escape") {
+              event.stopPropagation();
+              table.setEditingCell(null);
+            }
+          },
         }),
         sortingFn: (rowA, rowB) =>
-          (rowA.original.sum.value ?? new Decimal(0)).comparedTo(
-            rowB.original.sum.value ?? new Decimal(0)
+          (rowA.original.sum ?? new Decimal(0)).comparedTo(
+            rowB.original.sum ?? new Decimal(0)
           ),
         aggregationFn: getValueFromTotalRow,
         AggregatedCell: ({ cell, row }) =>
@@ -139,7 +145,8 @@ const usePlanningTableColumns = ({
             ""
           ) : (
             <CostCellRenderer
-              value={cell.getValue()}
+              cost={cell.getValue()}
+              subscriptions={row.original.subscriptions}
               data={cell.row.original}
               saveSum={saveSum}
               transferPersonalExpense={transferPersonalExpense}

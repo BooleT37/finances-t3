@@ -134,14 +134,12 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
             ),
         isIncome: forecast.category.isIncome,
       },
-      sum: {
-        value: forecast.category.fromSavings ? null : forecast.sum,
-        subscriptions: dataStores.subscriptionStore.getSubscriptionsForForecast(
-          month,
-          year,
-          forecast.category
-        ),
-      },
+      sum: forecast.category.fromSavings ? null : forecast.sum,
+      subscriptions: dataStores.subscriptionStore.getSubscriptionsForForecast(
+        month,
+        year,
+        forecast.category
+      ),
       comment: forecast.comment || "",
     };
   };
@@ -172,27 +170,26 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
           : decimalSum(...forecasts.map((f) => f.lastMonth.diff)),
       isIncome: false,
     },
-    sum: {
-      value:
-        group === "savings"
-          ? null
-          : decimalSum(
-              ...forecasts.map((f) =>
-                negateIf(
-                  f.sum.value ?? new Decimal(0),
-                  f.categoryType === "FROM_SAVINGS"
-                )
+    sum:
+      group === "savings"
+        ? null
+        : decimalSum(
+            ...forecasts.map((f) =>
+              negateIf(
+                f.sum ?? new Decimal(0),
+                f.categoryType === "FROM_SAVINGS"
               )
-            ),
-      subscriptions:
-        group === "income"
-          ? []
-          : dataStores.subscriptionStore.getSubscriptionsForForecast(
-              month,
-              year,
-              null
-            ),
-    },
+            )
+          ),
+
+    subscriptions:
+      group === "income"
+        ? []
+        : dataStores.subscriptionStore.getSubscriptionsForForecast(
+            month,
+            year,
+            null
+          ),
     thisMonth: {
       spendings: decimalSum(
         ...forecasts.map((а) =>

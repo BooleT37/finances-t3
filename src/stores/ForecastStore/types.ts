@@ -8,11 +8,6 @@ export interface MonthSpendings {
   isIncome: boolean;
 }
 
-export interface ForecastSum {
-  value: Decimal | null;
-  subscriptions: ForecastSubscriptionsItem[];
-}
-
 export type ForecastTableItemGroup =
   | "expense"
   | "savings"
@@ -29,6 +24,7 @@ export interface ForecastTableItem {
   monthsWithSpendings: string;
   lastMonth: MonthSpendings;
   thisMonth: MonthSpendings;
-  sum: ForecastSum;
+  sum: Decimal | null;
+  subscriptions: ForecastSubscriptionsItem[];
   comment: string;
 }

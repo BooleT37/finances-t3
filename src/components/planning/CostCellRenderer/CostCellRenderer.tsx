@@ -1,14 +1,12 @@
 import { RightOutlined } from "@ant-design/icons";
 import { useCallback } from "react";
-import {
-  type ForecastSum,
-  type ForecastTableItem,
-} from "~/stores/ForecastStore/types";
+import { type ForecastTableItem } from "~/stores/ForecastStore/types";
 import costToString from "~/utils/costToString";
 
 import { Button, Space } from "antd";
 import type Decimal from "decimal.js";
 import styled from "styled-components";
+import type { ForecastSubscriptionsItem } from "~/types/forecast/forecastTypes";
 import SubscriptionsTooltip from "./SubscriptionsTooltip/SubscriptionsTooltip";
 
 const TransferPeIcon = styled(RightOutlined)`
@@ -18,7 +16,8 @@ const TransferPeIcon = styled(RightOutlined)`
 `;
 
 interface Props {
-  value: ForecastSum;
+  cost: Decimal | null;
+  subscriptions: ForecastSubscriptionsItem[];
   data: ForecastTableItem;
   saveSum: (categoryId: number, sum: Decimal) => Promise<void>;
   transferPersonalExpense: (categoryId: number) => Promise<void>;
@@ -26,7 +25,8 @@ interface Props {
 
 // eslint-disable-next-line mobx/missing-observer
 const CostCellRenderer: React.FC<Props> = ({
-  value,
+  cost,
+  subscriptions,
   data,
   saveSum,
   transferPersonalExpense,
@@ -41,18 +41,15 @@ const CostCellRenderer: React.FC<Props> = ({
     },
     [categoryId, saveSum]
   );
-  if (value.value === null) {
+  if (cost === null) {
     return <>-</>;
   }
 
   return (
     <Space>
-      {costToString(value.value)}
-      {value.subscriptions.length > 0 && (
-        <SubscriptionsTooltip
-          items={value.subscriptions}
-          onClick={handleClick}
-        />
+      {costToString(cost)}
+      {subscriptions.length > 0 && (
+        <SubscriptionsTooltip items={subscriptions} onClick={handleClick} />
       )}
       {data.categoryType === "PERSONAL_EXPENSE" && (
         <Button
