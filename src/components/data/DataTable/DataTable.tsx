@@ -50,7 +50,7 @@ export const DataTable: React.FC<Props> = ({
     enableColumnDragging: false,
     enablePagination: false,
     groupedColumnMode: "remove",
-    enableColumnActions: false,
+    enableColumnActions: true,
     initialState: {
       grouping: ["category"],
       expanded: true,

@@ -25,6 +25,8 @@ export const useDataTableColumns = ({
       columnHelper.accessor("cost", {
         size: 150,
         header: "Сумма",
+        // this hides the "group by" button in column menu31
+        enableGrouping: false,
         aggregationFn: (_columnId, leafRows) =>
           costAggregationFn(
             leafRows,
@@ -43,10 +45,12 @@ export const useDataTableColumns = ({
       columnHelper.accessor("date", {
         size: 130,
         header: "Дата",
+        enableGrouping: false,
       }),
       columnHelper.accessor("source", {
         size: 130,
         header: "Источник",
+        enableGrouping: false,
       }),
 
       columnHelper.accessor("category", {
