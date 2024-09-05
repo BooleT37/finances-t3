@@ -22,7 +22,10 @@ export const DataFetcher: React.FC<Props> = observer(function DataFetcher({
   if (!storesLoaded(stores)) {
     return (
       <SpinWrapper>
-        <Spin size="large" tip="Загрузка финансов..." />
+        <div>
+          <Spin size="large" />
+        </div>
+        Загрузка финансов...
       </SpinWrapper>
     );
   }

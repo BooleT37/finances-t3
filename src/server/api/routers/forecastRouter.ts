@@ -5,7 +5,7 @@ import { connectUser, filterByUser } from "~/server/api/utils/linkCurrentUser";
 
 export const forecastRouter = createTRPCRouter({
   getAll: protectedProcedure.query(({ ctx }) => {
-    return ctx.prisma.forecast.findMany(filterByUser(ctx));
+    return ctx.db.forecast.findMany(filterByUser(ctx));
   }),
   upsert: protectedProcedure
     .input(
@@ -23,7 +23,7 @@ export const forecastRouter = createTRPCRouter({
         )
     )
     .mutation(({ ctx, input }) =>
-      ctx.prisma.forecast.upsert({
+      ctx.db.forecast.upsert({
         where: {
           categoryId_month_year_userId: {
             categoryId: input.categoryId,

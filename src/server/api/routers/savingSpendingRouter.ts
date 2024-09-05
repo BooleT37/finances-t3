@@ -8,7 +8,7 @@ import { connectUser, filterByUser } from "~/server/api/utils/linkCurrentUser";
 
 export const savingSpendingRouter = createTRPCRouter({
   getAll: protectedProcedure.query(({ ctx }) => {
-    return ctx.prisma.savingSpending.findMany({
+    return ctx.db.savingSpending.findMany({
       ...filterByUser(ctx),
       include: { categories: true },
     });
@@ -16,7 +16,7 @@ export const savingSpendingRouter = createTRPCRouter({
   create: protectedProcedure
     .input(SavingSpendingCreateWithoutUserInputObjectSchema)
     .mutation(({ input, ctx }) =>
-      ctx.prisma.savingSpending.create({
+      ctx.db.savingSpending.create({
         data: {
           ...input,
           ...connectUser(ctx),
@@ -32,7 +32,7 @@ export const savingSpendingRouter = createTRPCRouter({
       })
     )
     .mutation(({ input: { data, id }, ctx }) =>
-      ctx.prisma.savingSpending.update({
+      ctx.db.savingSpending.update({
         data,
         where: { id },
         include: { categories: true },
@@ -42,12 +42,12 @@ export const savingSpendingRouter = createTRPCRouter({
     .input(z.object({ id: z.number() }))
     .mutation(({ input: { id }, ctx }) =>
       // all categories are also removed via "onUpdate: cascade"!
-      ctx.prisma.savingSpending.delete({ where: { id } })
+      ctx.db.savingSpending.delete({ where: { id } })
     ),
   toggle: protectedProcedure
     .input(z.object({ id: z.number(), completed: z.boolean() }))
     .mutation(({ input: { completed, id }, ctx }) =>
-      ctx.prisma.savingSpending.update({
+      ctx.db.savingSpending.update({
         data: {
           completed,
         },

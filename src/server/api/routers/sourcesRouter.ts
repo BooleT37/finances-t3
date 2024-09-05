@@ -8,12 +8,12 @@ import { connectUser, filterByUser } from "~/server/api/utils/linkCurrentUser";
 
 export const sourcesRouter = createTRPCRouter({
   getAll: protectedProcedure.query(({ ctx }) => {
-    return ctx.prisma.source.findMany(filterByUser(ctx));
+    return ctx.db.source.findMany(filterByUser(ctx));
   }),
   create: protectedProcedure
     .input(SourceCreateWithoutUserInputObjectSchema)
     .mutation(({ ctx, input }) =>
-      ctx.prisma.source.create({
+      ctx.db.source.create({
         data: {
           ...input,
           ...connectUser(ctx),
@@ -28,7 +28,7 @@ export const sourcesRouter = createTRPCRouter({
       })
     )
     .mutation(({ ctx, input: { data, id } }) =>
-      ctx.prisma.source.update({
+      ctx.db.source.update({
         data,
         where: { id },
       })
@@ -36,7 +36,7 @@ export const sourcesRouter = createTRPCRouter({
   delete: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(({ ctx, input: { id } }) =>
-      ctx.prisma.source.delete({
+      ctx.db.source.delete({
         where: { id },
       })
     ),

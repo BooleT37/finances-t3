@@ -8,7 +8,7 @@ import { connectUser, filterByUser } from "~/server/api/utils/linkCurrentUser";
 
 export const categoriesRouter = createTRPCRouter({
   getAll: protectedProcedure.query(({ ctx }) => {
-    return ctx.prisma.category.findMany({
+    return ctx.db.category.findMany({
       include: { subcategories: true },
       ...filterByUser(ctx),
     });
@@ -16,7 +16,7 @@ export const categoriesRouter = createTRPCRouter({
   create: protectedProcedure
     .input(CategoryCreateWithoutUserInputObjectSchema)
     .mutation(({ ctx, input }) => {
-      return ctx.prisma.category.create({
+      return ctx.db.category.create({
         data: {
           ...input,
           ...connectUser(ctx),
@@ -32,7 +32,7 @@ export const categoriesRouter = createTRPCRouter({
       })
     )
     .mutation(({ ctx, input: { data, id } }) => {
-      return ctx.prisma.category.update({
+      return ctx.db.category.update({
         data,
         where: { id },
       });
@@ -44,7 +44,7 @@ export const categoriesRouter = createTRPCRouter({
       })
     )
     .mutation(({ ctx, input: { id } }) =>
-      ctx.prisma.category.delete({
+      ctx.db.category.delete({
         where: {
           id,
         },

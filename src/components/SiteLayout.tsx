@@ -10,7 +10,7 @@ import {
   TableOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Spin } from "antd";
-import type { ItemType } from "antd/lib/menu/hooks/useItems";
+import type { ItemType } from "antd/es/menu/interface";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -78,7 +78,10 @@ const SiteLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   if (status === "loading") {
     return (
       <SpinWrapper>
-        <Spin size="large" tip="Авторизация..." />
+        <div>
+          <Spin size="large" />
+        </div>
+        Авторизация...
       </SpinWrapper>
     );
   }

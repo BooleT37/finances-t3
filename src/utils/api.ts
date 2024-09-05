@@ -39,13 +39,6 @@ const getBaseUrl = () => {
 
 const config: WithTRPCConfig<AppRouter> = {
   /**
-   * Transformer used for data de-serialization from the server.
-   *
-   * @see https://trpc.io/docs/data-transformers
-   */
-  transformer: superjson,
-
-  /**
    * Links used to determine request flow from client to server.
    *
    * @see https://trpc.io/docs/links
@@ -57,6 +50,12 @@ const config: WithTRPCConfig<AppRouter> = {
         (opts.direction === "down" && opts.result instanceof Error),
     }),
     httpBatchLink({
+      /**
+       * Transformer used for data de-serialization from the server.
+       *
+       * @see https://trpc.io/docs/data-transformers
+       */
+      transformer: superjson,
       url: `${getBaseUrl()}/api/trpc`,
     }),
   ],
@@ -73,6 +72,7 @@ export const api = createTRPCNext<AppRouter>({
    * @see https://trpc.io/docs/nextjs#ssr-boolean-default-false
    */
   ssr: false,
+  transformer: superjson,
 });
 
 export const trpc = createTRPCProxyClient<AppRouter>(config);

@@ -1,14 +1,15 @@
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 import { type GetServerSidePropsContext } from "next";
 import {
   getServerSession,
   type DefaultSession,
   type NextAuthOptions,
 } from "next-auth";
+import { type Adapter } from "next-auth/adapters";
 import DiscordProvider from "next-auth/providers/discord";
-import { env } from "~/env.mjs";
-import { prisma } from "~/server/db";
-import { trpc } from "~/utils/api";
+
+import { env } from "~/env";
+import { db } from "~/server/db";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -18,11 +19,11 @@ import { trpc } from "~/utils/api";
  */
 declare module "next-auth" {
   interface Session extends DefaultSession {
-    user?: {
+    user: DefaultSession["user"] & {
       id: string;
       // ...other properties
       // role: UserRole;
-    } & DefaultSession["user"];
+    };
   }
 
   // interface User {
@@ -37,23 +38,16 @@ declare module "next-auth" {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authOptions: NextAuthOptions = {
-  debug: true,
-  events: {
-    signIn: async ({ user }) => {
-      await trpc.userSettings.createIfNotExist.mutate({ userId: user.id });
-      await trpc.user.initialUserSetupIfNeeded.mutate({ userId: user.id });
-    },
-  },
   callbacks: {
-    session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id;
-        // session.user.role = user.role; <-- put other properties on the session here
-      }
-      return session;
-    },
+    session: ({ session, user }) => ({
+      ...session,
+      user: {
+        ...session.user,
+        id: user.id,
+      },
+    }),
   },
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(db) as Adapter,
   providers: [
     DiscordProvider({
       clientId: env.DISCORD_CLIENT_ID,

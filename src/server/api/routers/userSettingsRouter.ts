@@ -8,7 +8,7 @@ import {
 
 export const userSettingsRouter = createTRPCRouter({
   get: protectedProcedure.query(({ ctx }) => {
-    return ctx.prisma.userSetting.findFirst({
+    return ctx.db.userSetting.findFirst({
       where: {
         userId: ctx.session.user.id,
       },
@@ -18,7 +18,7 @@ export const userSettingsRouter = createTRPCRouter({
   createIfNotExist: publicProcedure
     .input(z.object({ userId: z.string() }))
     .mutation(({ ctx, input: { userId } }) => {
-      return ctx.prisma.userSetting.upsert({
+      return ctx.db.userSetting.upsert({
         create: {
           userId,
         },
@@ -31,7 +31,7 @@ export const userSettingsRouter = createTRPCRouter({
   update: protectedProcedure
     .input(UserSettingUpdateInputObjectSchema)
     .mutation(({ ctx, input }) => {
-      return ctx.prisma.userSetting.update({
+      return ctx.db.userSetting.update({
         data: input,
         where: {
           userId: ctx.session.user.id,

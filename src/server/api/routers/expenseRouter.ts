@@ -8,7 +8,7 @@ import { connectUser, filterByUser } from "~/server/api/utils/linkCurrentUser";
 
 export const expenseRouter = createTRPCRouter({
   getAll: protectedProcedure.query(({ ctx }) =>
-    ctx.prisma.expense.findMany({
+    ctx.db.expense.findMany({
       ...filterByUser(ctx),
       include: { components: true },
     })
@@ -16,7 +16,7 @@ export const expenseRouter = createTRPCRouter({
   create: protectedProcedure
     .input(ExpenseCreateWithoutUserInputObjectSchema)
     .mutation(({ ctx, input }) => {
-      return ctx.prisma.expense.create({
+      return ctx.db.expense.create({
         data: {
           ...input,
           ...connectUser(ctx),
@@ -32,7 +32,7 @@ export const expenseRouter = createTRPCRouter({
       })
     )
     .mutation(({ ctx, input: { data, id } }) =>
-      ctx.prisma.expense.update({
+      ctx.db.expense.update({
         data,
         where: { id },
         include: { components: true },
@@ -41,11 +41,11 @@ export const expenseRouter = createTRPCRouter({
   delete: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(({ ctx, input: { id } }) =>
-      ctx.prisma.expense.delete({ where: { id } })
+      ctx.db.expense.delete({ where: { id } })
     ),
   deleteComponent: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(({ ctx, input: { id } }) =>
-      ctx.prisma.expenseComponent.delete({ where: { id } })
+      ctx.db.expenseComponent.delete({ where: { id } })
     ),
 });

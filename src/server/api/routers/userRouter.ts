@@ -6,14 +6,14 @@ export const userRouter = createTRPCRouter({
   initialUserSetupIfNeeded: publicProcedure
     .input(z.object({ userId: z.string() }))
     .mutation(async ({ ctx, input: { userId } }) => {
-      const user = await ctx.prisma.user.findFirst({ where: { id: userId } });
+      const user = await ctx.db.user.findFirst({ where: { id: userId } });
       if (!user || user.setupDone) {
         return;
       }
-      await ctx.prisma.category.createMany({
+      await ctx.db.category.createMany({
         data: defaultCategories.map((c) => ({ ...c, userId })),
       });
-      await ctx.prisma.user.update({
+      await ctx.db.user.update({
         data: {
           setupDone: true,
         },
@@ -21,8 +21,8 @@ export const userRouter = createTRPCRouter({
           id: userId,
         },
       });
-      const categories = await ctx.prisma.category.findMany();
-      await ctx.prisma.userSetting.update({
+      const categories = await ctx.db.category.findMany();
+      await ctx.db.userSetting.update({
         data: {
           expenseCategoriesOrder: categories
             .filter((c) => !c.isIncome)

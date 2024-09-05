@@ -8,17 +8,17 @@ import { connectUser, filterByUser } from "~/server/api/utils/linkCurrentUser";
 
 export const subscriptionRouter = createTRPCRouter({
   getAll: protectedProcedure.query(({ ctx }) => {
-    return ctx.prisma.subscription.findMany(filterByUser(ctx));
+    return ctx.db.subscription.findMany(filterByUser(ctx));
   }),
   toggle: protectedProcedure
     .input(z.object({ id: z.number(), active: z.boolean() }))
     .mutation(({ ctx, input: { active, id } }) =>
-      ctx.prisma.subscription.update({ data: { active }, where: { id } })
+      ctx.db.subscription.update({ data: { active }, where: { id } })
     ),
   create: protectedProcedure
     .input(SubscriptionCreateWithoutUserInputObjectSchema)
     .mutation(({ ctx, input }) => {
-      return ctx.prisma.subscription.create({
+      return ctx.db.subscription.create({
         data: { ...input, ...connectUser(ctx) },
       });
     }),
@@ -30,11 +30,11 @@ export const subscriptionRouter = createTRPCRouter({
       })
     )
     .mutation(({ ctx, input: { data, id } }) =>
-      ctx.prisma.subscription.update({ data, where: { id } })
+      ctx.db.subscription.update({ data, where: { id } })
     ),
   delete: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(({ ctx, input: { id } }) =>
-      ctx.prisma.subscription.delete({ where: { id } })
+      ctx.db.subscription.delete({ where: { id } })
     ),
 });
