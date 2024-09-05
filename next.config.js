@@ -37,6 +37,7 @@ const config = {
     "@ant-design",
     "rc-util",
     "rc-tree",
+    "rc-table",
     "rc-pagination",
     "rc-picker",
     "rc-notification",
