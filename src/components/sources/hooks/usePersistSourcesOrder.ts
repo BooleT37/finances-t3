@@ -12,7 +12,7 @@ export const usePersistSourcesOrder = () => {
   return (table: MRT_TableInstance<SourceTableItem>) =>
     runInAction(() => {
       const { draggingRow, hoveredRow } = table.getState();
-      if (!draggingRow || !hoveredRow || !hoveredRow.original) {
+      if (!draggingRow || !hoveredRow?.original) {
         return;
       }
       const order = moveItem(

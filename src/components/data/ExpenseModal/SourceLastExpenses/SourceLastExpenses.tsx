@@ -24,7 +24,7 @@ const SourceLastExpenses: React.FC<Props> = observer(
   function SourceLastExpenses({ sourceId }) {
     const lastExpenses =
       dataStores.expenseStore.lastExpensesPerSource[sourceId];
-    if (!lastExpenses || !lastExpenses[0]) {
+    if (!lastExpenses?.[0]) {
       return null;
     }
     const expensesDate =

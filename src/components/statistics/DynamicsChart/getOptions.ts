@@ -2,8 +2,8 @@ import {
   type AgCartesianSeriesTooltipRendererParams,
   type AgChartOptions,
 } from "ag-charts-community";
+import type DynamicsData from "~/types/statistics/dynamicsData";
 import costToString from "~/utils/costToString";
-import type { DynamicsData } from "./models";
 import { palette } from "./palette";
 
 const getOptions = (

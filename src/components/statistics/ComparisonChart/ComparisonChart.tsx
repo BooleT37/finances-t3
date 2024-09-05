@@ -63,25 +63,21 @@ const ComparisonChart = function ComparisonChart() {
       <Title level={3}>Сравнение с предыдущим периодом</Title>
       <Space size="small">
         <DatePicker
-          clearIcon={false}
+          allowClear={{ clearIcon: false }}
           picker={granularity}
           value={startDate}
           onChange={(d) => {
-            if (d) {
-              setStartDate(d);
-            }
+            setStartDate(d);
           }}
           format={pickerFormat[granularity]}
         />
         -
         <DatePicker
-          clearIcon={false}
+          allowClear={{ clearIcon: false }}
           picker={granularity}
           value={endDate}
           onChange={(d) => {
-            if (d) {
-              setEndDate(d);
-            }
+            setEndDate(d);
           }}
           format={pickerFormat[granularity]}
         />

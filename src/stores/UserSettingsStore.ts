@@ -30,7 +30,7 @@ export default class UserSettingsStore
 
   init(settings: inferRouterOutputs<AppRouter>["userSettings"]["get"]) {
     if (!settings) {
-      throw "Can't get settings for user";
+      throw new Error("Can't get settings for user");
     }
     this.pePerMonth = settings.pePerMonth;
     if (settings.savings !== null && settings.savingsDate !== null) {

@@ -20,7 +20,7 @@ export const usePersistCategoriesOrder = () => {
   return (table: MRT_TableInstance<CategoryTableItem>, isIncome: boolean) =>
     runInAction(() => {
       const { draggingRow, hoveredRow } = table.getState();
-      if (!draggingRow || !hoveredRow || !hoveredRow.original) {
+      if (!draggingRow || !hoveredRow?.original) {
         return;
       }
       const order = moveItem(

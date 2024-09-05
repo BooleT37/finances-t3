@@ -47,7 +47,7 @@ const CostsListForm = forwardRef<CostsListFormInterface, Props>(
       submit: () => form.submit(),
     }));
 
-    const initialValues: FormValues = editingValue || {
+    const initialValues: FormValues = editingValue ?? {
       name: "",
       costs: [
         {

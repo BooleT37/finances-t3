@@ -3,7 +3,6 @@ import type {
   CategoryType,
   ExpenseComponent,
 } from "@prisma/client";
-import assert from "assert";
 import dayjs, { type Dayjs } from "dayjs";
 import Decimal from "decimal.js";
 import { groupBy } from "lodash";
@@ -287,7 +286,6 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
         } as MonthEntry;
       }
       const monthEntry = dict[month];
-      assert(monthEntry); // to make typescript happy
       for (const categoryId of allCategoriesIds) {
         if (monthEntry[categoryId] === undefined) {
           monthEntry[categoryId] = new Decimal(0);

@@ -1,6 +1,4 @@
-export type DynamicsDataMonth = {
-  [key: string]: number;
-} & { month: string };
+export type DynamicsDataMonth = Record<string, number> & { month: string };
 
 type DynamicsData = DynamicsDataMonth[];
 

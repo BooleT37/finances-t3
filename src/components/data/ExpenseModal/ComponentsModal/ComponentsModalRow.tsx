@@ -123,10 +123,10 @@ export const ComponentsModalRow: React.FC<Props> = ({
                 return Promise.resolve();
               }
               if (subcategoryId === defaultSubcategoryId) {
-                return Promise.reject("Категория должна отличаться");
+                return Promise.reject(new Error("Категория должна отличаться"));
               }
               if (defaultSubcategoryId === null && subcategoryId === null) {
-                return Promise.reject("Категория должна отличаться");
+                return Promise.reject(new Error("Категория должна отличаться"));
               }
               return Promise.resolve();
             },

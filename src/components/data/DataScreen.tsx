@@ -54,13 +54,9 @@ const DataScreen = observer(function DataScreen() {
     _dates: [Dayjs | null, Dayjs | null] | null,
     dateStrings: [string, string] | null
   ) => {
-    setRangeStart(
-      dateStrings && dateStrings[0] ? dayjs(dateStrings[0], DATE_FORMAT) : null
-    );
+    setRangeStart(dateStrings?.[0] ? dayjs(dateStrings[0], DATE_FORMAT) : null);
     setRangeEnd(
-      dateStrings && dateStrings[1]
-        ? dayjs(dateStrings[1], DATE_FORMAT).endOf("day")
-        : null
+      dateStrings?.[1] ? dayjs(dateStrings[1], DATE_FORMAT).endOf("day") : null
     );
   };
 

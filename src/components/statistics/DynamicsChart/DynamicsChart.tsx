@@ -44,6 +44,7 @@ const DynamicsChart = observer(function DynamicsChart() {
         : getOptions(
             filteredCategories.map((c) => c.id.toString()),
             filteredCategories.map((c) => c.shortname),
+            // @eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             dataStores.expenseStore.getDynamicsData(
               startDate,
               endDate,
@@ -56,7 +57,7 @@ const DynamicsChart = observer(function DynamicsChart() {
   const handleRangeChange = (
     dates: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null
   ) => {
-    if (!dates || !dates[0] || !dates[1]) {
+    if (!dates?.[0] || !dates[1]) {
       return;
     }
     setStartDate(dates[0]);

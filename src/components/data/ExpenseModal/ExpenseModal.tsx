@@ -405,9 +405,9 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
                   { required: true, message: "Введите дату" },
                   {
                     validator: (_, value: Dayjs | undefined) => {
-                      if (value && value.isSame(date, "day")) {
+                      if (value?.isSame(date, "day")) {
                         return Promise.reject(
-                          "Реальная дата должна отличаться"
+                          new Error("Реальная дата должна отличаться")
                         );
                       }
                       return Promise.resolve();

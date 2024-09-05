@@ -33,14 +33,14 @@ export const YearReview: React.FC<Props> = ({ open, onClose }) => {
     if (stepIndex === stepsOrder.length - 1) {
       return;
     }
-    setStep(stepsOrder[stepIndex + 1] as Steps);
+    setStep(stepsOrder[stepIndex + 1]!);
   }, [stepIndex]);
 
   const previousStep = useCallback(() => {
     if (stepIndex === 0) {
       return;
     }
-    setStep(stepsOrder[stepIndex - 1] as Steps);
+    setStep(stepsOrder[stepIndex - 1]!);
   }, [stepIndex]);
 
   const footer = (

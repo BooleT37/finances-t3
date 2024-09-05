@@ -140,7 +140,7 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
         year,
         forecast.category
       ),
-      comment: forecast.comment || "",
+      comment: forecast.comment ?? "",
     };
   };
 
