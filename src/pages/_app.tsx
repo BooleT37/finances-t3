@@ -9,7 +9,6 @@ import "~/styles/globals.css";
 
 import "antd/dist/reset.css";
 import Head from "next/head";
-import SiteLayout from "~/components/SiteLayout";
 import { api } from "~/utils/api";
 import configureMobx from "~/utils/configureMobx";
 
@@ -25,9 +24,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
       </Head>
       <SessionProvider session={session}>
         <ConfigProvider locale={locale}>
-          <SiteLayout>
-            <Component {...pageProps} />
-          </SiteLayout>
+          <Component {...pageProps} />
         </ConfigProvider>
       </SessionProvider>
     </>

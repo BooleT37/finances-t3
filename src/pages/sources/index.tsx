@@ -1,6 +1,7 @@
 import { Typography } from "antd";
 import { DataFetcher } from "~/components/DataFetcher";
 import SiteContent from "~/components/SiteContent";
+import SiteLayout from "~/components/SiteLayout";
 import SourcesScreen from "~/components/sources/SourcesScreen";
 import WhiteHeader from "~/components/WhiteHeader";
 import { type StoresToInit } from "~/stores/dataStores";
@@ -25,14 +26,16 @@ export const getServerSideProps = protectedPageProps;
 // eslint-disable-next-line mobx/missing-observer
 const SourcesPage: React.FC = () => {
   return (
-    <DataFetcher stores={stores}>
-      <WhiteHeader className="site-layout-background">
-        <Title>Источники</Title>
-      </WhiteHeader>
-      <SiteContent className="site-layout-background">
-        <SourcesScreen />
-      </SiteContent>
-    </DataFetcher>
+    <SiteLayout>
+      <DataFetcher stores={stores}>
+        <WhiteHeader>
+          <Title>Источники</Title>
+        </WhiteHeader>
+        <SiteContent>
+          <SourcesScreen />
+        </SiteContent>
+      </DataFetcher>
+    </SiteLayout>
   );
 };
 

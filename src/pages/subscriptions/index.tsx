@@ -2,6 +2,7 @@ import { Typography } from "antd";
 import React from "react";
 import { DataFetcher } from "~/components/DataFetcher";
 import SiteContent from "~/components/SiteContent";
+import SiteLayout from "~/components/SiteLayout";
 import SubscriptionsScreen from "~/components/subscriptions/SubscriptionsScreen";
 import WhiteHeader from "~/components/WhiteHeader";
 import CategoriesStore from "~/stores/CategoriesStore";
@@ -28,14 +29,16 @@ export const getServerSideProps = protectedPageProps;
 // eslint-disable-next-line mobx/missing-observer
 const SubscriptionsPage: React.FC = function SubscriptionsPage() {
   return (
-    <DataFetcher stores={storesToInit}>
-      <WhiteHeader className="site-layout-background">
-        <Title>Подписки</Title>
-      </WhiteHeader>
-      <SiteContent className="site-layout-background">
-        <SubscriptionsScreen />
-      </SiteContent>
-    </DataFetcher>
+    <SiteLayout>
+      <DataFetcher stores={storesToInit}>
+        <WhiteHeader>
+          <Title>Подписки</Title>
+        </WhiteHeader>
+        <SiteContent>
+          <SubscriptionsScreen />
+        </SiteContent>
+      </DataFetcher>
+    </SiteLayout>
   );
 };
 

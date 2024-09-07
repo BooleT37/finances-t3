@@ -2,6 +2,7 @@ import { Typography } from "antd";
 import { DataFetcher } from "~/components/DataFetcher";
 import PlanningScreen from "~/components/planning/PlanningScreen";
 import SiteContent from "~/components/SiteContent";
+import SiteLayout from "~/components/SiteLayout";
 import WhiteHeader from "~/components/WhiteHeader";
 import CategoriesStore from "~/stores/CategoriesStore";
 import { type StoresToInit } from "~/stores/dataStores";
@@ -29,14 +30,16 @@ export const getServerSideProps = protectedPageProps;
 
 // eslint-disable-next-line mobx/missing-observer
 const PlanningPage: React.FC = () => (
-  <DataFetcher stores={storesToInit}>
-    <WhiteHeader className="site-layout-background">
-      <Title>Планирование</Title>
-    </WhiteHeader>
-    <SiteContent className="site-layout-background">
-      <PlanningScreen />
-    </SiteContent>
-  </DataFetcher>
+  <SiteLayout>
+    <DataFetcher stores={storesToInit}>
+      <WhiteHeader>
+        <Title>Планирование</Title>
+      </WhiteHeader>
+      <SiteContent>
+        <PlanningScreen />
+      </SiteContent>
+    </DataFetcher>
+  </SiteLayout>
 );
 
 export default PlanningPage;

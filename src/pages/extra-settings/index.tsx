@@ -3,6 +3,7 @@ import React from "react";
 import { DataFetcher } from "~/components/DataFetcher";
 import ExtraSettingsScreen from "~/components/settings/ExtraSettingsScreen";
 import SiteContent from "~/components/SiteContent";
+import SiteLayout from "~/components/SiteLayout";
 import WhiteHeader from "~/components/WhiteHeader";
 import { type StoresToInit } from "~/stores/dataStores";
 import UserSettingsStore from "~/stores/UserSettingsStore";
@@ -25,14 +26,16 @@ export const getServerSideProps = protectedPageProps;
 // eslint-disable-next-line mobx/missing-observer
 const ExtraSettingsPage: React.FC = () => {
   return (
-    <DataFetcher stores={storesToInit}>
-      <WhiteHeader className="site-layout-background">
-        <Title>Прочие настройки</Title>
-      </WhiteHeader>
-      <SiteContent className="site-layout-background">
-        <ExtraSettingsScreen />
-      </SiteContent>
-    </DataFetcher>
+    <SiteLayout>
+      <DataFetcher stores={storesToInit}>
+        <WhiteHeader>
+          <Title>Прочие настройки</Title>
+        </WhiteHeader>
+        <SiteContent>
+          <ExtraSettingsScreen />
+        </SiteContent>
+      </DataFetcher>
+    </SiteLayout>
   );
 };
 

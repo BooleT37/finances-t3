@@ -4,6 +4,7 @@ import { DataFetcher } from "~/components/DataFetcher";
 import { CurrentSpendings } from "~/components/savingSpending/CurrentSpendings";
 import SavingSpendingsScreen from "~/components/savingSpending/SavingSpendingScreen";
 import SiteContent from "~/components/SiteContent";
+import SiteLayout from "~/components/SiteLayout";
 import WhiteHeader from "~/components/WhiteHeader";
 import CategoriesStore from "~/stores/CategoriesStore";
 import { type StoresToInit } from "~/stores/dataStores";
@@ -34,15 +35,17 @@ export const getServerSideProps = protectedPageProps;
 
 // eslint-disable-next-line mobx/missing-observer
 const SavingSpendingsPage: React.FC = () => (
-  <DataFetcher stores={storesToInit}>
-    <WhiteHeader>
-      <Title>Траты из сбережений</Title>
-      <CurrentSpendings />
-    </WhiteHeader>
-    <ContentStyled>
-      <SavingSpendingsScreen />
-    </ContentStyled>
-  </DataFetcher>
+  <SiteLayout>
+    <DataFetcher stores={storesToInit}>
+      <WhiteHeader>
+        <Title>Траты из сбережений</Title>
+        <CurrentSpendings />
+      </WhiteHeader>
+      <ContentStyled>
+        <SavingSpendingsScreen />
+      </ContentStyled>
+    </DataFetcher>
+  </SiteLayout>
 );
 
 export default SavingSpendingsPage;
