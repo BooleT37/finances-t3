@@ -86,7 +86,7 @@ enum CategoryType {
 
 model Category {
   id                Int                @id @default(autoincrement())
-  name              String             @unique
+  name              String
   isIncome          Boolean            @default(false)
   isContinuous      Boolean            @default(false)
   shortname         String             @db.VarChar(16)
@@ -95,9 +95,11 @@ model Category {
   subcategories     Subcategory[]
   Subscriptions     Subscription[]
   forecast          Forecast[]
-  user              User               @relation(fields: [userId], references: [id])
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId            String             @default("clg6kpbtn0000mr081ntz0f8i")
   expenseComponents ExpenseComponent[]
+
+  @@unique([name, userId])
 }
 
 model Source {

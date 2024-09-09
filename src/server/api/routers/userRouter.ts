@@ -22,17 +22,15 @@ export const userRouter = createTRPCRouter({
         },
       });
       const categories = await ctx.db.category.findMany();
-      await ctx.db.userSetting.update({
+      await ctx.db.userSetting.create({
         data: {
+          userId,
           expenseCategoriesOrder: categories
             .filter((c) => !c.isIncome)
             .map((c) => c.id),
           incomeCategoriesOrder: categories
             .filter((c) => c.isIncome)
             .map((c) => c.id),
-        },
-        where: {
-          userId,
         },
       });
     }),

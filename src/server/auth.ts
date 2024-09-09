@@ -7,9 +7,11 @@ import {
 } from "next-auth";
 import { type Adapter } from "next-auth/adapters";
 import DiscordProvider from "next-auth/providers/discord";
+import GoogleProvider from "next-auth/providers/google";
 
 import { env } from "~/env";
 import { db } from "~/server/db";
+import { trpc } from "~/utils/api";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -38,6 +40,11 @@ declare module "next-auth" {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authOptions: NextAuthOptions = {
+  events: {
+    signIn: async ({ user }) => {
+      await trpc.user.initialUserSetupIfNeeded.mutate({ userId: user.id });
+    },
+  },
   callbacks: {
     session: ({ session, user }) => ({
       ...session,
@@ -46,6 +53,15 @@ export const authOptions: NextAuthOptions = {
         id: user.id,
       },
     }),
+    signIn: async ({ user }) => {
+      return (
+        env.ALLOWED_EMAILS === "*" ||
+        (!!user.email &&
+          env.ALLOWED_EMAILS.split(",")
+            .map((e) => e.toLowerCase().trim())
+            .includes(user.email.toLowerCase()))
+      );
+    },
   },
   adapter: PrismaAdapter(db) as Adapter,
   providers: [
@@ -62,6 +78,10 @@ export const authOptions: NextAuthOptions = {
      *
      * @see https://next-auth.js.org/providers/github
      */
+    GoogleProvider({
+      clientId: env.GOOGLE_CLIENT_ID,
+      clientSecret: env.GOOGLE_CLIENT_SECRET,
+    }),
   ],
 };
 

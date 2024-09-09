@@ -175,7 +175,6 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
           addMore.value = false;
           isIncome.value = currentExpense.category.isIncome;
           if (currentExpense.actualDate) {
-            console.log(currentExpense);
             setActualDateShown(true);
           }
         } else {
