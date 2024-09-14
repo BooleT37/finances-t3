@@ -8,18 +8,15 @@ export interface MonthSpendings {
   isIncome: boolean;
 }
 
-export type ForecastTableItemGroup =
-  | "expense"
-  | "savings"
-  | "personal"
-  | "income";
+export type ForecastTableItemGroup = "expense" | "savings" | "income";
 
 export interface ForecastTableItem {
+  tableId: string;
   group: ForecastTableItemGroup;
-  category: string;
-  categoryId: number;
-  categoryShortname: string;
+  name: string;
+  categoryId: number | null;
   categoryType: CategoryType | null;
+  subcategoryId: number | null;
   average: Decimal;
   monthsWithSpendings: string;
   lastMonth: MonthSpendings;
@@ -27,4 +24,7 @@ export interface ForecastTableItem {
   sum: Decimal | null;
   subscriptions: ForecastSubscriptionsItem[];
   comment: string;
+  isFake?: boolean;
+  isRestRow?: boolean;
+  subRows?: ForecastTableItem[];
 }

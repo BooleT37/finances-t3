@@ -13,6 +13,7 @@ import {
   adaptExpenseToCreateInput,
   adaptExpenseToUpdateInput,
 } from "~/adapters/expense/expenseToApi";
+import type Subcategory from "~/models/Subcategory";
 import { type ExpenseFromApi } from "~/types/apiTypes";
 import type ComparisonData from "~/types/statistics/comparisonData";
 import type DynamicsData from "~/types/statistics/dynamicsData";
@@ -39,6 +40,8 @@ interface ExpenseOrComponent {
   cost: Decimal;
   date: Dayjs;
   category: Category;
+  subcategory: Subcategory | null;
+  subcategoryId: number | null;
 }
 
 const today = dayjs();
@@ -182,7 +185,7 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
   }
 
   get totalMonths(): number {
-    return countUniqueMonths(this.expenses.map((e) => e.date));
+    return countUniqueMonths(this.expensesAndComponents.map((e) => e.date));
   }
 
   getComparisonData(
@@ -317,21 +320,41 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
   get expensesAndComponents(): ExpenseOrComponent[] {
     return this.expenses
       .map<ExpenseOrComponent>(
-        ({ costWithoutComponents, date, name, category }) => ({
+        ({
+          costWithoutComponents,
+          date,
+          name,
+          category,
+          subcategory,
+          subcategoryId,
+        }) => ({
           cost: costWithoutComponents,
           date,
           name,
           category,
+          subcategory,
+          subcategoryId,
         })
       )
       .concat(
         this.expenses.flatMap((e) =>
-          e.components.map(({ cost, parentExpense, name, category }) => ({
-            cost,
-            date: parentExpense.date,
-            name,
-            category,
-          }))
+          e.components.map(
+            ({
+              cost,
+              parentExpense,
+              name,
+              category,
+              subcategory,
+              subcategoryId,
+            }) => ({
+              cost,
+              date: parentExpense.date,
+              name,
+              category,
+              subcategory,
+              subcategoryId,
+            })
+          )
         )
       );
   }
@@ -512,10 +535,12 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
     year,
     month,
     categoryId,
+    subcategoryId,
   }: {
     year: number;
     month: number;
     categoryId: number;
+    subcategoryId: number | null;
   }): Decimal {
     const monthExpenses = this.expenses.filter(
       (expense) =>
@@ -524,13 +549,21 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
 
     return decimalSum(
       ...monthExpenses
-        .filter((expense) => expense.category.id === categoryId)
+        .filter(
+          (expense) =>
+            expense.category.id === categoryId &&
+            expense.subcategoryId === subcategoryId
+        )
         .map((expense) => expense.costWithoutComponents ?? new Decimal(0))
     ).plus(
       decimalSum(
         ...monthExpenses.flatMap((e) =>
           e.components
-            .filter((c) => c.category.id === categoryId)
+            .filter(
+              (c) =>
+                c.category.id === categoryId &&
+                c.subcategoryId === subcategoryId
+            )
             .map((c) => c.cost)
         )
       )

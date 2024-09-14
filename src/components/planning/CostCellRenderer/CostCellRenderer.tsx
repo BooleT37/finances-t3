@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import { type ForecastTableItem } from "~/stores/ForecastStore/types";
 import costToString from "~/utils/costToString";
 
-import { Button, Space } from "antd";
+import { Button, Space, Tooltip } from "antd";
 import type Decimal from "decimal.js";
 import styled from "styled-components";
 import type { ForecastSubscriptionsItem } from "~/types/forecast/forecastTypes";
@@ -19,7 +19,13 @@ interface Props {
   cost: Decimal | null;
   subscriptions: ForecastSubscriptionsItem[];
   data: ForecastTableItem;
-  saveSum: (categoryId: number, sum: Decimal) => Promise<void>;
+  parentData: ForecastTableItem | null;
+  showSubcategoriesTooltip: boolean;
+  saveSum: (
+    categoryId: number,
+    subcategoryId: number | null,
+    sum: Decimal
+  ) => Promise<void>;
   transferPersonalExpense: (categoryId: number) => Promise<void>;
 }
 
@@ -28,41 +34,52 @@ const CostCellRenderer: React.FC<Props> = ({
   cost,
   subscriptions,
   data,
+  showSubcategoriesTooltip,
   saveSum,
   transferPersonalExpense,
 }) => {
-  const { categoryId } = data;
+  const { categoryId, subcategoryId } = data;
   const handleClick = useCallback(
-    (totalCost: Decimal) => {
-      // the "Total" row
-      if (categoryId !== -1) {
-        void saveSum(categoryId, totalCost);
+    async (totalCost: Decimal) => {
+      if (categoryId === null) {
+        return;
       }
+      void saveSum(categoryId, subcategoryId, totalCost);
     },
-    [categoryId, saveSum]
+    [categoryId, saveSum, subcategoryId]
   );
   if (cost === null) {
     return <>-</>;
   }
 
   return (
-    <Space>
-      {costToString(cost)}
-      {subscriptions.length > 0 && (
-        <SubscriptionsTooltip items={subscriptions} onClick={handleClick} />
-      )}
-      {data.categoryType === "PERSONAL_EXPENSE" && (
-        <Button
-          size="small"
-          shape="circle"
-          title="Рассчитать персональные расходы"
-          icon={<TransferPeIcon />}
-          onClick={() => {
-            void transferPersonalExpense(data.categoryId);
-          }}
-        />
-      )}
-    </Space>
+    <Tooltip
+      title={
+        showSubcategoriesTooltip
+          ? "Сумма рассчитана как сумма всех подкатегорий"
+          : undefined
+      }
+    >
+      <Space>
+        {costToString(cost)}
+        {subscriptions.length > 0 && (
+          <SubscriptionsTooltip items={subscriptions} onClick={handleClick} />
+        )}
+        {data.categoryType === "PERSONAL_EXPENSE" && (
+          <Button
+            size="small"
+            shape="circle"
+            title="Рассчитать персональные расходы"
+            icon={<TransferPeIcon />}
+            onClick={() => {
+              if (data.categoryId !== null) {
+                void transferPersonalExpense(data.categoryId);
+              }
+            }}
+          />
+        )}
+      </Space>
+    </Tooltip>
   );
 };
 

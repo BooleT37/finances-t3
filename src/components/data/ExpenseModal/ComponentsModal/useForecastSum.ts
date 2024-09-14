@@ -11,11 +11,11 @@ export const useGetForecastSum = (date: Dayjs | undefined) => {
     }
     const forecast =
       date && categoryId !== undefined
-        ? dataStores.forecastStore.find(
-            date.year(),
-            date.month(),
-            dataStores.categoriesStore.getById(categoryId)
-          )?.sum
+        ? dataStores.forecastStore.getCategoryForecast({
+            year: date.year(),
+            month: date.month(),
+            categoryId,
+          })?.sum
         : undefined;
     if (forecast === undefined) {
       return undefined;

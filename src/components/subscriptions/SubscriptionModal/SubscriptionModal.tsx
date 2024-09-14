@@ -37,6 +37,7 @@ function formValuesToSubscription(
     values.name,
     new Decimal(values.cost),
     dataStores.categoriesStore.getById(values.categoryId),
+    null,
     values.period,
     values.firstDate,
     active,

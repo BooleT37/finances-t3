@@ -1,12 +1,8 @@
 import Decimal from "decimal.js";
-import { createMRTColumnHelper } from "material-react-table";
+import { createMRTColumnHelper, type MRT_Row } from "material-react-table";
 import { useMemo } from "react";
 import { TOTAL_ROW_CATEGORY_ID } from "~/models/Category";
-import { sortAllCategoriesByName } from "~/stores/categoriesOrder";
-import {
-  type ForecastTableItem,
-  type ForecastTableItemGroup,
-} from "~/stores/ForecastStore/types";
+import { type ForecastTableItem } from "~/stores/ForecastStore/types";
 import type { ForecastSubscriptionsItem } from "~/types/forecast/forecastTypes";
 import costToString from "~/utils/costToString";
 import CostCellRenderer from "../CostCellRenderer";
@@ -21,16 +17,18 @@ export interface ForecastSumFromEdit {
   subscriptions: ForecastSubscriptionsItem[];
 }
 
-const GROUPS_ORDER: ForecastTableItemGroup[] = [
-  "expense",
-  "savings",
-  "personal",
-  "income",
-];
-
 interface Params {
-  saveSum: (categoryId: number, sum: Decimal) => Promise<void>;
-  saveComment: (categoryId: number, comment: string) => Promise<void>;
+  saveSum: (
+    categoryId: number,
+    subcategoryId: number | null,
+    sum: Decimal,
+    row: MRT_Row<ForecastTableItem>
+  ) => Promise<void>;
+  saveComment: (
+    categoryId: number,
+    subcategoryId: number | null,
+    comment: string
+  ) => Promise<void>;
   transferPersonalExpense: (categoryId: number) => Promise<void>;
 }
 
@@ -41,40 +39,6 @@ const usePlanningTableColumns = ({
 }: Params) =>
   useMemo(
     () => [
-      columnHelper.accessor("group", {
-        header: "Группа",
-        size: 150,
-        enableEditing: false,
-      }),
-      columnHelper.accessor("category", {
-        header: "Категория",
-        size: 250,
-        sortingFn: (rowA, rowB) => {
-          if (
-            rowA.getGroupingValue("group") !== rowB.getGroupingValue("group")
-          ) {
-            return (
-              GROUPS_ORDER.indexOf(
-                rowA.getGroupingValue("group") as ForecastTableItemGroup
-              ) -
-              GROUPS_ORDER.indexOf(
-                rowB.getGroupingValue("group") as ForecastTableItemGroup
-              )
-            );
-          }
-          if (rowA.getGroupingValue("category") === "Всего") {
-            return 1;
-          }
-          if (rowB.getGroupingValue("category") === "Всего") {
-            return -1;
-          }
-          return sortAllCategoriesByName(
-            (rowA.getGroupingValue("category") as string) ?? "",
-            (rowB.getGroupingValue("category") as string) ?? ""
-          );
-        },
-        enableEditing: false,
-      }),
       columnHelper.accessor((row) => costToString(row.average), {
         id: "average",
         header: "В среднем",
@@ -82,9 +46,6 @@ const usePlanningTableColumns = ({
         enableEditing: false,
         sortingFn: (rowA, rowB) =>
           rowA.original.average.comparedTo(rowB.original.average),
-        aggregationFn: getValueFromTotalRow,
-        AggregatedCell: ({ cell, row }) =>
-          row.getIsExpanded() ? "" : cell.getValue(),
       }),
       columnHelper.accessor("lastMonth", {
         header: "Прошлый месяц",
@@ -96,36 +57,54 @@ const usePlanningTableColumns = ({
             rowB.original.lastMonth.spendings
           ),
         aggregationFn: getValueFromTotalRow,
-        AggregatedCell: ({ cell, row }) =>
-          row.getIsExpanded() ? (
-            ""
-          ) : (
-            <LastMonthCellRenderer value={cell.getValue()} />
-          ),
+        AggregatedCell: ({ cell }) => (
+          <LastMonthCellRenderer value={cell.getValue()} />
+        ),
       }),
       columnHelper.accessor("sum", {
         header: "План",
         size: 200,
-        Cell: ({ cell }) => (
+        Cell: ({ cell, row }) => (
           <CostCellRenderer
             cost={cell.getValue()}
-            subscriptions={cell.row.original.subscriptions}
-            data={cell.row.original}
-            saveSum={saveSum}
+            subscriptions={row.original.subscriptions}
+            data={row.original}
+            saveSum={(
+              categoryId: number,
+              subcategoryId: number | null,
+              sum: Decimal
+            ) => saveSum(categoryId, subcategoryId, sum, row)}
             transferPersonalExpense={transferPersonalExpense}
+            parentData={cell.row.getParentRow()?.original ?? null}
+            showSubcategoriesTooltip={
+              (cell.row.depth === 1 &&
+                cell.row.original.subRows
+                  ?.filter((r) => !r.isRestRow)
+                  ?.some((r) => !r.sum?.isZero())) ??
+              false
+            }
           />
         ),
         enableEditing: ({ original, depth }) =>
           depth > 0 &&
-          original?.categoryId !== TOTAL_ROW_CATEGORY_ID &&
-          original?.categoryType !== "FROM_SAVINGS",
+          original.categoryId !== TOTAL_ROW_CATEGORY_ID &&
+          original.categoryType !== "FROM_SAVINGS" &&
+          (!original.subRows ||
+            original.subRows
+              .filter((row) => !row.isRestRow)
+              .every((r) => !r.sum || r.sum.isZero())),
         muiEditTextFieldProps: ({ row, table }) => ({
           type: "number",
           onBlur: (event) => {
             const { value } = event.target;
             const parsed = new Decimal(value || 0);
-            if (!parsed.isNaN()) {
-              void saveSum(row.original.categoryId, parsed);
+            if (!parsed.isNaN() && row.original.categoryId !== null) {
+              void saveSum(
+                row.original.categoryId,
+                row.original.subcategoryId,
+                parsed,
+                row
+              );
             }
           },
           onKeyDown: (event) => {
@@ -139,19 +118,6 @@ const usePlanningTableColumns = ({
           (rowA.original.sum ?? new Decimal(0)).comparedTo(
             rowB.original.sum ?? new Decimal(0)
           ),
-        aggregationFn: getValueFromTotalRow,
-        AggregatedCell: ({ cell, row }) =>
-          row.getIsExpanded() ? (
-            ""
-          ) : (
-            <CostCellRenderer
-              cost={cell.getValue()}
-              subscriptions={row.original.subscriptions}
-              data={cell.row.original}
-              saveSum={saveSum}
-              transferPersonalExpense={transferPersonalExpense}
-            />
-          ),
       }),
       columnHelper.accessor("thisMonth", {
         header: "Факт",
@@ -163,23 +129,28 @@ const usePlanningTableColumns = ({
             rowB.original.thisMonth.spendings
           ),
         aggregationFn: getValueFromTotalRow,
-        AggregatedCell: ({ cell, row }) =>
-          row.getIsExpanded() ? (
-            ""
-          ) : (
-            <ThisMonthCellRenderer value={cell.getValue()} />
-          ),
+        AggregatedCell: ({ cell }) => (
+          <ThisMonthCellRenderer value={cell.getValue()} />
+        ),
       }),
       columnHelper.accessor("comment", {
         header: "Комментарий",
         enableSorting: false,
         size: 200,
         enableEditing: ({ original, depth }) =>
-          depth > 0 && original?.categoryId !== TOTAL_ROW_CATEGORY_ID,
+          depth > 0 &&
+          original?.categoryId !== TOTAL_ROW_CATEGORY_ID &&
+          !original?.isRestRow,
         muiEditTextFieldProps: ({ row }) => ({
           onBlur: (event) => {
             const { value } = event.target;
-            void saveComment(row.original.categoryId, value);
+            if (row.original.categoryId !== null) {
+              void saveComment(
+                row.original.categoryId,
+                row.original.subcategoryId,
+                value
+              );
+            }
           },
         }),
       }),

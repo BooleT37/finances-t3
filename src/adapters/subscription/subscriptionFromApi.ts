@@ -11,6 +11,12 @@ export function adaptSubscriptionFromApi(
     subscription.name,
     subscription.cost,
     dataStores.categoriesStore.getById(subscription.categoryId),
+    subscription.subcategoryId === null
+      ? null
+      : dataStores.categoriesStore.getSubcategoryById(
+          subscription.categoryId,
+          subscription.subcategoryId
+        ),
     subscription.period,
     dayjs.utc(subscription.firstDate),
     subscription.active,

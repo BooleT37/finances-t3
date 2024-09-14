@@ -1,10 +1,11 @@
 import dayjs, { type Dayjs } from "dayjs";
 import type Decimal from "decimal.js";
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable, observable } from "mobx";
 import { trpc } from "~/utils/api";
 import costToString from "~/utils/costToString";
 import type Category from "./Category";
 import type Source from "./Source";
+import type Subcategory from "./Subcategory";
 
 const today = dayjs();
 
@@ -36,6 +37,7 @@ export default class Subscription {
   name: string;
   cost: Decimal;
   category: Category;
+  subcategory: Subcategory | null;
   period: number;
   firstDate: Dayjs;
   active: boolean;
@@ -46,27 +48,36 @@ export default class Subscription {
     name: string,
     cost: Decimal,
     category: Category,
+    subcategory: Subcategory | null,
     period: number,
     firstDate: Dayjs,
     active: boolean,
     source: Source | null = null
   ) {
-    makeAutoObservable(this);
-
     this.id = id;
     this.name = name;
     this.cost = cost;
     this.category = category;
+    this.subcategory = subcategory;
     this.period = period;
     this.firstDate = firstDate;
     this.source = source;
     this.active = active;
+    makeAutoObservable(
+      this,
+      { subcategory: observable, source: observable },
+      { autoBind: true }
+    );
   }
 
   get costString(): string {
     return `${costToString(this.cost)}/${Subscription.periodToString(
       this.period
     )}`;
+  }
+
+  get subcategoryId(): number | null {
+    return this.subcategory?.id ?? null;
   }
 
   get nextDate(): Dayjs {

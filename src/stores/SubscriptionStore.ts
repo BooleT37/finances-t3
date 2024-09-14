@@ -8,7 +8,6 @@ import {
 } from "~/adapters/subscription/subscriptionToApi";
 import type { ForecastSubscriptionsItem } from "~/types/forecast/forecastTypes";
 import { trpc } from "~/utils/api";
-import type Category from "../models/Category";
 import type Subscription from "../models/Subscription";
 import { type SubscriptionFormValues } from "../models/Subscription";
 import { type DataLoader } from "./dataStores";
@@ -135,12 +134,14 @@ export default class SubscriptionStore
   getSubscriptionsForForecast(
     month: number,
     year: number,
-    category: Category | null
+    categoryId: number | null,
+    subcategoryId: number | null
   ): ForecastSubscriptionsItem[] {
     return this.activeSubscriptions
       .filter(
         (subscription) =>
-          (!category || subscription.category.id === category.id) &&
+          (categoryId === null || subscription.category.id === categoryId) &&
+          subscription.subcategoryId === subcategoryId &&
           subscription.isInMonth(month, year)
       )
       .map(subscriptionToItem);

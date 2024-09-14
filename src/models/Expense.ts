@@ -72,7 +72,6 @@ export default class Expense {
     } | null = null,
     actualDate: Dayjs | null
   ) {
-    makeAutoObservable(this, undefined, { autoBind: true });
     this.id = id;
     this.cost = cost;
     this.replaceComponents(components);
@@ -84,6 +83,7 @@ export default class Expense {
     this.subscription = subscription;
     this.savingSpending = savingSpending;
     this.actualDate = actualDate;
+    makeAutoObservable(this, { subcategory: observable }, { autoBind: true });
   }
 
   replaceComponents(newComponents: ExpenseComponentData[]): void {
@@ -105,6 +105,10 @@ export default class Expense {
           )
       )
     );
+  }
+
+  get subcategoryId(): number | null {
+    return this.subcategory?.id ?? null;
   }
 
   get tableDataName(): string {

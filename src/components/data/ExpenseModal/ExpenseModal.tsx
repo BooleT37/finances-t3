@@ -34,7 +34,7 @@ function expenseToFormValues(expense: Expense): FormValues {
   return {
     cost: String(expense.cost),
     category: expense.category.id ?? null,
-    subcategory: expense.subcategory?.id ?? undefined,
+    subcategory: expense.subcategoryId ?? undefined,
     name: expense.name || "",
     date: expense.date,
     source: expense.source?.id ?? undefined,

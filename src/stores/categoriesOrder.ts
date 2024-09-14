@@ -40,3 +40,13 @@ export const sortAllCategoriesByName = action(
     );
   }
 );
+
+export const sortAllCategoriesById = action(
+  (category1Id: number, category2Id: number) =>
+    sortAllCategories(
+      category1Id,
+      category2Id,
+      dataStores.userSettingsStore.expenseCategoriesOrder,
+      dataStores.userSettingsStore.incomeCategoriesOrder
+    )
+);

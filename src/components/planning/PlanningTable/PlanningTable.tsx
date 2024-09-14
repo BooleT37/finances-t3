@@ -1,55 +1,28 @@
-import type Decimal from "decimal.js";
 import {
   MaterialReactTable,
   MRT_ExpandButton,
   useMaterialReactTable,
+  type MRT_ExpandedState,
 } from "material-react-table";
 import { MRT_Localization_RU } from "material-react-table/locales/ru";
 import { observer } from "mobx-react";
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { dataStores } from "~/stores/dataStores";
-import type { ForecastTableItemGroup } from "~/stores/ForecastStore/types";
+import { useHandleCommentChange } from "./useHandleCommentChange";
+import { useHandleSumChange } from "./useHandleSumChange";
 import usePlanningTableColumns from "./usePlanningTableColumns";
-
-const GROUP_TRANSLATIONS: Record<ForecastTableItemGroup, string> = {
-  expense: "Расходы",
-  income: "Доходы",
-  personal: "Личные",
-  savings: "Сбережения",
-};
 
 interface Props {
   month: number;
   year: number;
-  // tableInstanceRef: React.MutableRefObject<MRT_TableInstance<TableData> | null>;
 }
 
 const PlanningTable: React.FC<Props> = observer(function PlanningTable({
   month,
   year,
 }) {
-  const saveSum = useCallback(
-    async (categoryId: number, sum: Decimal) => {
-      await dataStores.forecastStore.changeForecastSum(
-        dataStores.categoriesStore.getById(categoryId),
-        month,
-        year,
-        sum
-      );
-    },
-    [month, year]
-  );
-  const saveComment = useCallback(
-    async (categoryId: number, comment: string) => {
-      await dataStores.forecastStore.changeForecastComment(
-        dataStores.categoriesStore.getById(categoryId),
-        month,
-        year,
-        comment
-      );
-    },
-    [month, year]
-  );
+  const saveSum = useHandleSumChange({ month, year });
+  const saveComment = useHandleCommentChange({ month, year });
   const transferPersonalExpense = useCallback(
     async (categoryId: number) => {
       await dataStores.forecastStore.transferPersonalExpense(
@@ -69,10 +42,23 @@ const PlanningTable: React.FC<Props> = observer(function PlanningTable({
     month,
     year,
   });
+
+  // expanding all top level rows
+  const initialExpandedRootRows = useMemo<MRT_ExpandedState>(
+    () =>
+      data
+        .map((originalRow) => originalRow.tableId)
+        .reduce((a, v) => ({ ...a, [v]: true }), {}),
+    [data]
+  );
+
   const table = useMaterialReactTable({
+    enableExpandAll: true,
+    enableExpanding: true,
     editDisplayMode: "cell",
     columns,
     data,
+    getRowId: (row) => row.tableId,
     enableEditing: true,
     enableGrouping: true,
     enableTopToolbar: false,
@@ -81,44 +67,31 @@ const PlanningTable: React.FC<Props> = observer(function PlanningTable({
     enablePagination: false,
     groupedColumnMode: "remove",
     enableColumnActions: false,
+    muiTableBodyRowProps: ({ row }) => ({
+      sx: {
+        backgroundColor: row.depth === 0 ? "#efefef" : undefined,
+      },
+    }),
     initialState: {
-      grouping: ["group"],
-      expanded: true,
-      sorting: [{ id: "category", desc: false }],
+      expanded: initialExpandedRootRows,
       density: "compact",
-      columnVisibility: { group: false, category: false },
     },
     displayColumnDefOptions: {
       "mrt-row-expand": {
         Header: "Категория",
+        size: 200,
         Cell: ({ row, table }) => {
           return (
             <div style={{ lineHeight: "40px" }}>
               <MRT_ExpandButton row={row} table={table} />
-              {row.getIsGrouped()
-                ? GROUP_TRANSLATIONS[row.original.group]
-                : row.original.categoryShortname}
+              {row.original.name}
             </div>
           );
         },
-        size: 200,
       },
     },
     localization: MRT_Localization_RU,
   });
-
-  // const expandCategory = React.useCallback((category: string) => {
-  //   setTimeout(() => {
-  //     if (!gridRef.current) {
-  //       return;
-  //     }
-  //     gridRef.current.api.forEachNode((node) => {
-  //       if (node.key === category) {
-  //         node.setExpanded(true);
-  //       }
-  //     });
-  //   }, 0);
-  // }, []);
 
   return <MaterialReactTable table={table} />;
 });

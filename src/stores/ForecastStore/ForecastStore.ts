@@ -1,24 +1,36 @@
-import { makeAutoObservable, observable } from "mobx";
+import { makeAutoObservable, observable, runInAction } from "mobx";
 import { computedFn } from "mobx-utils";
 import { adaptForecastFromApi } from "~/adapters/forecast/forecastFromApi";
-import { MONTH_DATE_FORMAT } from "~/utils/constants";
-import countUniqueMonths from "~/utils/countUniqueMonths";
 
 import type { Forecast as ApiForecast } from "@prisma/client";
 import Decimal from "decimal.js";
+import { isNil } from "lodash";
 import type Category from "~/models/Category";
-import { TOTAL_ROW_CATEGORY_ID } from "~/models/Category";
-import Forecast from "~/models/Forecast";
+import Forecast, { generateForecastTableId } from "~/models/Forecast";
+import Subcategory from "~/models/Subcategory";
 import { trpc } from "~/utils/api";
+import { MONTH_DATE_FORMAT } from "~/utils/constants";
+import countUniqueMonths from "~/utils/countUniqueMonths";
 import { decimalSum } from "~/utils/decimalSum";
+import { getPreviousMonth } from "~/utils/getPreviousMonth";
 import { negateIf } from "~/utils/negateIf";
+import { sortAllCategoriesById } from "../categoriesOrder";
 import type { DataLoader } from "../dataStores";
 import { dataStores } from "../dataStores/DataStores";
 import { type ForecastTableItem, type ForecastTableItemGroup } from "./types";
-import { avgForNonEmpty, getPreviousMonth } from "./utils";
 
+function avgForNonEmpty(values: Decimal[]): Decimal {
+  if (values.length === 0) {
+    return new Decimal(0);
+  }
+  const filtered = values.filter((value) => !isNil(value));
+
+  return decimalSum(...filtered).div(filtered.length);
+}
+
+export const REST_SUBCATEGORY_ID = -1;
 export default class ForecastStore implements DataLoader<ApiForecast[]> {
-  public forecasts = observable.array<Forecast>();
+  private allForecasts = observable.array<Forecast>();
   inited = false;
 
   constructor() {
@@ -30,73 +42,197 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
   }
 
   init(forecasts: ApiForecast[]) {
-    this.forecasts.replace(forecasts.map(adaptForecastFromApi));
+    this.allForecasts.replace(forecasts.map(adaptForecastFromApi));
     this.inited = true;
   }
 
-  find(year: number, month: number, category: Category) {
-    return this.forecasts.find(
+  get categoriesForecasts() {
+    return this.allForecasts.filter((f) => f.subcategory === null);
+  }
+
+  get subcategoriesForecasts() {
+    return this.allForecasts.filter((f) => f.subcategory !== null);
+  }
+
+  getCategoryForecast({
+    categoryId,
+    month,
+    year,
+  }: {
+    categoryId: number;
+    month: number;
+    year: number;
+  }) {
+    return this.categoriesForecasts.find(
       (f) =>
-        f.year === year && f.month === month && f.category.id === category.id
+        f.category.id === categoryId && f.month === month && f.year === year
     );
+  }
+
+  getSubcategoryForecast({
+    categoryId,
+    subcategoryId,
+    month,
+    year,
+  }: {
+    categoryId: number;
+    subcategoryId: number;
+    month: number;
+    year: number;
+  }) {
+    return this.subcategoriesForecasts.find(
+      (f) =>
+        f.category.id === categoryId &&
+        f.subcategoryId === subcategoryId &&
+        f.month === month &&
+        f.year === year
+    );
+  }
+
+  getCategoryOrSubcategoryForecast({
+    categoryId,
+    subcategoryId,
+    month,
+    year,
+  }: {
+    categoryId: number;
+    subcategoryId: number | null;
+    month: number;
+    year: number;
+  }) {
+    return this.allForecasts.find(
+      (f) =>
+        f.category.id === categoryId &&
+        (f.subcategory?.id ?? null) === subcategoryId &&
+        f.month === month &&
+        f.year === year
+    );
+  }
+
+  private getSubRowsForForecast(forecast: Forecast): ForecastTableItem[] {
+    const subRows = this.subcategoriesForecasts
+      .filter(
+        (f) =>
+          f.category.id === forecast.category.id &&
+          f.month === forecast.month &&
+          f.year === forecast.year
+      )
+      .map((f) => this.forecastToTableItem({ forecast: f, isFake: false }));
+    forecast.category.subcategories.forEach((subcategory) => {
+      if (!subRows.some((f) => f.subcategoryId === subcategory.id)) {
+        subRows.push(
+          this.forecastToTableItem({
+            forecast: new Forecast(
+              forecast.category,
+              subcategory,
+              forecast.month,
+              forecast.year,
+              new Decimal(0),
+              ""
+            ),
+            isFake: true,
+          })
+        );
+      }
+    });
+    const subcategoryIdToIndex: Record<number, number> = Object.fromEntries(
+      forecast.category.subcategories.map((subcategory, index) => [
+        subcategory.id,
+        index,
+      ])
+    );
+    subRows.sort(
+      (a, b) =>
+        // all the ?? are just to make TS happy
+        (subcategoryIdToIndex[a.subcategoryId ?? -1] ?? 0) -
+        (subcategoryIdToIndex[b.subcategoryId ?? -1] ?? 0)
+    );
+    if (!subRows.every((f) => f.isFake)) {
+      subRows.push(
+        this.forecastToTableItem({
+          forecast: new Forecast(
+            forecast.category,
+            new Subcategory(REST_SUBCATEGORY_ID, "Другое"),
+            forecast.month,
+            forecast.year,
+            forecast.sum.minus(
+              decimalSum(
+                ...subRows.map((f) => f.sum).filter((sum) => sum !== null)
+              )
+            ),
+            ""
+          ),
+          isFake: true,
+        })
+      );
+    }
+    return subRows;
   }
 
   private forecastToTableItem = ({
     forecast,
-    year,
-    month,
+    subRows,
+    isFake,
   }: {
     forecast: Forecast;
-    year: number;
-    month: number;
+    subRows?: ForecastTableItem[];
+    isFake?: boolean;
   }): ForecastTableItem => {
-    const { month: prevMonth, year: prevYear } = getPreviousMonth(
-      forecast.month,
-      forecast.year
-    );
     const lastMonthForecast =
-      this.forecasts.find(
-        ({ category, month, year }) =>
-          category === forecast.category &&
-          month === prevMonth &&
-          year === prevYear
-      )?.sum ?? new Decimal(0);
+      this.getCategoryOrSubcategoryForecast({
+        categoryId: forecast.category.id,
+        subcategoryId: forecast.subcategoryId,
+        month: forecast.previousMonth,
+        year: forecast.previousYear,
+      })?.sum ?? new Decimal(0);
 
     const lastMonthSpendings = dataStores.expenseStore.totalPerMonthForCategory(
       {
-        year: prevYear,
-        month: prevMonth,
+        year: forecast.previousYear,
+        month: forecast.previousMonth,
         categoryId: forecast.category.id,
+        subcategoryId: forecast.subcategoryId,
       }
     );
 
     const thisMonthSpendings = dataStores.expenseStore.totalPerMonthForCategory(
       {
-        year,
-        month,
+        year: forecast.year,
+        month: forecast.month,
         categoryId: forecast.category.id,
+        subcategoryId: forecast.subcategoryId,
       }
     );
 
-    const { toSavings, isIncome, isPersonal, isSavings } = forecast.category;
-    const group: ForecastTableItemGroup = isIncome
+    const { toSavings, isIncome } = forecast.category;
+
+    const group: ForecastTableItemGroup = forecast.category.isIncome
       ? "income"
-      : isPersonal
-      ? "personal"
-      : isSavings
+      : forecast.category.isSavings
       ? "savings"
-      : "expense";
+      : ("expense" as const);
 
     return {
+      tableId: generateForecastTableId({
+        group,
+        categoryId: forecast.category.id,
+        subcategoryId: forecast.subcategoryId,
+      }),
       group,
-      category: forecast.category.name,
+      name: forecast.subcategory
+        ? forecast.subcategory.name
+        : forecast.category.shortname,
       categoryId: forecast.category.id,
-      categoryShortname: forecast.category.shortname,
       categoryType: forecast.category.type,
+      subcategoryId: forecast.subcategoryId,
       average: avgForNonEmpty(
         Object.values(
           dataStores.expenseStore.expensesAndComponents
-            .filter((e) => e.category.id === forecast.category.id)
+            .filter(
+              (e) =>
+                e.category.id === forecast.category.id &&
+                e.subcategoryId === forecast.subcategoryId
+            )
             .reduce<Record<string, Decimal>>((a, c) => {
               const month = c.date.format(MONTH_DATE_FORMAT);
               const averageForMonth = a[month];
@@ -111,7 +247,11 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
       ),
       monthsWithSpendings: `${countUniqueMonths(
         dataStores.expenseStore.expensesAndComponents
-          .filter((e) => e.category.id === forecast.category.id)
+          .filter(
+            (e) =>
+              e.category.id === forecast.category.id &&
+              e.subcategoryId === forecast.subcategoryId
+          )
           .map((e) => e.date)
       )} / ${dataStores.expenseStore.totalMonths} месяцев`,
       lastMonth: {
@@ -136,118 +276,178 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
       },
       sum: forecast.category.fromSavings ? null : forecast.sum,
       subscriptions: dataStores.subscriptionStore.getSubscriptionsForForecast(
-        month,
-        year,
-        forecast.category
+        forecast.month,
+        forecast.year,
+        forecast.category.id,
+        forecast.subcategoryId
       ),
       comment: forecast.comment ?? "",
+      isFake,
+      isRestRow: forecast.subcategoryId === REST_SUBCATEGORY_ID,
+      subRows,
     };
   };
 
-  getTotalRow = (
-    forecasts: ForecastTableItem[],
-    group: ForecastTableItemGroup,
-    month: number,
-    year: number
-  ): ForecastTableItem => ({
-    group,
-    average: decimalSum(...forecasts.map((d) => d.average)),
-    monthsWithSpendings: "",
-    category: "Всего",
-    categoryId: TOTAL_ROW_CATEGORY_ID,
-    categoryShortname: "Всего",
-    categoryType: null,
-    comment: "",
-    lastMonth: {
-      spendings: decimalSum(
-        ...forecasts.map((f) =>
-          negateIf(f.lastMonth.spendings, f.categoryType === "FROM_SAVINGS")
-        )
-      ),
-      diff:
-        group === "savings"
-          ? new Decimal(0)
-          : decimalSum(...forecasts.map((f) => f.lastMonth.diff)),
-      isIncome: false,
-    },
-    sum:
-      group === "savings"
-        ? null
-        : decimalSum(
-            ...forecasts.map((f) =>
-              negateIf(
-                f.sum ?? new Decimal(0),
-                f.categoryType === "FROM_SAVINGS"
-              )
-            )
-          ),
-
-    subscriptions:
-      group === "income"
-        ? []
-        : dataStores.subscriptionStore.getSubscriptionsForForecast(
-            month,
-            year,
-            null
-          ),
-    thisMonth: {
-      spendings: decimalSum(
-        ...forecasts.map((а) =>
-          negateIf(а.thisMonth.spendings, а.categoryType === "FROM_SAVINGS")
-        )
-      ),
-      diff:
-        group === "savings"
-          ? new Decimal(0)
-          : decimalSum(...forecasts.map((f) => f.thisMonth.diff)),
-      isIncome: false,
-    },
-  });
-
   tableData = computedFn(
     ({ year, month }: { year: number; month: number }): ForecastTableItem[] => {
-      const filtered = this.forecasts.filter((forecast) => {
-        return forecast.month === month && forecast.year === year;
+      const thisMonthForecasts = this.categoriesForecasts
+        .filter((forecast) => {
+          return forecast.month === month && forecast.year === year;
+        })
+        .map((forecast) =>
+          this.forecastToTableItem({
+            forecast,
+            subRows: this.getSubRowsForForecast(forecast),
+            isFake: false,
+          })
+        );
+
+      dataStores.categoriesStore.categories.forEach((category) => {
+        if (thisMonthForecasts.every((f) => f.categoryId !== category.id)) {
+          const fakeForecast = new Forecast(
+            category,
+            null,
+            month,
+            year,
+            new Decimal(0),
+            ""
+          );
+          thisMonthForecasts.push(
+            this.forecastToTableItem({
+              forecast: fakeForecast,
+              subRows: this.getSubRowsForForecast(fakeForecast),
+              isFake: true,
+            })
+          );
+        }
       });
 
-      dataStores.categoriesStore.categories
-        .slice()
-        .sort((a, b) => a.id - b.id)
-        .forEach((category) => {
-          if (filtered.every((f) => f.category.id !== category.id)) {
-            filtered.push(new Forecast(category, month, year, new Decimal(0)));
-          }
-        });
-
-      const data: ForecastTableItem[] = filtered.map((forecast) =>
-        this.forecastToTableItem({ forecast, year, month })
+      thisMonthForecasts.sort((a, b) =>
+        sortAllCategoriesById(a.categoryId ?? -1, b.categoryId ?? -1)
       );
 
-      const groups: ForecastTableItemGroup[] = [
-        "expense",
-        "income",
-        "personal",
-        "savings",
+      const expensesForecasts = thisMonthForecasts.filter(
+        (f) => f.group === "expense"
+      );
+
+      const incomeForecasts = thisMonthForecasts.filter(
+        (f) => f.group === "income"
+      );
+
+      const savingsForecasts = thisMonthForecasts.filter(
+        (f) => f.group === "savings"
+      );
+
+      return [
+        {
+          name: "Расходы",
+          tableId: generateForecastTableId({
+            group: "expense",
+            categoryId: null,
+            subcategoryId: null,
+          }),
+          group: "expense",
+          categoryId: null,
+          categoryType: null,
+          subcategoryId: null,
+          average: decimalSum(...expensesForecasts.map((f) => f.average)),
+          monthsWithSpendings: "",
+          lastMonth: {
+            spendings: decimalSum(
+              ...expensesForecasts.map((f) => f.lastMonth.spendings)
+            ),
+            diff: decimalSum(...expensesForecasts.map((f) => f.lastMonth.diff)),
+            isIncome: false,
+          },
+          thisMonth: {
+            spendings: decimalSum(
+              ...expensesForecasts.map((f) => f.thisMonth.spendings)
+            ),
+            diff: decimalSum(...expensesForecasts.map((f) => f.thisMonth.diff)),
+            isIncome: false,
+          },
+          sum: decimalSum(
+            ...expensesForecasts.map((f) => f.sum ?? new Decimal(0))
+          ),
+          subscriptions: expensesForecasts.flatMap((f) => f.subscriptions),
+          comment: "",
+          subRows: expensesForecasts,
+        },
+        {
+          name: "Сбережения",
+          tableId: generateForecastTableId({
+            group: "savings",
+            categoryId: null,
+            subcategoryId: null,
+          }),
+          group: "savings",
+          categoryId: null,
+          categoryType: null,
+          subcategoryId: null,
+          average: decimalSum(...savingsForecasts.map((f) => f.average)),
+          monthsWithSpendings: "",
+          lastMonth: {
+            spendings: decimalSum(
+              ...savingsForecasts.map((f) => f.lastMonth.spendings)
+            ),
+            diff: decimalSum(...savingsForecasts.map((f) => f.lastMonth.diff)),
+            isIncome: false,
+          },
+          thisMonth: {
+            spendings: decimalSum(
+              ...savingsForecasts.map((f) => f.thisMonth.spendings)
+            ),
+            diff: decimalSum(...savingsForecasts.map((f) => f.thisMonth.diff)),
+            isIncome: false,
+          },
+          sum: decimalSum(
+            ...savingsForecasts.map((f) => f.sum ?? new Decimal(0))
+          ),
+          subscriptions: savingsForecasts.flatMap((f) => f.subscriptions),
+          comment: "",
+          subRows: savingsForecasts,
+        },
+        {
+          name: "Доходы",
+          tableId: generateForecastTableId({
+            group: "income",
+            categoryId: null,
+            subcategoryId: null,
+          }),
+          group: "income",
+          categoryId: null,
+          categoryType: null,
+          subcategoryId: null,
+          average: decimalSum(...incomeForecasts.map((f) => f.average)),
+          monthsWithSpendings: "",
+          lastMonth: {
+            spendings: decimalSum(
+              ...incomeForecasts.map((f) => f.lastMonth.spendings)
+            ),
+            diff: decimalSum(...incomeForecasts.map((f) => f.lastMonth.diff)),
+            isIncome: true,
+          },
+          thisMonth: {
+            spendings: decimalSum(
+              ...incomeForecasts.map((f) => f.thisMonth.spendings)
+            ),
+            diff: decimalSum(...incomeForecasts.map((f) => f.thisMonth.diff)),
+            isIncome: true,
+          },
+          sum: decimalSum(
+            ...incomeForecasts.map((f) => f.sum ?? new Decimal(0))
+          ),
+          subscriptions: incomeForecasts.flatMap((f) => f.subscriptions),
+          comment: "",
+          subRows: incomeForecasts,
+        },
       ];
-
-      data.push(
-        ...groups.map((group) =>
-          this.getTotalRow(
-            data.filter((d) => d.group === "expense"),
-            group,
-            month,
-            year
-          )
-        )
-      );
-
-      return data;
     }
   );
 
   totalForMonth(year: number, month: number, isIncome: boolean) {
     return decimalSum(
-      ...this.forecasts
+      ...this.categoriesForecasts
         .filter(
           (forecast) =>
             forecast.month === month &&
@@ -262,7 +462,7 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
   categoriesForecast = computedFn(
     (year: number, month: number): Record<number, Decimal> => {
       const forecast = Object.fromEntries(
-        this.forecasts
+        this.categoriesForecasts
           .filter((f) => f.month === month && f.year === year)
           .map((f) => [f.category.id, f.sum])
       );
@@ -272,42 +472,54 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
 
   async changeForecastSum(
     category: Category,
+    subcategory: Subcategory | null,
     month: number,
     year: number,
     sum: Decimal
   ): Promise<Forecast> {
-    const forecast = this.forecasts.find(
-      (f) =>
-        f.category.id === category.id && f.month === month && f.year === year
-    );
+    const subcategoryId = subcategory?.id ?? null;
+    const forecast = this.getCategoryOrSubcategoryForecast({
+      categoryId: category.id,
+      subcategoryId,
+      month,
+      year,
+    });
     if (forecast) {
       if (!forecast.sum.eq(sum)) {
         forecast.sum = sum;
       }
     } else {
-      this.forecasts.push(new Forecast(category, month, year, sum, ""));
+      this.allForecasts.push(
+        new Forecast(category, subcategory, month, year, sum, "")
+      );
     }
     const response = await trpc.forecast.upsert.mutate({
       categoryId: category.id,
+      subcategoryId,
       month,
       year,
       sum,
     });
-    return adaptForecastFromApi(response);
+    return runInAction(() => adaptForecastFromApi(response));
   }
 
   async changeForecastComment(
     category: Category,
+    subcategory: Subcategory | null,
     month: number,
     year: number,
     comment: string
   ): Promise<Forecast> {
-    const forecast = this.forecasts.find(
-      (f) =>
-        f.category.id === category.id && f.month === month && f.year === year
-    );
+    const subcategoryId = subcategory?.id ?? null;
+    const forecast = this.getCategoryOrSubcategoryForecast({
+      categoryId: category.id,
+      subcategoryId,
+      month,
+      year,
+    });
     const potentiallyNewForecast = new Forecast(
       category,
+      subcategory,
       month,
       year,
       new Decimal(0),
@@ -316,10 +528,11 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
     if (forecast) {
       forecast.comment = comment;
     } else {
-      this.forecasts.push(potentiallyNewForecast);
+      this.allForecasts.push(potentiallyNewForecast);
     }
     const response = await trpc.forecast.upsert.mutate({
       categoryId: category.id,
+      subcategoryId,
       month,
       year,
       comment,
@@ -335,7 +548,11 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
     const { pePerMonth } = dataStores.userSettingsStore;
     const category = dataStores.categoriesStore.getById(categoryId);
     const { month: prevMonth, year: prevYear } = getPreviousMonth(month, year);
-    const prevMonthForecast = this.find(prevYear, prevMonth, category);
+    const prevMonthForecast = this.getCategoryForecast({
+      year: prevYear,
+      month: prevMonth,
+      categoryId: category.id,
+    });
     if (!prevMonthForecast) {
       alert("Сначала заполните прогноз за прошлый месяц!");
       return;
@@ -344,10 +561,11 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
       year: prevYear,
       month: prevMonth,
       categoryId,
+      subcategoryId: null,
     });
     const correctedSum = prevMonthForecast.sum
       .minus(prevMonthSpends)
       .plus(pePerMonth ?? new Decimal(0));
-    return this.changeForecastSum(category, month, year, correctedSum);
+    return this.changeForecastSum(category, null, month, year, correctedSum);
   }
 }

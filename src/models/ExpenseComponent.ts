@@ -1,6 +1,6 @@
 import { type ExpenseComponent as ExpenseComponentApi } from "@prisma/client";
 import type Decimal from "decimal.js";
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable, observable } from "mobx";
 import { DATE_FORMAT } from "~/utils/constants";
 import type Category from "./Category";
 import type Expense from "./Expense";
@@ -22,16 +22,20 @@ export class ExpenseComponent implements ExpenseComponentApi {
     subcategory: Subcategory | null,
     public parentExpense: Expense
   ) {
-    makeAutoObservable(this, {}, { autoBind: true });
     this.id = id;
     this.name = name;
     this.cost = cost;
     this.category = category;
     this.subcategory = subcategory;
+    makeAutoObservable(this, { subcategory: observable }, { autoBind: true });
   }
 
   get expenseId() {
     return this.parentExpense.id;
+  }
+
+  get subcategoryId() {
+    return this.subcategory?.id ?? null;
   }
 
   get tableName(): string {
@@ -77,17 +81,13 @@ export class ExpenseComponent implements ExpenseComponentApi {
     return this.category.id;
   }
 
-  get subcategoryId(): number | null {
-    return this.subcategory?.id ?? null;
-  }
-
   get asData(): ExpenseComponentData {
     return {
       id: this.id,
       name: this.name,
       cost: this.cost,
       categoryId: this.categoryId,
-      subcategoryId: this.subcategory?.id ?? null,
+      subcategoryId: this.subcategoryId,
     };
   }
 

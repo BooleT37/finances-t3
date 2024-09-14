@@ -12,6 +12,7 @@ export const forecastRouter = createTRPCRouter({
       z
         .object({
           categoryId: z.number(),
+          subcategoryId: z.number().nullable(),
           month: z.number(),
           year: z.number(),
           sum: z.instanceof(Decimal).optional(),
@@ -22,36 +23,53 @@ export const forecastRouter = createTRPCRouter({
           "You need to specify either sum or comment"
         )
     )
-    .mutation(({ ctx, input }) =>
-      ctx.db.forecast.upsert({
+    .mutation(async ({ ctx, input }) => {
+      // cannot use upsert because the unique constraint does not support null subcategoryId
+      const existed = await ctx.db.forecast.findFirst({
         where: {
-          categoryId_month_year_userId: {
-            categoryId: input.categoryId,
-            month: input.month,
-            year: input.year,
-            userId: ctx.session.user.id,
-          },
+          categoryId: input.categoryId,
+          subcategoryId: input.subcategoryId,
+          month: input.month,
+          year: input.year,
+          userId: ctx.session.user.id,
         },
-        create: {
+      });
+      if (existed) {
+        return ctx.db.forecast.update({
+          where: {
+            id: existed.id,
+          },
+          data:
+            input.sum !== undefined
+              ? {
+                  sum: input.sum,
+                }
+              : {
+                  comment: input.comment,
+                },
+        });
+      }
+      return ctx.db.forecast.create({
+        data: {
           category: {
             connect: {
               id: input.categoryId,
             },
           },
+          subcategory:
+            input.subcategoryId !== null
+              ? {
+                  connect: {
+                    id: input.subcategoryId,
+                  },
+                }
+              : undefined,
           month: input.month,
           year: input.year,
           comment: input.comment ?? "",
           sum: input.sum ?? new Decimal(0),
           ...connectUser(ctx),
         },
-        update:
-          input.sum !== undefined
-            ? {
-                sum: input.sum,
-              }
-            : {
-                comment: input.comment,
-              },
-      })
-    ),
+      });
+    }),
 });
