@@ -217,23 +217,39 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
         year: forecast.previousYear,
       })?.sum ?? new Decimal(0);
 
-    const lastMonthSpendings = dataStores.expenseStore.totalPerMonthForCategory(
-      {
-        year: forecast.previousYear,
-        month: forecast.previousMonth,
-        categoryId: forecast.category.id,
-        subcategoryId: forecast.subcategoryId,
-      }
-    );
+    const lastMonthSpendings =
+      forecast.subcategoryId === null
+        ? dataStores.expenseStore.totalPerMonthForCategory({
+            year: forecast.previousYear,
+            month: forecast.previousMonth,
+            categoryId: forecast.category.id,
+          })
+        : dataStores.expenseStore.totalPerMonthForSubcategory({
+            year: forecast.previousYear,
+            month: forecast.previousMonth,
+            categoryId: forecast.category.id,
+            subcategoryId:
+              forecast.subcategoryId === REST_SUBCATEGORY_ID
+                ? null
+                : forecast.subcategoryId,
+          });
 
-    const thisMonthSpendings = dataStores.expenseStore.totalPerMonthForCategory(
-      {
-        year: forecast.year,
-        month: forecast.month,
-        categoryId: forecast.category.id,
-        subcategoryId: forecast.subcategoryId,
-      }
-    );
+    const thisMonthSpendings =
+      forecast.subcategoryId === null
+        ? dataStores.expenseStore.totalPerMonthForCategory({
+            year: forecast.year,
+            month: forecast.month,
+            categoryId: forecast.category.id,
+          })
+        : dataStores.expenseStore.totalPerMonthForSubcategory({
+            year: forecast.year,
+            month: forecast.month,
+            categoryId: forecast.category.id,
+            subcategoryId:
+              forecast.subcategoryId === REST_SUBCATEGORY_ID
+                ? null
+                : forecast.subcategoryId,
+          });
 
     const { toSavings, isIncome } = forecast.category;
 
@@ -633,7 +649,6 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
       year: prevYear,
       month: prevMonth,
       categoryId,
-      subcategoryId: null,
     });
     const correctedSum = prevMonthForecast.sum
       .minus(prevMonthSpends)
