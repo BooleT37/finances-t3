@@ -15,7 +15,6 @@ import type Subscription from "./Subscription";
 
 export interface CostCol {
   value: Decimal;
-  isIncome: boolean;
   isSubscription?: boolean;
   isUpcomingSubscription?: boolean;
   parentExpenseName?: string;
@@ -31,10 +30,12 @@ export interface TableData {
   categoryId: number;
   categoryShortname: string;
   subcategory: string | null;
+  subcategoryId: number | null;
   source: string;
   isUpcomingSubscription: boolean;
   expenseId: number | null;
   isIncome: boolean;
+  isContinuous: boolean;
 }
 
 // for new expenses we don't have expense id
@@ -141,19 +142,20 @@ export default class Expense {
               isUpcomingSubscription: false,
               costWithComponents:
                 this.components.length > 0 ? this.cost : undefined,
-              isIncome: this.category.isIncome,
             }
           : null,
       source: this.source?.name ?? "",
       category: this.category.name,
       subcategory:
         this.savingSpending?.spending.name ?? this.subcategory?.name ?? null,
+      subcategoryId: this.subcategoryId,
       date: this.date.format(DATE_FORMAT),
       categoryId: this.category.id,
       categoryShortname: this.category.shortname,
       isUpcomingSubscription: false,
       expenseId: null,
       isIncome: this.category.isIncome,
+      isContinuous: this.category.isContinuous,
     };
   }
 

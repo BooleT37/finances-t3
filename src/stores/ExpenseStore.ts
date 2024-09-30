@@ -436,6 +436,7 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
       categoryId: subscription.category.id,
       categoryShortname: subscription.category.shortname,
       subcategory: "",
+      subcategoryId: null,
       source: subscription.source?.name ?? "",
       cost: {
         value: subscription.cost,
@@ -449,31 +450,12 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
       name: subscription.name,
       expenseId: null,
       isIncome: false,
+      isContinuous: false,
     }));
     if (searchString) {
       rows = rows.filter((data) => data.name.includes(searchString));
     }
     return rows;
-  }
-
-  savingSpendingsForecast(year: number, month: number): Decimal {
-    if (this.expenses.length === 0) {
-      return new Decimal(0);
-    }
-    return decimalSum(
-      ...this.expenses
-        .filter(
-          (
-            expense
-          ): expense is Expense & {
-            savingSpending: NonNullable<Expense["savingSpending"]>;
-          } =>
-            expense.savingSpending !== null &&
-            expense.date.month() === month &&
-            expense.date.year() === year
-        )
-        .map((expense) => expense.savingSpending.category.forecast)
-    );
   }
 
   get boundaryDates(): [Dayjs, Dayjs] {

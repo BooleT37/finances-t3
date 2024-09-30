@@ -1,5 +1,4 @@
 import { Space } from "antd";
-import type Decimal from "decimal.js";
 import {
   MaterialReactTable,
   MRT_ExpandAllButton,
@@ -10,15 +9,18 @@ import {
 import { MRT_Localization_RU } from "material-react-table/locales/ru";
 import React, { useEffect } from "react";
 import { type TableData } from "~/models/Expense";
-import { sortAllCategoriesByName } from "~/stores/categoriesOrder";
+import {
+  sortAllCategoriesById,
+  sortSubcategories,
+} from "~/stores/categoriesOrder";
 import { useDataTableColumns } from "./columns/useDataTableColumns";
 import { RowActions } from "./RowActions";
 
 interface Props {
   data: TableData[];
-  categoriesForecast: Record<number, Decimal> | null;
-  savingSpendingsForecast: Decimal;
-  passedDaysRatio: number | null;
+  currentMonth: number;
+  currentYear: number;
+  isRangePicker: boolean;
   groupBySubcategories: boolean;
   tableInstanceRef: React.MutableRefObject<MRT_TableInstance<TableData> | null>;
 }
@@ -26,16 +28,16 @@ interface Props {
 // eslint-disable-next-line mobx/missing-observer
 export const DataTable: React.FC<Props> = ({
   data,
-  categoriesForecast,
-  passedDaysRatio,
-  savingSpendingsForecast,
   groupBySubcategories,
   tableInstanceRef,
+  currentYear,
+  currentMonth,
+  isRangePicker,
 }) => {
   const columns = useDataTableColumns({
-    categoriesForecast,
-    savingSpendingsForecast,
-    passedDaysRatio,
+    year: currentYear,
+    month: currentMonth,
+    isRangePicker,
   });
   const table = useMaterialReactTable({
     columns,
@@ -48,11 +50,14 @@ export const DataTable: React.FC<Props> = ({
     groupedColumnMode: "remove",
     enableColumnActions: true,
     initialState: {
-      grouping: ["isIncome", "category"],
+      grouping: ["isIncome", "categoryId"],
       expanded: true,
-      sorting: [{ id: "category", desc: false }],
+      sorting: [
+        { id: "categoryId", desc: false },
+        { id: "subcategoryId", desc: false },
+      ],
       density: "compact",
-      columnVisibility: { subcategory: false },
+      columnVisibility: { subcategoryId: false },
     },
     enableRowActions: true,
     renderRowActions: ({ row }) => {
@@ -83,7 +88,7 @@ export const DataTable: React.FC<Props> = ({
                 ? row.depth === 0
                   ? row.getGroupingValue("isIncome")
                   : row.depth === 1
-                  ? row.getGroupingValue("category")
+                  ? row.original.category
                   : row.original.subcategory ?? "<без подкатегории>"
                 : row.original.name}
             </>
@@ -96,9 +101,18 @@ export const DataTable: React.FC<Props> = ({
     sortingFns: {
       sortCategories: (rowA, rowB) => {
         return rowA.getIsGrouped() && rowB.getIsGrouped()
-          ? sortAllCategoriesByName(
-              (rowA.getGroupingValue("category") as string) ?? "",
-              (rowB.getGroupingValue("category") as string) ?? ""
+          ? sortAllCategoriesById(
+              (rowA.getGroupingValue("categoryId") as number) ?? "",
+              (rowB.getGroupingValue("categoryId") as number) ?? ""
+            )
+          : 0;
+      },
+      sortSubcategories: (rowA, rowB) => {
+        return rowA.getIsGrouped() && rowB.getIsGrouped()
+          ? sortSubcategories(
+              rowA.getGroupingValue("categoryId") as number,
+              rowA.getGroupingValue("subcategoryId") as number | null,
+              rowB.getGroupingValue("subcategoryId") as number | null
             )
           : 0;
       },
@@ -111,28 +125,15 @@ export const DataTable: React.FC<Props> = ({
     }),
   });
 
-  // const expandCategory = React.useCallback((category: string) => {
-  //   setTimeout(() => {
-  //     if (!gridRef.current) {
-  //       return;
-  //     }
-  //     gridRef.current.api.forEachNode((node) => {
-  //       if (node.key === category) {
-  //         node.setExpanded(true);
-  //       }
-  //     });
-  //   }, 0);
-  // }, []);
-
   useEffect(() => {
     tableInstanceRef.current = table;
   }, [table, tableInstanceRef]);
 
   useEffect(() => {
     if (groupBySubcategories) {
-      table.setGrouping(["isIncome", "category", "subcategory"]);
+      table.setGrouping(["isIncome", "categoryId", "subcategoryId"]);
     } else {
-      table.setGrouping(["isIncome", "category"]);
+      table.setGrouping(["isIncome", "categoryId"]);
     }
   }, [groupBySubcategories, table]);
 

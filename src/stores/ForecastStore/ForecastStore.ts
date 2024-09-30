@@ -109,6 +109,37 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
     );
   }
 
+  getRestForecastSum({
+    categoryId,
+    month,
+    year,
+  }: {
+    categoryId: number;
+    month: number;
+    year: number;
+  }): Decimal {
+    const categoryForecast = this.getCategoryForecast({
+      categoryId,
+      month,
+      year,
+    });
+    if (!categoryForecast) {
+      return new Decimal(0);
+    }
+    const subcategoriesSum = decimalSum(
+      ...this.subcategoriesForecasts
+        .filter(
+          (f) =>
+            f.category.id === categoryId && f.month === month && f.year === year
+        )
+        .map((f) => f.sum)
+    );
+    console.log({ categoryId });
+    console.log("subcategoriesSum", subcategoriesSum.toNumber());
+    console.log("categoryForecast.sum", categoryForecast.sum.toNumber());
+    return categoryForecast.sum.minus(subcategoriesSum);
+  }
+
   private getSubRowsForForecast(forecast: Forecast): ForecastTableItem[] {
     const subRows = this.subcategoriesForecasts
       .filter(
@@ -458,17 +489,6 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
         .map((f) => f.sum)
     );
   }
-
-  categoriesForecast = computedFn(
-    (year: number, month: number): Record<number, Decimal> => {
-      const forecast = Object.fromEntries(
-        this.categoriesForecasts
-          .filter((f) => f.month === month && f.year === year)
-          .map((f) => [f.category.id, f.sum])
-      );
-      return forecast;
-    }
-  );
 
   async changeForecastSum(
     category: Category,

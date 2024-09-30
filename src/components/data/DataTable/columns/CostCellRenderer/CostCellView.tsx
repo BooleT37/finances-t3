@@ -10,7 +10,6 @@ interface Props {
   isUpcomingSubscription?: boolean;
   parentExpenseName?: string;
   costWithComponents?: Decimal;
-  isIncome: boolean;
 }
 
 // eslint-disable-next-line mobx/missing-observer
@@ -20,11 +19,9 @@ const CostCellView: React.FC<Props> = ({
   isUpcomingSubscription,
   parentExpenseName,
   costWithComponents,
-  isIncome,
 }) => {
   const costElement = (
     <div>
-      {isIncome ? "+" : ""}
       {cost}&nbsp;
       {costWithComponents !== undefined && (
         <span style={{ color: "gray" }}>

@@ -62,7 +62,6 @@ export class ExpenseComponent implements ExpenseComponentApi {
               isSubscription: false,
               isUpcomingSubscription: false,
               parentExpenseName: this.parentExpense.name,
-              isIncome: this.category.isIncome,
             }
           : null,
       date: this.parentExpense.date.format(DATE_FORMAT),
@@ -70,10 +69,12 @@ export class ExpenseComponent implements ExpenseComponentApi {
       categoryId: this.categoryId,
       categoryShortname: this.parentExpense.category.shortname,
       subcategory: this.subcategory?.name ?? null,
+      subcategoryId: this.subcategoryId,
       source: this.parentExpense.source?.name ?? "",
       isUpcomingSubscription: false,
       expenseId: this.expenseId,
       isIncome: this.category.isIncome,
+      isContinuous: this.category.isContinuous,
     };
   }
 

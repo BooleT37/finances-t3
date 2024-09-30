@@ -1,68 +1,93 @@
 import React from "react";
 import TotalCostCellView from "~/components/TotalCostCellView";
-import { type AggCostCol } from "~/types/data";
 import costToString from "~/utils/costToString";
 
+import Decimal from "decimal.js";
+import type { CostCol } from "~/models/Expense";
 import CostCellView from "./CostCellView";
+import { getCostForecast } from "./getCostForecast";
 
 interface Props {
-  isSubcategory: boolean;
-  value: AggCostCol | null;
+  value: CostCol | null;
+  isIncome: boolean;
+  isContinuous: boolean;
   passedDaysRatio: number | null;
+  isSubcategoryRow: boolean;
+  categoryId: number | undefined;
+  subcategoryId: number | undefined;
+  isRangePicker: boolean;
+  month: number;
+  year: number;
 }
 
 // eslint-disable-next-line mobx/missing-observer
 const CostAggregatedCellRenderer: React.FC<Props> = ({
   value: col,
-  isSubcategory,
   passedDaysRatio,
+  isSubcategoryRow,
+  categoryId,
+  subcategoryId,
+  isIncome,
+  isRangePicker,
+  isContinuous,
+  month,
+  year,
 }) => {
   if (!col) {
     return null;
   }
-  const costString = costToString(col.value);
-  if (isSubcategory || col.diff === null) {
+  const { value } = col;
+  const costString = costToString(value);
+  if (isRangePicker) {
     return (
       <CostCellView
-        isIncome={col.isIncome}
         cost={costString}
         isSubscription={col.isSubscription}
         isUpcomingSubscription={col.isUpcomingSubscription}
       />
     );
   }
-  const diffNumber = col.diff.toNumber();
-  const valueNumber = col.value.toNumber();
-  const diffSum = costToString(col.diff.abs());
-  if (col.isIncome) {
-    if (col.diff.isPositive()) {
+
+  const forecast = getCostForecast({
+    categoryId,
+    isSubcategoryRow,
+    subcategoryId,
+    month,
+    year,
+    isIncome,
+  });
+  const diff = forecast !== undefined ? forecast.minus(value) : value.neg();
+  const diffNumber = diff.toNumber();
+  const valueNumber = value.toNumber();
+  const diffSum = costToString(diff.abs());
+  const tooltip = `План: ${costToString(forecast ?? new Decimal(0))}`;
+  if (isIncome) {
+    if (diff.isPositive()) {
       return (
         <TotalCostCellView
-          addPlus
           cost={costString}
           suffix={`-${diffSum}`}
           color="red"
-          barWidth={diffNumber / col.diff.plus(col.value).toNumber()}
+          barWidth={diffNumber / diff.plus(value).toNumber()}
+          tooltip={tooltip}
         />
       );
     }
     return (
       <TotalCostCellView
-        addPlus
         cost={costString}
-        suffix={`+${diffSum}`}
+        suffix={diffSum}
         color="green"
         barWidth={-diffNumber / valueNumber}
         barOffset={diffNumber / valueNumber + 1}
+        tooltip={tooltip}
       />
     );
   }
-  if (col.diff.isPositive()) {
+  if (diff.isPositive()) {
     const spentRatio = valueNumber / (diffNumber + valueNumber);
     const exceedingForecast =
-      col.isContinuous &&
-      passedDaysRatio !== null &&
-      spentRatio > passedDaysRatio;
+      isContinuous && passedDaysRatio !== null && spentRatio > passedDaysRatio;
     const color = exceedingForecast ? "orange" : "green";
 
     const exceedingAmount = exceedingForecast
@@ -75,10 +100,11 @@ const CostAggregatedCellRenderer: React.FC<Props> = ({
     return (
       <TotalCostCellView
         cost={costString}
-        suffix={`+${diffSum}`}
+        suffix={diffSum}
         color={color}
         barWidth={spentRatio}
         title={title}
+        tooltip={tooltip}
       />
     );
   }
@@ -93,6 +119,7 @@ const CostAggregatedCellRenderer: React.FC<Props> = ({
       color="red"
       barWidth={spentRatio}
       barOffset={offset}
+      tooltip={tooltip}
     />
   );
 };

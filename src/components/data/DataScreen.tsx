@@ -8,7 +8,6 @@ import {
 } from "@ant-design/icons";
 import { Button, Checkbox, DatePicker, Input, Space, Tooltip } from "antd";
 import dayjs, { type Dayjs } from "dayjs";
-import Decimal from "decimal.js";
 import { type MRT_TableInstance } from "material-react-table";
 import { action } from "mobx";
 import { observer } from "mobx-react";
@@ -154,30 +153,6 @@ const DataScreen = observer(function DataScreen() {
     setIsRangePicker((value) => !value);
   }, [isRangePicker, rangeEnd]);
 
-  const categoriesForecast =
-    isRangePicker || !rangeStart
-      ? null
-      : dataStores.forecastStore.categoriesForecast(
-          rangeStart.year(),
-          rangeStart.month()
-        );
-  const savingSpendingsForecast = rangeStart
-    ? dataStores.expenseStore.savingSpendingsForecast(
-        rangeStart.year(),
-        rangeStart.month()
-      )
-    : new Decimal(0);
-  const isCurrentMonth =
-    rangeStart &&
-    today.month() === rangeStart.month() &&
-    today.year() === rangeStart.year();
-
-  const passedDaysRatio = isRangePicker
-    ? null
-    : isCurrentMonth
-    ? today.date() / rangeStart.daysInMonth()
-    : 1;
-
   return (
     <>
       <SearchStyled
@@ -275,16 +250,16 @@ const DataScreen = observer(function DataScreen() {
         {rangeStart && rangeEnd && (
           <DataTable
             tableInstanceRef={tableInstanceRef}
-            categoriesForecast={categoriesForecast}
             data={dataStores.expenseStore.tableData(
               rangeStart,
               rangeEnd,
               search,
               upcSubscriptionsShown
             )}
-            passedDaysRatio={passedDaysRatio}
             groupBySubcategories={groupBySubcategories}
-            savingSpendingsForecast={savingSpendingsForecast}
+            currentMonth={rangeStart.month()}
+            currentYear={rangeStart.year()}
+            isRangePicker={isRangePicker}
           />
         )}
       </Space>

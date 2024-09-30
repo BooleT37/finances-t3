@@ -50,3 +50,37 @@ export const sortAllCategoriesById = action(
       dataStores.userSettingsStore.incomeCategoriesOrder
     )
 );
+
+export const sortSubcategories = action(
+  (
+    categoryId: number,
+    subcategory1Id: number | null,
+    subcategory2Id: number | null
+  ) => {
+    const subcategories =
+      dataStores.categoriesStore.getById(categoryId).subcategories;
+    if (subcategory1Id === null) {
+      return 1;
+    }
+    if (subcategory2Id === null) {
+      return -1;
+    }
+    const subcategoriesOrder = subcategories.map(
+      (subcategory) => subcategory.id
+    );
+    if (!subcategoriesOrder.includes(subcategory1Id)) {
+      console.error(
+        `Не найдено место в сортировке для подкатегории с id ${subcategory1Id}.`
+      );
+    }
+    if (!subcategoriesOrder.includes(subcategory2Id)) {
+      console.error(
+        `Не найдено место в сортировке для подкатегории с id ${subcategory2Id}.`
+      );
+    }
+    return (
+      subcategoriesOrder.indexOf(subcategory1Id) -
+      subcategoriesOrder.indexOf(subcategory2Id)
+    );
+  }
+);

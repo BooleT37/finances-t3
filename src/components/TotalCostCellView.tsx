@@ -1,3 +1,4 @@
+import { Tooltip } from "antd";
 import React from "react";
 import styled from "styled-components";
 
@@ -29,7 +30,7 @@ interface Props {
   barWidth: number;
   title?: string;
   barOffset?: number;
-  addPlus?: boolean;
+  tooltip?: string;
 }
 
 // eslint-disable-next-line mobx/missing-observer
@@ -41,15 +42,16 @@ const TotalCostCellView: React.FC<Props> = (props) => {
     title,
     barOffset = 0,
     barWidth,
-    addPlus,
+    tooltip,
   } = props;
 
   return (
     <div title={title}>
       <div>
-        {addPlus && "+"}
         {cost}&nbsp;
-        <DiffNode color={color}>{suffix}</DiffNode>
+        <Tooltip title={tooltip}>
+          <DiffNode color={color}>{suffix}</DiffNode>
+        </Tooltip>
       </div>
       <BarContainer>
         <Bar color={color} width={barWidth} offset={barOffset} />
