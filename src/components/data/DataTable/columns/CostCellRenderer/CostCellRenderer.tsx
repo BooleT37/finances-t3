@@ -5,11 +5,10 @@ import CostCellView from "./CostCellView";
 
 interface Props {
   value: CostCol | null;
-  isIncome: boolean;
 }
 
 // eslint-disable-next-line mobx/missing-observer
-const CostCellRenderer: React.FC<Props> = ({ value: col, isIncome }) => {
+const CostCellRenderer: React.FC<Props> = ({ value: col }) => {
   if (!col) {
     return null;
   }

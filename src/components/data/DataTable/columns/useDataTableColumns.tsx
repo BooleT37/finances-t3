@@ -62,12 +62,7 @@ export const useDataTableColumns = ({
             year={year}
           />
         ),
-        Cell: ({ cell, row }) => (
-          <CostCellRenderer
-            value={cell.getValue()}
-            isIncome={row.original.isIncome}
-          />
-        ),
+        Cell: ({ cell }) => <CostCellRenderer value={cell.getValue()} />,
       }),
       columnHelper.accessor("date", {
         size: 130,
