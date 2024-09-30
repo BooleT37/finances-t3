@@ -5,7 +5,6 @@ import type Decimal from "decimal.js";
 import React from "react";
 import { MONTH_DATE_FORMAT } from "~/utils/constants";
 import PlanningTable from "./PlanningTable/PlanningTable";
-import SurplusData from "./SurplusData";
 
 export interface ForecastTableContext {
   year: number;
@@ -69,12 +68,7 @@ const PlanningScreen = () => {
             />
           </Tooltip>
         </div>
-        {date && (
-          <Space direction="vertical" size="middle">
-            <PlanningTable month={date.month()} year={date.year()} />
-            <SurplusData month={date.month()} year={date.year()} />
-          </Space>
-        )}
+        {date && <PlanningTable month={date.month()} year={date.year()} />}
       </Space>
     </>
   );
