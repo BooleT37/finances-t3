@@ -369,21 +369,24 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
         (f) => f.group === "savings"
       );
 
-      const thisMonthTotalExpenses = dataStores.expenseStore.totalPerMonth({
-        year,
-        month,
-        isIncome: true,
-      });
+      const thisMonthTotal = dataStores.expenseStore
+        .totalPerMonth({
+          year,
+          month,
+          isIncome: true,
+        })
+        .minus(
+          dataStores.expenseStore.totalPerMonth({
+            year,
+            month,
+            isIncome: false,
+            excludeTypes: ["FROM_SAVINGS"],
+          })
+        );
 
-      const thisMonthTotalIncome = dataStores.expenseStore.totalPerMonth({
-        year,
-        month,
-        isIncome: false,
-        excludeTypes: ["FROM_SAVINGS"],
-      });
-
-      const thisMonthTotalDiff =
-        thisMonthTotalExpenses.minus(thisMonthTotalIncome);
+      const sumTotal = this.totalForMonth(year, month, true).minus(
+        this.totalForMonth(year, month, false)
+      );
 
       return [
         {
@@ -513,13 +516,11 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
             isIncome: false,
           },
           thisMonth: {
-            spendings: thisMonthTotalExpenses,
-            diff: thisMonthTotalDiff,
+            spendings: thisMonthTotal,
+            diff: thisMonthTotal.minus(sumTotal),
             isIncome: false,
           },
-          sum: this.totalForMonth(year, month, true).minus(
-            this.totalForMonth(year, month, false)
-          ),
+          sum: sumTotal,
           subscriptions: thisMonthForecasts.flatMap((f) => f.subscriptions),
           comment: "",
         },
