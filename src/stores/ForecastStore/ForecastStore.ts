@@ -382,9 +382,8 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
         excludeTypes: ["FROM_SAVINGS"],
       });
 
-      const thisMonthTotalDiff = thisMonthTotalIncome.minus(
-        thisMonthTotalExpenses
-      );
+      const thisMonthTotalDiff =
+        thisMonthTotalExpenses.minus(thisMonthTotalIncome);
 
       return [
         {
