@@ -8,7 +8,7 @@ export interface MonthSpendings {
   isIncome: boolean;
 }
 
-export type ForecastTableItemGroup = "expense" | "savings" | "income";
+export type ForecastTableItemGroup = "expense" | "savings" | "income" | "total";
 
 export interface ForecastTableItem {
   tableId: string;

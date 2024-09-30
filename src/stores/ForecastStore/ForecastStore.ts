@@ -472,6 +472,45 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
           comment: "",
           subRows: incomeForecasts,
         },
+        {
+          name: "Итого",
+          tableId: generateForecastTableId({
+            group: "total",
+            categoryId: null,
+            subcategoryId: null,
+          }),
+          group: "total",
+          categoryId: null,
+          categoryType: null,
+          subcategoryId: null,
+          average: decimalSum(
+            ...thisMonthForecasts.map((f) => f.average ?? new Decimal(0))
+          ),
+          monthsWithSpendings: "",
+          lastMonth: {
+            spendings: decimalSum(
+              ...thisMonthForecasts.map((f) => f.lastMonth.spendings)
+            ),
+            diff: decimalSum(
+              ...thisMonthForecasts.map((f) => f.lastMonth.diff)
+            ),
+            isIncome: false,
+          },
+          thisMonth: {
+            spendings: decimalSum(
+              ...thisMonthForecasts.map((f) => f.thisMonth.spendings)
+            ),
+            diff: decimalSum(
+              ...thisMonthForecasts.map((f) => f.thisMonth.diff)
+            ),
+            isIncome: false,
+          },
+          sum: decimalSum(
+            ...thisMonthForecasts.map((f) => f.sum ?? new Decimal(0))
+          ),
+          subscriptions: thisMonthForecasts.flatMap((f) => f.subscriptions),
+          comment: "",
+        },
       ];
     }
   );
