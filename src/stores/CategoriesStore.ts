@@ -173,6 +173,7 @@ export default class CategoriesStore
     const created = await trpc.categories.create.mutate({
       name: category.name,
       shortname: category.shortname,
+      icon: category.icon,
       isContinuous: category.isContinuous,
       isIncome: category.isIncome,
       type: category.type,

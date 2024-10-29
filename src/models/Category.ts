@@ -16,6 +16,7 @@ export interface CategoryTableItem {
   id: number;
   name: string;
   shortname: string;
+  icon: string | null;
   type: CategoryType | null;
   isIncome: boolean;
   isContinuous: boolean;
@@ -25,6 +26,7 @@ export default class Category {
     public id: number,
     public name: string,
     public shortname: string,
+    public icon: string | null = null,
     public type: CategoryType | null = null,
     public isIncome = false,
     public isContinuous = false,
@@ -86,6 +88,7 @@ export default class Category {
       id: this.id,
       name: this.name,
       shortname: this.shortname,
+      icon: this.icon,
       type: this.type,
       isIncome: this.isIncome,
       isContinuous: this.isContinuous,
@@ -104,6 +107,9 @@ export default class Category {
     }
     if (fields.shortname !== undefined) {
       this.shortname = fields.shortname;
+    }
+    if (fields.icon !== undefined) {
+      this.icon = fields.icon;
     }
     if (fields.type !== undefined) {
       this.type = fields.type;

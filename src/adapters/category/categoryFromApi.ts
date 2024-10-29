@@ -10,6 +10,7 @@ export function adaptCategoryFromApi(
     category.id,
     category.name,
     category.shortname,
+    category.icon,
     category.type,
     category.isIncome,
     category.isContinuous,

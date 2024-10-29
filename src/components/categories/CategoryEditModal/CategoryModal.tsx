@@ -1,16 +1,18 @@
 import { CategoryType } from "@prisma/client";
 import { Form, Input, Modal, Select, Switch } from "antd";
-import { runInAction } from "mobx";
+import { runInAction, toJS } from "mobx";
 import { observer } from "mobx-react";
 import { useEffect } from "react";
 import type Subcategory from "~/models/Subcategory";
 import categoryModalViewModel from "./categoryModalViewModel";
+import { IconSelect } from "./IconSelect";
 import { isContinuousTooltip } from "./isContinuousTooltip";
 import { SubcategoriesList } from "./SubcategoriesList";
 import { useHandleCategorySubmit } from "./useHandleCategorySubmit";
 
 export interface FormValues {
   name: string;
+  icon: string | null;
   shortname: string;
   isIncome: boolean;
   isContinuous: boolean;
@@ -31,10 +33,13 @@ const CategoryModal = observer(function CategoryModal() {
           form.setFieldsValue({
             name: currentCategory.name,
             shortname: currentCategory.shortname,
+            icon: currentCategory.icon,
             isIncome: currentCategory.isIncome,
             isContinuous: currentCategory.isContinuous,
             type: currentCategory.type ?? undefined,
-            subcategories: currentCategory.subcategories,
+            subcategories: currentCategory.subcategories.map((subc) =>
+              toJS(subc)
+            ),
           });
         } else {
           form.resetFields();
@@ -74,6 +79,9 @@ const CategoryModal = observer(function CategoryModal() {
           type: null,
         }}
       >
+        <Form.Item name="icon" label="Иконка">
+          <IconSelect />
+        </Form.Item>
         <Form.Item name="isIncome" label="Доход" valuePropName="checked">
           <Switch />
         </Form.Item>

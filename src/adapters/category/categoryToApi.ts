@@ -64,6 +64,7 @@ export const adaptCategoryToUpdateInput = (
   return {
     name: category.name,
     shortname: category.shortname,
+    icon: category.icon,
     type: category.type,
     isContinuous: category.isContinuous,
     isIncome: category.isIncome,
