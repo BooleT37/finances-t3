@@ -11,7 +11,7 @@ import React, { useCallback } from "react";
 import { dataStores } from "~/stores/dataStores";
 import CategoryModal from "./CategoryEditModal/CategoryModal";
 import categoryModalViewModel from "./CategoryEditModal/categoryModalViewModel";
-import { CategoryIconComp } from "./categoryIcons/CategoryIconComp";
+import { NameWithOptionalIcon } from "./categoryIcons/NameWithOptionalIcon";
 import { usePersistCategoriesOrder } from "./hooks/usePersistCategoriesOrder";
 import { RowActions } from "./RowActions";
 import useCategoriesTableColumns from "./useCategoriesTableColumns";
@@ -95,13 +95,11 @@ const CategoriesScreen: React.FC = observer(function CategoriesScreen() {
                 ) : (
                   "Расход"
                 )
-              ) : row.original.icon ? (
-                <Space>
-                  <CategoryIconComp value={row.original.icon} />
-                  {row.original.name}
-                </Space>
               ) : (
-                row.original.name
+                <NameWithOptionalIcon
+                  name={row.original.name}
+                  icon={row.original.icon}
+                />
               )}
             </div>
           );

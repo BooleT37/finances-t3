@@ -29,6 +29,7 @@ export interface TableData {
   category: string;
   categoryId: number;
   categoryShortname: string;
+  categoryIcon: string | null;
   subcategory: string | null;
   subcategoryId: number | null;
   source: string;
@@ -146,6 +147,7 @@ export default class Expense {
           : null,
       source: this.source?.name ?? "",
       category: this.category.name,
+      categoryIcon: this.category.icon,
       subcategory:
         this.savingSpending?.spending.name ?? this.subcategory?.name ?? null,
       subcategoryId: this.subcategoryId,

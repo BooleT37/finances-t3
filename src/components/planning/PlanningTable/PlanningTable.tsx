@@ -7,6 +7,7 @@ import {
 import { MRT_Localization_RU } from "material-react-table/locales/ru";
 import { observer } from "mobx-react";
 import React, { useCallback, useMemo } from "react";
+import { NameWithOptionalIcon } from "~/components/categories/categoryIcons/NameWithOptionalIcon";
 import { dataStores } from "~/stores/dataStores";
 import { useHandleCommentChange } from "./useHandleCommentChange";
 import { useHandleSumChange } from "./useHandleSumChange";
@@ -84,7 +85,10 @@ const PlanningTable: React.FC<Props> = observer(function PlanningTable({
           return (
             <div style={{ lineHeight: "40px" }}>
               <MRT_ExpandButton row={row} table={table} />
-              {row.original.name}
+              <NameWithOptionalIcon
+                name={row.original.name}
+                icon={row.original.icon}
+              />
             </div>
           );
         },

@@ -66,6 +66,7 @@ export class ExpenseComponent implements ExpenseComponentApi {
           : null,
       date: this.parentExpense.date.format(DATE_FORMAT),
       category: this.category.name,
+      categoryIcon: this.category.icon,
       categoryId: this.categoryId,
       categoryShortname: this.parentExpense.category.shortname,
       subcategory: this.subcategory?.name ?? null,

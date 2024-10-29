@@ -1,5 +1,6 @@
 import type { CategoryType } from "@prisma/client";
 import { makeAutoObservable } from "mobx";
+import { NameWithOptionalIcon } from "~/components/categories/categoryIcons/NameWithOptionalIcon";
 import { type CategoryTreeSelectOption } from "~/components/data/ExpenseModal/ComponentsModal/CategorySubcategorySelect";
 import type { Option } from "~/types/types";
 import type Subcategory from "./Subcategory";
@@ -38,7 +39,7 @@ export default class Category {
   get asOption(): Option {
     return {
       value: this.id,
-      label: this.name,
+      label: <NameWithOptionalIcon name={this.name} icon={this.icon} />,
     };
   }
 

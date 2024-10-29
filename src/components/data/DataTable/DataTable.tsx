@@ -8,6 +8,7 @@ import {
 } from "material-react-table";
 import { MRT_Localization_RU } from "material-react-table/locales/ru";
 import React, { useEffect } from "react";
+import { NameWithOptionalIcon } from "~/components/categories/categoryIcons/NameWithOptionalIcon";
 import { type TableData } from "~/models/Expense";
 import {
   sortAllCategoriesById,
@@ -84,13 +85,20 @@ export const DataTable: React.FC<Props> = ({
           return (
             <>
               <MRT_ExpandButton row={row} table={table} />
-              {row.getIsGrouped()
-                ? row.depth === 0
-                  ? row.getGroupingValue("isIncome")
-                  : row.depth === 1
-                  ? row.original.category
-                  : row.original.subcategory ?? "<без подкатегории>"
-                : row.original.name}
+              {row.getIsGrouped() ? (
+                row.depth === 0 ? (
+                  row.getGroupingValue("isIncome")
+                ) : row.depth === 1 ? (
+                  <NameWithOptionalIcon
+                    name={row.original.category}
+                    icon={row.original.categoryIcon}
+                  />
+                ) : (
+                  row.original.subcategory ?? "<без подкатегории>"
+                )
+              ) : (
+                row.original.name
+              )}
             </>
           );
         },

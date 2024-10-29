@@ -435,6 +435,7 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
       category: subscription.category.name,
       categoryId: subscription.category.id,
       categoryShortname: subscription.category.shortname,
+      categoryIcon: subscription.category.icon ?? null,
       subcategory: "",
       subcategoryId: null,
       source: subscription.source?.name ?? "",

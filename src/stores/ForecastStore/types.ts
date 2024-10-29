@@ -14,6 +14,7 @@ export interface ForecastTableItem {
   tableId: string;
   group: ForecastTableItemGroup;
   name: string;
+  icon: string | null;
   categoryId: number | null;
   categoryType: CategoryType | null;
   subcategoryId: number | null;
