@@ -103,6 +103,10 @@ export default class CategoriesStore
     return this.expenseCategories.map((c) => c.asTreeOption);
   }
 
+  get incomeCategoriesTreeOptions() {
+    return this.incomeCategories.map((c) => c.asTreeOption);
+  }
+
   get fromSavingsCategory() {
     const found = this.categories.find((c) => c.fromSavings);
     if (found === undefined) {

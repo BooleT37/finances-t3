@@ -1,4 +1,4 @@
-import { type Source as ApiSource } from "@prisma/client";
+import { type Source as ApiSource, type ExpensesParser } from "@prisma/client";
 import { makeAutoObservable, observable, runInAction } from "mobx";
 import { adaptSourceFromApi } from "~/adapters/source/sourceFromApi";
 import type Source from "~/models/Source";
@@ -76,6 +76,19 @@ export default class SourcesStore implements DataLoader<ApiSource[]> {
     });
     runInAction(() => {
       source.name = name;
+    });
+  }
+
+  async editSourceParser(parser: ExpensesParser | null, id: number) {
+    const source = this.getById(id);
+    await trpc.sources.update.mutate({
+      data: {
+        parser,
+      },
+      id,
+    });
+    runInAction(() => {
+      source.parser = parser;
     });
   }
 

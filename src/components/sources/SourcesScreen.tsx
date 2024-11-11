@@ -15,7 +15,8 @@ import { RowActions } from "./RowActions";
 
 const SourcesScreen: React.FC = observer(function SourcesScreen() {
   const columns = useSourcesTableColumns(
-    dataStores.sourcesStore.editSourceName
+    dataStores.sourcesStore.editSourceName,
+    dataStores.sourcesStore.editSourceParser
   );
   const persistSourcesOrder = usePersistSourcesOrder();
 

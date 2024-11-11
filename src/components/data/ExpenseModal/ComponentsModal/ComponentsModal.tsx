@@ -10,7 +10,7 @@ import { getTempId } from "~/utils/tempId";
 import {
   buildCategorySubcategoryId,
   type CategorySubcategoryId,
-} from "./categorySubcategoryId";
+} from "../../../categories/categorySubcategoryId";
 import { ComponentsModalRow } from "./ComponentsModalRow";
 
 interface ExpenseComponentFormValues {

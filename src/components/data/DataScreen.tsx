@@ -1,5 +1,6 @@
 import {
   ClockCircleOutlined,
+  ImportOutlined,
   InfoCircleOutlined,
   LeftOutlined,
   PlusOutlined,
@@ -20,6 +21,9 @@ import { DATE_FORMAT, MONTH_DATE_FORMAT } from "~/utils/constants";
 import { DataTable } from "./DataTable/DataTable";
 import ExpenseModal from "./ExpenseModal";
 import expenseModalViewModel from "./ExpenseModal/expenseModalViewModel";
+import { ImportModal } from "./ImportModal/ImportModal";
+import importModalViewModel from "./ImportModal/ImportModalViewModel";
+import { ParsedExpensesModal } from "./ImportModal/ParsedExpensesModal";
 
 const { RangePicker } = DatePicker;
 const { Search } = Input;
@@ -68,6 +72,10 @@ const DataScreen = observer(function DataScreen() {
 
   const handleAdd = action(() => {
     expenseModalViewModel.open(null);
+  });
+
+  const handleImport = action(() => {
+    importModalViewModel.open();
   });
 
   const goToPrevMonth = () => {
@@ -209,9 +217,18 @@ const DataScreen = observer(function DataScreen() {
                 </Tooltip>
               </div>
             )}
-            <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
-              Добавить
-            </Button>
+            <Space size="small">
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={handleAdd}
+              >
+                Добавить
+              </Button>
+              <Tooltip title="Импорт">
+                <Button icon={<ImportOutlined />} onClick={handleImport} />
+              </Tooltip>
+            </Space>
           </Space>
           <br />
           <Space>
@@ -268,6 +285,8 @@ const DataScreen = observer(function DataScreen() {
         endDate={rangeEnd}
         onSubmit={handleModalSubmit}
       />
+      <ImportModal />
+      <ParsedExpensesModal />
     </>
   );
 });

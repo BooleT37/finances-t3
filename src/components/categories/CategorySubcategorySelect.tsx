@@ -17,12 +17,15 @@ type Props = TreeSelectProps<
   CategorySubcategoryId,
   CategoryTreeSelectOption
 > & {
-  currentSelectedCategoryId: number | null;
+  currentSelectedCategoryId?: number | null;
+  isExpense?: boolean;
 };
 
 export const CategorySubcategorySelect: React.FC<Props> = observer((props) => {
-  const treeData = dataStores.categoriesStore.expenseCategoriesTreeOptions;
-  const { currentSelectedCategoryId, ...restProps } = props;
+  const { currentSelectedCategoryId, isExpense, ...restProps } = props;
+  const treeData = isExpense
+    ? dataStores.categoriesStore.expenseCategoriesTreeOptions
+    : dataStores.categoriesStore.incomeCategoriesTreeOptions;
   return (
     <TreeSelect<CategorySubcategoryId, CategoryTreeSelectOption>
       treeData={treeData}
@@ -30,7 +33,8 @@ export const CategorySubcategorySelect: React.FC<Props> = observer((props) => {
       style={{ width: 200 }}
       treeNodeLabelProp="displayedText"
       treeDefaultExpandedKeys={
-        currentSelectedCategoryId === null
+        currentSelectedCategoryId === null ||
+        currentSelectedCategoryId === undefined
           ? []
           : [currentSelectedCategoryId.toString()]
       }

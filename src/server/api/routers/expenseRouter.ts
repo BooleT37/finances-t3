@@ -1,4 +1,5 @@
 import {
+  ExpenseCreateManyInputObjectSchema,
   ExpenseCreateWithoutUserInputObjectSchema,
   ExpenseUpdateWithoutUserInputObjectSchema,
 } from "prisma/generated/schemas";
@@ -24,6 +25,16 @@ export const expenseRouter = createTRPCRouter({
         include: { components: true },
       });
     }),
+  createMany: protectedProcedure
+    .input(z.array(ExpenseCreateManyInputObjectSchema))
+    .mutation(({ ctx, input }) =>
+      ctx.db.expense.createManyAndReturn({
+        data: input.map((data) => ({
+          ...data,
+          userId: ctx.session.user.id,
+        })),
+      })
+    ),
   update: protectedProcedure
     .input(
       z.object({

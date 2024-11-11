@@ -13,12 +13,12 @@ import { runInAction } from "mobx";
 import styled from "styled-components";
 import { dataStores } from "~/stores/dataStores";
 import costToString from "~/utils/costToString";
-import { CategorySubcategorySelect } from "./CategorySubcategorySelect";
-import type { FormValues } from "./ComponentsModal";
 import {
   parseCategorySubcategoryId,
   type CategorySubcategoryId,
-} from "./categorySubcategoryId";
+} from "../../../categories/categorySubcategoryId";
+import { CategorySubcategorySelect } from "../../../categories/CategorySubcategorySelect";
+import type { FormValues } from "./ComponentsModal";
 import { useGetForecastSum } from "./useForecastSum";
 
 interface Props extends FormListFieldData {

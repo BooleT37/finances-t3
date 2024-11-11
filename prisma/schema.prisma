@@ -105,9 +105,14 @@ model Category {
   @@unique([name, userId])
 }
 
+enum ExpensesParser {
+  VIVID
+}
+
 model Source {
   id            Int            @id @default(autoincrement())
   name          String
+  parser        ExpensesParser?
   subscriptions Subscription[]
   expenses      Expense[]
   user          User           @relation(fields: [userId], references: [id])

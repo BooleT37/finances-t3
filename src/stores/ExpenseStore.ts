@@ -11,6 +11,7 @@ import { computedFn } from "mobx-utils";
 import { adaptExpenseFromApi } from "~/adapters/expense/expenseFromApi";
 import {
   adaptExpenseToCreateInput,
+  adaptExpenseToCreateManyInput,
   adaptExpenseToUpdateInput,
 } from "~/adapters/expense/expenseToApi";
 import type Subcategory from "~/models/Subcategory";
@@ -24,8 +25,7 @@ import countUniqueMonths from "~/utils/countUniqueMonths";
 import { decimalSum } from "~/utils/decimalSum";
 import { getTempId } from "~/utils/tempId";
 import type Category from "../models/Category";
-import type Expense from "../models/Expense";
-import { type TableData } from "../models/Expense";
+import Expense, { type TableData } from "../models/Expense";
 import type Subscription from "../models/Subscription";
 import { type DataLoader } from "./dataStores";
 import { dataStores } from "./dataStores/DataStores";
@@ -124,6 +124,36 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
         this.expenses.push(adaptedExpense);
       });
       return adaptedExpense;
+    });
+  }
+
+  async addMany(expenses: Expense[]): Promise<Expense[]> {
+    const { ids } = await trpc.expense.createMany.mutate(
+      expenses.map(adaptExpenseToCreateManyInput)
+    );
+    return runInAction(() => {
+      const expensesWithIds = expenses.map((e, i) => {
+        if (ids[i] === undefined) {
+          throw new Error("Can't find id for expense");
+        }
+        return new Expense(
+          Number(ids[i]),
+          e.cost,
+          e.components,
+          e.date,
+          e.category,
+          e.subcategory,
+          e.name,
+          e.source,
+          e.subscription,
+          e.savingSpending,
+          e.actualDate
+        );
+      });
+      runInAction(() => {
+        this.expenses.push(...expensesWithIds);
+      });
+      return expensesWithIds;
     });
   }
 

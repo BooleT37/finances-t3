@@ -1,4 +1,4 @@
-import { Space } from "antd";
+import { Space, Typography } from "antd";
 import {
   MaterialReactTable,
   MRT_ExpandAllButton,
@@ -16,6 +16,8 @@ import {
 } from "~/stores/categoriesOrder";
 import { useDataTableColumns } from "./columns/useDataTableColumns";
 import { RowActions } from "./RowActions";
+
+const { Text } = Typography;
 
 interface Props {
   data: TableData[];
@@ -87,7 +89,7 @@ export const DataTable: React.FC<Props> = ({
               <MRT_ExpandButton row={row} table={table} />
               {row.getIsGrouped() ? (
                 row.depth === 0 ? (
-                  row.getGroupingValue("isIncome")
+                  (row.getGroupingValue("isIncome") as string)
                 ) : row.depth === 1 ? (
                   <NameWithOptionalIcon
                     name={row.original.category}
@@ -97,7 +99,15 @@ export const DataTable: React.FC<Props> = ({
                   row.original.subcategory ?? "<без подкатегории>"
                 )
               ) : (
-                row.original.name
+                <Text
+                  ellipsis
+                  title={row.original.name}
+                  style={{
+                    maxWidth: "300px",
+                  }}
+                >
+                  {row.original.name}
+                </Text>
               )}
             </>
           );

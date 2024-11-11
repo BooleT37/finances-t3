@@ -1,7 +1,7 @@
 import type { CategoryType } from "@prisma/client";
 import { makeAutoObservable } from "mobx";
 import { NameWithOptionalIcon } from "~/components/categories/categoryIcons/NameWithOptionalIcon";
-import { type CategoryTreeSelectOption } from "~/components/data/ExpenseModal/ComponentsModal/CategorySubcategorySelect";
+import { type CategoryTreeSelectOption } from "~/components/categories/CategorySubcategorySelect";
 import type { Option } from "~/types/types";
 import type Subcategory from "./Subcategory";
 

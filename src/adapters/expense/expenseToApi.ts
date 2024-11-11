@@ -31,6 +31,22 @@ export function adaptExpenseToCreateInput(
   };
 }
 
+export function adaptExpenseToCreateManyInput(
+  expense: Expense
+): Prisma.ExpenseCreateManyInput {
+  return {
+    name: expense.name,
+    cost: expense.cost,
+    date: expense.date.toDate(),
+    actualDate: expense.actualDate ? expense.actualDate.toDate() : null,
+    categoryId: expense.category.id,
+    sourceId: expense.source?.id ?? null,
+    subscriptionId: expense.subscription?.id ?? null,
+    savingSpendingCategoryId: expense.savingSpending?.category?.id ?? null,
+    subcategoryId: expense.subcategory?.id ?? null,
+  };
+}
+
 export function adaptExpenseToUpdateInput(
   expense: Expense,
   originalComponents: ExpenseComponent[]

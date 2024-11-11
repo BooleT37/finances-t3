@@ -1,13 +1,19 @@
+import type { ExpensesParser } from "@prisma/client";
 import { makeAutoObservable } from "mobx";
 import type { Option } from "~/types/types";
 
 export interface SourceTableItem {
   id: number;
   name: string;
+  parser: ExpensesParser | null;
 }
 
 export default class Source {
-  constructor(public readonly id: number, public name: string) {
+  constructor(
+    public readonly id: number,
+    public name: string,
+    public parser: ExpensesParser | null
+  ) {
     makeAutoObservable(this);
   }
 
@@ -22,6 +28,7 @@ export default class Source {
     return {
       id: this.id,
       name: this.name,
+      parser: this.parser,
     };
   }
 }
