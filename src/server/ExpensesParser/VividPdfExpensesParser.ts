@@ -2,6 +2,7 @@ import { PdfDataParser } from "pdf-data-parser";
 import type PdfDataParserType from "pdf-data-parser/types/PdfDataParser";
 import type { ParsedExpenseFromApi } from "~/models/ParsedExpense";
 import type { ExpensesParser } from "./ExpensesParser";
+import { hash } from "../hash";
 
 const ROWS_TO_SKIP_AT_START = 6;
 const ROWS_TO_SKIP_AT_END = 4;
@@ -42,21 +43,30 @@ export class VividPdfExpensesParser implements ExpensesParser {
           throw new Error(`Invalid row: ${row.join(", ")}`);
         }
         if (row.length === 3 && row[1] === "Transfer between own accounts") {
-          return {
+          const expense: Omit<ParsedExpenseFromApi, "hash"> = {
             date: row[0],
             type: row[1],
             description: `${array[index - 1]?.[0]} ${array[index + 1]?.[0]}`,
             amount: parseAmount(row[2]),
           };
+
+          return {
+            ...expense,
+            hash: hash(expense),
+          };
         }
         if (!row[3]) {
           throw new Error(`Invalid row: ${row.join(", ")}`);
         }
-        return {
+        const expense: Omit<ParsedExpenseFromApi, "hash"> = {
           date: row[0],
           type: row[1],
           description: row[2],
           amount: parseAmount(row[3]),
+        };
+        return {
+          ...expense,
+          hash: hash(expense),
         };
       })
       .filter((row) => row !== null);

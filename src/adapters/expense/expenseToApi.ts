@@ -28,6 +28,7 @@ export function adaptExpenseToCreateInput(
         ),
       },
     },
+    peHash: expense.peHash,
   };
 }
 
@@ -44,6 +45,7 @@ export function adaptExpenseToCreateManyInput(
     subscriptionId: expense.subscription?.id ?? null,
     savingSpendingCategoryId: expense.savingSpending?.category?.id ?? null,
     subcategoryId: expense.subcategory?.id ?? null,
+    peHash: expense.peHash,
   };
 }
 

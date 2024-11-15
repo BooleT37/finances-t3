@@ -10,7 +10,8 @@ import vm from "./ImportModalViewModel";
 import { ParsedExpenseFormRow } from "./ParsedExpenseFormRow";
 import { parsedExpenseFormValueToExpense } from "./parsedExpensesToExpense";
 
-export interface ParsedExpenseFormValue extends Omit<ParsedExpense, "amount"> {
+export interface ParsedExpenseFormValue
+  extends Omit<ParsedExpense, "amount" | "alreadyExists"> {
   amount: string;
   selected: boolean;
   categorySubcategoryId?: CategorySubcategoryId;
@@ -50,7 +51,7 @@ export const ParsedExpensesModal: React.FC = observer(() => {
         expenses: parsedExpenses?.map(
           (e): ParsedExpenseFormValue => ({
             ...e,
-            selected: true,
+            selected: !e.alreadyExists,
             amount: e.amount.toString(),
           })
         ),

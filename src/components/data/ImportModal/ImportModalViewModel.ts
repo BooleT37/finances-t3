@@ -1,5 +1,11 @@
+import { message } from "antd";
+import dayjs from "dayjs";
+import Decimal from "decimal.js";
 import { makeAutoObservable } from "mobx";
-import type { ParsedExpense } from "~/models/ParsedExpense";
+import {
+  ParsedExpense,
+  type ParsedExpenseFromApi,
+} from "~/models/ParsedExpense";
 import type Source from "~/models/Source";
 import { dataStores } from "~/stores/dataStores";
 
@@ -37,8 +43,22 @@ class ImportModalViewModel {
     return dataStores.sourcesStore.getById(this.selectedSourceId);
   }
 
-  setParsedExpenses(expenses: ParsedExpense[]) {
-    this.parsedExpenses = expenses;
+  setParsedExpenses(expenses: ParsedExpenseFromApi[]) {
+    this.parsedExpenses = expenses.map(
+      (expense) =>
+        new ParsedExpense(
+          dayjs(expense.date),
+          expense.type,
+          expense.description,
+          new Decimal(expense.amount),
+          expense.hash
+        )
+    );
+    if (this.parsedExpenses.some((e) => e.alreadyExists)) {
+      message.warning(
+        "Расходы, не отмеченные галочкой, уже существуют в базе данных"
+      );
+    }
   }
 
   removeParsedExpenses() {

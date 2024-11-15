@@ -9,27 +9,13 @@ import {
   type UploadFile,
 } from "antd";
 import type { UploadChangeParam } from "antd/es/upload";
-import dayjs from "dayjs";
-import Decimal from "decimal.js";
 import { observer } from "mobx-react";
-import type {
-  ParsedExpense,
-  ParsedExpenseFromApi,
-} from "~/models/ParsedExpense";
+import type { ParsedExpenseFromApi } from "~/models/ParsedExpense";
 import { dataStores } from "~/stores/dataStores";
 import vm from "./ImportModalViewModel";
 import { NoParserTooltip } from "./NoParserTooltip";
 
 const { Dragger } = Upload;
-
-function parseExpenseFromApi(expense: ParsedExpenseFromApi): ParsedExpense {
-  return {
-    date: dayjs(expense.date),
-    type: expense.type,
-    description: expense.description,
-    amount: new Decimal(expense.amount),
-  };
-}
 
 export const ImportModal = observer(() => {
   const {
@@ -49,9 +35,7 @@ export const ImportModal = observer(() => {
     } else if (file.status === "done") {
       setLoading(false);
       close();
-      setParsedExpenses(
-        (file.response as ParsedExpenseFromApi[]).map(parseExpenseFromApi)
-      );
+      setParsedExpenses(file.response as ParsedExpenseFromApi[]);
     } else if (file.status === "error") {
       setLoading(false);
       message.error("Ошибка загрузки файла");

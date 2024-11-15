@@ -39,7 +39,8 @@ export const adaptExpenseFromApi = action(
       expense.savingSpendingCategoryId === null
         ? null
         : getSavingSpendingByCategoryId(expense.savingSpendingCategoryId),
-      expense.actualDate ? dayjs(expense.actualDate) : null
+      expense.actualDate ? dayjs(expense.actualDate) : null,
+      expense.peHash
     );
   }
 );

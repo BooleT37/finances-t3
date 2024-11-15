@@ -57,6 +57,7 @@ export default class Expense {
     category: SavingSpendingCategory;
   } | null;
   actualDate: Dayjs | null;
+  peHash: string | null;
 
   constructor(
     id: number,
@@ -72,7 +73,8 @@ export default class Expense {
       spending: SavingSpending;
       category: SavingSpendingCategory;
     } | null = null,
-    actualDate: Dayjs | null
+    actualDate: Dayjs | null,
+    peHash: string | null
   ) {
     makeAutoObservable(this, { subcategory: observable }, { autoBind: true });
     this.id = id;
@@ -86,6 +88,7 @@ export default class Expense {
     this.subscription = subscription;
     this.savingSpending = savingSpending;
     this.actualDate = actualDate;
+    this.peHash = peHash;
   }
 
   replaceComponents(newComponents: ExpenseComponentData[]): void {

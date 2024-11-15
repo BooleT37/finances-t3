@@ -92,7 +92,8 @@ class ExpenseModalViewModel {
         : dataStores.expenseStore.getSavingSpendingByCategoryId(
             values.savingSpendingCategoryId
           ),
-      this.actualDateShown ? values.actualDate ?? null : null
+      this.actualDateShown ? values.actualDate ?? null : null,
+      null // parsed expense hash only makes sense for imported expenses
     );
     if (this.currentComponents.length > 0) {
       newExpense.replaceComponents(

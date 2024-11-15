@@ -173,6 +173,7 @@ model Expense {
   savingSpendingCategoryId Int?
   subcategoryId            Int?
   components               ExpenseComponent[]
+  peHash                   String? // Parsed expense hash
   user                     User                    @relation(fields: [userId], references: [id])
   userId                   String                  @default("clg6kpbtn0000mr081ntz0f8i")
 }

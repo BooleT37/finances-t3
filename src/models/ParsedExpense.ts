@@ -1,11 +1,33 @@
 import type { Dayjs } from "dayjs";
 import type Decimal from "decimal.js";
+import { makeAutoObservable } from "mobx";
+import { dataStores } from "~/stores/dataStores";
 
-export interface ParsedExpense {
+export class ParsedExpense {
   date: Dayjs;
   type: string;
   description: string;
   amount: Decimal;
+  hash: string;
+
+  constructor(
+    date: Dayjs,
+    type: string,
+    description: string,
+    amount: Decimal,
+    hash: string
+  ) {
+    makeAutoObservable(this, {}, { autoBind: true });
+    this.date = date;
+    this.type = type;
+    this.description = description;
+    this.amount = amount;
+    this.hash = hash;
+  }
+
+  get alreadyExists(): boolean {
+    return dataStores.expenseStore.expensesHashes.includes(this.hash);
+  }
 }
 
 export interface ParsedExpenseFromApi {
@@ -13,4 +35,5 @@ export interface ParsedExpenseFromApi {
   type: string;
   description: string;
   amount: string;
+  hash: string;
 }
