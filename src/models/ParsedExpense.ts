@@ -26,7 +26,15 @@ export class ParsedExpense {
   }
 
   get alreadyExists(): boolean {
-    return dataStores.expenseStore.expensesHashes.includes(this.hash);
+    return (
+      dataStores.expenseStore.expensesHashes.includes(this.hash) ||
+      dataStores.expenseStore.expenses.some(
+        (e) =>
+          (e.date.isSame(this.date, "day") ||
+            e.actualDate?.isSame(this.date, "day")) &&
+          e.cost.eq(this.amount.negated())
+      )
+    );
   }
 }
 
