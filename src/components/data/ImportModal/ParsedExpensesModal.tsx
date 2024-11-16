@@ -3,7 +3,10 @@ import { runInAction } from "mobx";
 import { observer } from "mobx-react";
 import { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import type { CategorySubcategoryId } from "~/components/categories/categorySubcategoryId";
+import {
+  buildCategorySubcategoryId,
+  type CategorySubcategoryId,
+} from "~/components/categories/categorySubcategoryId";
 import type { ParsedExpense } from "~/models/ParsedExpense";
 import { dataStores } from "~/stores/dataStores";
 import vm from "./ImportModalViewModel";
@@ -11,7 +14,7 @@ import { ParsedExpenseFormRow } from "./ParsedExpenseFormRow";
 import { parsedExpenseFormValueToExpense } from "./parsedExpensesToExpense";
 
 export interface ParsedExpenseFormValue
-  extends Omit<ParsedExpense, "amount" | "alreadyExists"> {
+  extends Omit<ParsedExpense, "amount" | "existingExpense"> {
   amount: string;
   selected: boolean;
   categorySubcategoryId?: CategorySubcategoryId;
@@ -51,8 +54,14 @@ export const ParsedExpensesModal: React.FC = observer(() => {
         expenses: parsedExpenses?.map(
           (e): ParsedExpenseFormValue => ({
             ...e,
-            selected: !e.alreadyExists,
+            selected: !e.existingExpense,
             amount: e.amount.toString(),
+            categorySubcategoryId: e.existingExpense
+              ? buildCategorySubcategoryId({
+                  categoryId: e.existingExpense.category.id,
+                  subcategoryId: e.existingExpense.subcategory?.id,
+                })
+              : undefined,
           })
         ),
       })

@@ -54,7 +54,7 @@ class ImportModalViewModel {
           expense.hash
         )
     );
-    if (this.parsedExpenses.some((e) => e.alreadyExists)) {
+    if (this.parsedExpenses.some((e) => !!e.existingExpense)) {
       message.warning(
         "Расходы, не отмеченные галочкой, уже существуют в базе данных"
       );

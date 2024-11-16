@@ -67,10 +67,6 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
     return groupBy(this.expenses, "category.id");
   }
 
-  get expensesHashes(): string[] {
-    return this.expenses.map((e) => e.peHash).filter((h) => h !== null);
-  }
-
   getExpensesByCategoryId(categoryId: number): Expense[] {
     return this.expensesByCategoryId[categoryId] ?? [];
   }

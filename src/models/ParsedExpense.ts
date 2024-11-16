@@ -25,15 +25,13 @@ export class ParsedExpense {
     this.hash = hash;
   }
 
-  get alreadyExists(): boolean {
-    return (
-      dataStores.expenseStore.expensesHashes.includes(this.hash) ||
-      dataStores.expenseStore.expenses.some(
-        (e) =>
-          (e.date.isSame(this.date, "day") ||
-            e.actualDate?.isSame(this.date, "day")) &&
-          e.cost.eq(this.amount.negated())
-      )
+  get existingExpense() {
+    return dataStores.expenseStore.expenses.find(
+      (e) =>
+        e.peHash === this.hash ||
+        ((e.date.isSame(this.date, "day") ||
+          e.actualDate?.isSame(this.date, "day")) &&
+          e.cost.eq(this.amount.negated()))
     );
   }
 }

@@ -50,7 +50,11 @@ export const ParsedExpenseFormRow: React.FC<FormListFieldData> = (props) => {
         rules={[{ required: selected }]}
         noStyle
       >
-        <Input disabled={!selected} />
+        <Input
+          disabled={true}
+          variant="borderless"
+          style={{ paddingLeft: 0 }}
+        />
       </Form.Item>
       <Form.Item
         {...restField}
@@ -79,6 +83,7 @@ export const ParsedExpenseFormRow: React.FC<FormListFieldData> = (props) => {
           style={{ width: "100%" }}
           disabled={!amount || !selected}
           isExpense={amountIsNegative}
+          placeholder="Выберите категорию"
         />
       </Form.Item>
     </>
