@@ -25,7 +25,7 @@ export const parsedExpenseFormValueToExpense = (
     source,
     null,
     null,
-    parsedExpense.date,
+    null,
     parsedExpense.hash
   );
 };
