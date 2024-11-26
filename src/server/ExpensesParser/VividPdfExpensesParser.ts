@@ -1,18 +1,18 @@
 import { PdfDataParser } from "pdf-data-parser";
 import type PdfDataParserType from "pdf-data-parser/types/PdfDataParser";
 import type { ParsedExpenseFromApi } from "~/models/ParsedExpense";
-import type { ExpensesParser } from "./ExpensesParser";
 import { hash } from "../hash";
+import type { ExpensesParser } from "./ExpensesParser";
 
 const ROWS_TO_SKIP_AT_START = 6;
 const ROWS_TO_SKIP_AT_END = 4;
 
 const parseAmount = (amount: string): string => {
-  const matched = /(?<sign>-?)EUR(?<amount>\d+\.\d+)/.exec(amount);
+  const matched = /(?<sign>-?)EUR(?<amount>\d+(?:,\d+)?\.\d+)/.exec(amount);
   if (!matched?.groups) {
     throw new Error(`Failed to parse amount: ${amount}`);
   }
-  return `${matched.groups.sign}${matched.groups.amount}`;
+  return `${matched.groups.sign}${matched.groups.amount?.replaceAll(",", "")}`;
 };
 
 const validRow = (row: string[]): boolean => {
