@@ -1,0 +1,1 @@
+alter table public."Expense" enable row level security;
