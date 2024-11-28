@@ -160,14 +160,20 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
 
   async modify(
     expense: Expense,
+    // TODO get original components from original expense??
     originalComponents: ExpenseComponent[]
   ): Promise<Expense> {
     const foundIndex = this.expenses.findIndex((e) => e.id === expense.id);
     if (foundIndex !== -1) {
+      const originalExpense = this.expenses[foundIndex];
       this.expenses[foundIndex] = expense;
       const response = await trpc.expense.update.mutate({
         id: expense.id,
-        data: adaptExpenseToUpdateInput(expense, originalComponents),
+        data: adaptExpenseToUpdateInput(
+          expense,
+          originalComponents,
+          originalExpense?.subcategory ?? null
+        ),
       });
       const adaptedExpense = adaptExpenseFromApi(response);
       // this is needed to update component ids to real ones

@@ -1,6 +1,7 @@
 import type { ExpenseComponent, Prisma } from "@prisma/client";
 import { isEqual, omit } from "lodash";
 import type Expense from "~/models/Expense";
+import type Subcategory from "~/models/Subcategory";
 import { isTempId } from "~/utils/tempId";
 import { connectIfExists } from "../connectIfExists";
 
@@ -51,7 +52,8 @@ export function adaptExpenseToCreateManyInput(
 
 export function adaptExpenseToUpdateInput(
   expense: Expense,
-  originalComponents: ExpenseComponent[]
+  originalComponents: ExpenseComponent[],
+  originalSubcategory: Subcategory | null
 ): Prisma.ExpenseUpdateInput {
   const components = expense.components.map((c) => c.asApi);
   const newComponents = components
@@ -76,6 +78,15 @@ export function adaptExpenseToUpdateInput(
   );
   return {
     ...adaptExpenseToCreateInput(expense),
+    subcategory: {
+      ...(expense.subcategory !== null
+        ? {
+            connect: { id: expense.subcategory.id },
+          }
+        : originalSubcategory
+        ? { delete: true }
+        : {}),
+    },
     components: {
       createMany: {
         data: newComponents,
