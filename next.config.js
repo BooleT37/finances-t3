@@ -43,5 +43,12 @@ const config = {
     "rc-notification",
     "rc-tooltip",
   ],
+  experimental: {
+    outputFileTracingIncludes: {
+      "/api/parse-pdf-expenses": [
+        "./node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs",
+      ],
+    },
+  },
 };
 export default config;
