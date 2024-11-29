@@ -1,0 +1,13 @@
+alter table public."Forecast" enable row level security;
+alter table public."SavingSpendingCategory" enable row level security;
+alter table public."ExpenseComponent" enable row level security;
+alter table public."SavingSpending" enable row level security;
+alter table public."Session" enable row level security;
+alter table public."Account" enable row level security;
+alter table public."VerificationToken" enable row level security;
+alter table public."UserSetting" enable row level security;
+alter table public."User" enable row level security;
+alter table public."Subcategory" enable row level security;
+alter table public."Category" enable row level security;
+alter table public."Subscription" enable row level security;
+alter table public."Source" enable row level security;
