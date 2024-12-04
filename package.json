@@ -10,7 +10,7 @@
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "vercel-build": "npm run db:migrate && npm run build",
-    "dev": "next dev",
+    "dev": "next dev -p 3001",
     "postinstall": "npm i --prefix prisma/prizma-zod-generator && prisma generate",
     "lint": "next lint",
     "start": "next start",
