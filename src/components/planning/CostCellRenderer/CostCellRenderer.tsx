@@ -1,7 +1,7 @@
 import { RightOutlined } from "@ant-design/icons";
 import { useCallback } from "react";
 import { type ForecastTableItem } from "~/stores/ForecastStore/types";
-import costToString from "~/utils/costToString";
+import { costToString } from "~/utils/costUtils";
 
 import { Button, Space, Tooltip } from "antd";
 import type Decimal from "decimal.js";

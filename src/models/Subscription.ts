@@ -2,7 +2,7 @@ import dayjs, { type Dayjs } from "dayjs";
 import type Decimal from "decimal.js";
 import { makeAutoObservable, observable } from "mobx";
 import { trpc } from "~/utils/api";
-import costToString from "~/utils/costToString";
+import { costToString } from "~/utils/costUtils";
 import type Category from "./Category";
 import type Source from "./Source";
 import type Subcategory from "./Subcategory";

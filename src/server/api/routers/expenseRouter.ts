@@ -6,6 +6,10 @@ import {
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { connectUser, filterByUser } from "~/server/api/utils/linkCurrentUser";
+import {
+  isDecimalFieldUpdateOperationsInput,
+  isNegative,
+} from "../utils/decimalUtils";
 
 export const expenseRouter = createTRPCRouter({
   getAll: protectedProcedure.query(({ ctx }) =>
@@ -15,7 +19,12 @@ export const expenseRouter = createTRPCRouter({
     })
   ),
   create: protectedProcedure
-    .input(ExpenseCreateWithoutUserInputObjectSchema)
+    .input(
+      ExpenseCreateWithoutUserInputObjectSchema.refine(
+        (data) => !isNegative(data.cost),
+        "Cost cannot be negative"
+      )
+    )
     .mutation(({ ctx, input }) => {
       return ctx.db.expense.create({
         data: {
@@ -26,7 +35,14 @@ export const expenseRouter = createTRPCRouter({
       });
     }),
   createMany: protectedProcedure
-    .input(z.array(ExpenseCreateManyInputObjectSchema))
+    .input(
+      z
+        .array(ExpenseCreateManyInputObjectSchema)
+        .refine(
+          (data) => data.every((item) => !isNegative(item.cost)),
+          "Cost cannot be negative"
+        )
+    )
     .mutation(({ ctx, input }) =>
       ctx.db.expense.createManyAndReturn({
         data: input.map((data) => ({
@@ -37,10 +53,18 @@ export const expenseRouter = createTRPCRouter({
     ),
   update: protectedProcedure
     .input(
-      z.object({
-        id: z.number(),
-        data: ExpenseUpdateWithoutUserInputObjectSchema,
-      })
+      z
+        .object({
+          id: z.number(),
+          data: ExpenseUpdateWithoutUserInputObjectSchema,
+        })
+        .refine(
+          ({ data }) =>
+            data.cost === undefined ||
+            isDecimalFieldUpdateOperationsInput(data.cost) ||
+            !isNegative(data.cost),
+          "Cost cannot be negative"
+        )
     )
     .mutation(({ ctx, input: { data, id } }) =>
       ctx.db.expense.update({

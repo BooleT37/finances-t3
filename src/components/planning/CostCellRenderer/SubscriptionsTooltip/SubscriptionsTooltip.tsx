@@ -2,7 +2,7 @@ import { MoneyCollectOutlined } from "@ant-design/icons";
 import { Tooltip } from "antd";
 import React, { useCallback } from "react";
 import { type ForecastSubscriptionsItem } from "~/types/forecast/forecastTypes";
-import costToString from "~/utils/costToString";
+import { costToString } from "~/utils/costUtils";
 
 import type Decimal from "decimal.js";
 import { decimalSum } from "~/utils/decimalSum";

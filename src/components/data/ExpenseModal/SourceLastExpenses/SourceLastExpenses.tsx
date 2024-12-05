@@ -3,7 +3,7 @@ import { observer } from "mobx-react";
 import styled from "styled-components";
 import { dataStores } from "~/stores/dataStores";
 import { DATE_FORMAT } from "~/utils/constants";
-import costToString from "~/utils/costToString";
+import { costToString } from "~/utils/costUtils";
 
 import styles from "./SourceLastExpenses.module.css";
 

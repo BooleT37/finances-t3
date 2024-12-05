@@ -2,7 +2,7 @@ import type Decimal from "decimal.js";
 import { runInAction } from "mobx";
 import { type ExpenseComponentData } from "~/models/Expense";
 import { dataStores } from "~/stores/dataStores";
-import costToString from "~/utils/costToString";
+import { costToString } from "~/utils/costUtils";
 import { decimalSum } from "~/utils/decimalSum";
 
 interface Props {

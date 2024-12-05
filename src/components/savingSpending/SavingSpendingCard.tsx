@@ -6,7 +6,7 @@ import { observer } from "mobx-react";
 import type { FC } from "react";
 import styled from "styled-components";
 import type SavingSpending from "~/models/SavingSpending";
-import costToString from "~/utils/costToString";
+import { costToString } from "~/utils/costUtils";
 import { decimalSum } from "~/utils/decimalSum";
 
 interface Props {

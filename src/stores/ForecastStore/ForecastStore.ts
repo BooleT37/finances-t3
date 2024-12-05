@@ -13,7 +13,6 @@ import { MONTH_DATE_FORMAT } from "~/utils/constants";
 import countUniqueMonths from "~/utils/countUniqueMonths";
 import { decimalSum } from "~/utils/decimalSum";
 import { getPreviousMonth } from "~/utils/getPreviousMonth";
-import { negateIf } from "~/utils/negateIf";
 import { sortAllCategoriesById } from "../categoriesOrder";
 import type { DataLoader } from "../dataStores";
 import { dataStores } from "../dataStores/DataStores";
@@ -134,9 +133,6 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
         )
         .map((f) => f.sum)
     );
-    console.log({ categoryId });
-    console.log("subcategoriesSum", subcategoriesSum.toNumber());
-    console.log("categoryForecast.sum", categoryForecast.sum.toNumber());
     return categoryForecast.sum.minus(subcategoriesSum);
   }
 
@@ -251,8 +247,6 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
                 : forecast.subcategoryId,
           });
 
-    const { toSavings, isIncome } = forecast.category;
-
     const group: ForecastTableItemGroup = forecast.category.isIncome
       ? "income"
       : forecast.category.isSavings
@@ -306,21 +300,13 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
         spendings: lastMonthSpendings,
         diff: forecast.category.fromSavings
           ? new Decimal(0)
-          : negateIf(
-              lastMonthForecast.minus(lastMonthSpendings),
-              isIncome || toSavings
-            ),
-        isIncome,
+          : lastMonthSpendings.minus(lastMonthForecast),
       },
       thisMonth: {
         spendings: thisMonthSpendings,
         diff: forecast.category.fromSavings
           ? new Decimal(0)
-          : negateIf(
-              forecast.sum.minus(thisMonthSpendings),
-              isIncome || toSavings
-            ),
-        isIncome: forecast.category.isIncome,
+          : thisMonthSpendings.minus(forecast.sum),
       },
       sum: forecast.category.fromSavings ? null : forecast.sum,
       subscriptions: dataStores.subscriptionStore.getSubscriptionsForForecast(
@@ -386,24 +372,13 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
         (f) => f.group === "savings"
       );
 
-      const thisMonthTotal = dataStores.expenseStore
-        .totalPerMonth({
-          year,
-          month,
-          isIncome: true,
-        })
-        .minus(
-          dataStores.expenseStore.totalPerMonth({
-            year,
-            month,
-            isIncome: false,
-            excludeTypes: ["FROM_SAVINGS"],
-          })
-        );
+      const thisMonthTotal = dataStores.expenseStore.totalPerMonth({
+        year,
+        month,
+        excludeTypes: ["FROM_SAVINGS"],
+      });
 
-      const sumTotal = this.totalForMonth(year, month, true).minus(
-        this.totalForMonth(year, month, false)
-      );
+      const sumTotal = this.totalForMonth(year, month);
 
       return [
         {
@@ -425,14 +400,12 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
               ...expensesForecasts.map((f) => f.lastMonth.spendings)
             ),
             diff: decimalSum(...expensesForecasts.map((f) => f.lastMonth.diff)),
-            isIncome: false,
           },
           thisMonth: {
             spendings: decimalSum(
               ...expensesForecasts.map((f) => f.thisMonth.spendings)
             ),
             diff: decimalSum(...expensesForecasts.map((f) => f.thisMonth.diff)),
-            isIncome: false,
           },
           sum: decimalSum(
             ...expensesForecasts.map((f) => f.sum ?? new Decimal(0))
@@ -460,14 +433,12 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
               ...savingsForecasts.map((f) => f.lastMonth.spendings)
             ),
             diff: decimalSum(...savingsForecasts.map((f) => f.lastMonth.diff)),
-            isIncome: false,
           },
           thisMonth: {
             spendings: decimalSum(
               ...savingsForecasts.map((f) => f.thisMonth.spendings)
             ),
             diff: decimalSum(...savingsForecasts.map((f) => f.thisMonth.diff)),
-            isIncome: false,
           },
           sum: decimalSum(
             ...savingsForecasts.map((f) => f.sum ?? new Decimal(0))
@@ -495,14 +466,12 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
               ...incomeForecasts.map((f) => f.lastMonth.spendings)
             ),
             diff: decimalSum(...incomeForecasts.map((f) => f.lastMonth.diff)),
-            isIncome: true,
           },
           thisMonth: {
             spendings: decimalSum(
               ...incomeForecasts.map((f) => f.thisMonth.spendings)
             ),
             diff: decimalSum(...incomeForecasts.map((f) => f.thisMonth.diff)),
-            isIncome: true,
           },
           sum: decimalSum(
             ...incomeForecasts.map((f) => f.sum ?? new Decimal(0))
@@ -534,12 +503,10 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
             diff: decimalSum(
               ...thisMonthForecasts.map((f) => f.lastMonth.diff)
             ),
-            isIncome: false,
           },
           thisMonth: {
             spendings: thisMonthTotal,
             diff: thisMonthTotal.minus(sumTotal),
-            isIncome: false,
           },
           sum: sumTotal,
           subscriptions: thisMonthForecasts.flatMap((f) => f.subscriptions),
@@ -549,14 +516,13 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
     }
   );
 
-  totalForMonth(year: number, month: number, isIncome: boolean) {
+  totalForMonth(year: number, month: number) {
     return decimalSum(
       ...this.categoriesForecasts
         .filter(
           (forecast) =>
             forecast.month === month &&
             forecast.year === year &&
-            forecast.category.isIncome === isIncome &&
             !forecast.category.fromSavings
         )
         .map((f) => f.sum)
@@ -591,7 +557,7 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
       subcategoryId,
       month,
       year,
-      sum,
+      sum: sum.abs(),
     });
     return runInAction(() => adaptForecastFromApi(response));
   }

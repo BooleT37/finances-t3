@@ -1,9 +1,11 @@
 import React from "react";
 import TotalCostCellView from "~/components/TotalCostCellView";
-import costToString from "~/utils/costToString";
+import { costToDiffString, costToString } from "~/utils/costUtils";
 
+import { Space } from "antd";
 import Decimal from "decimal.js";
 import type { CostCol } from "~/models/Expense";
+import { divideWithFallbackToOne } from "~/utils/diffUtils";
 import CostCellView from "./CostCellView";
 import { getCostForecast } from "./getCostForecast";
 
@@ -48,77 +50,67 @@ const CostAggregatedCellRenderer: React.FC<Props> = ({
     );
   }
 
-  const forecast = getCostForecast({
-    categoryId,
-    isSubcategoryRow,
-    subcategoryId,
-    month,
-    year,
-    isIncome,
-  });
-  const diff = forecast !== undefined ? forecast.minus(value) : value.neg();
+  const forecast =
+    getCostForecast({
+      categoryId,
+      isSubcategoryRow,
+      subcategoryId,
+      month,
+      year,
+      isIncome,
+    }) ?? new Decimal(0);
+  const forecastNumber = forecast.toNumber();
+  const diff = forecast !== undefined ? value.minus(forecast) : value;
   const diffNumber = diff.toNumber();
   const valueNumber = value.toNumber();
-  const diffSum = costToString(diff.abs());
-  const tooltip = `План: ${costToString(forecast ?? new Decimal(0))}`;
-  if (isIncome) {
-    if (diff.isPositive()) {
+  const color = diff.isNeg() ? "red" : "green";
+  const tooltip = `План: ${costToString(forecast)}`;
+
+  if (value.abs().lessThanOrEqualTo(forecast.abs())) {
+    const spentRatio = divideWithFallbackToOne(valueNumber, forecastNumber);
+    const exceedingForecast =
+      isContinuous && passedDaysRatio !== null && spentRatio > passedDaysRatio;
+
+    if (exceedingForecast) {
       return (
         <TotalCostCellView
           cost={costString}
-          suffix={`-${diffSum}`}
-          color="red"
-          barWidth={diffNumber / diff.plus(value).toNumber()}
-          tooltip={tooltip}
+          suffix={costToDiffString(diff)}
+          color="orange"
+          barWidth={spentRatio}
+          tooltip={
+            <Space direction="vertical">
+              <div>{tooltip}</div>
+              <div>
+                Превышение на{" "}
+                {costToString(
+                  Math.abs(valueNumber - passedDaysRatio * forecastNumber)
+                )}
+              </div>
+            </Space>
+          }
         />
       );
     }
-    return (
-      <TotalCostCellView
-        cost={costString}
-        suffix={diffSum}
-        color="green"
-        barWidth={-diffNumber / valueNumber}
-        barOffset={diffNumber / valueNumber + 1}
-        tooltip={tooltip}
-      />
-    );
-  }
-  if (diff.isPositive()) {
-    const spentRatio = valueNumber / (diffNumber + valueNumber);
-    const exceedingForecast =
-      isContinuous && passedDaysRatio !== null && spentRatio > passedDaysRatio;
-    const color = exceedingForecast ? "orange" : "green";
-
-    const exceedingAmount = exceedingForecast
-      ? costToString(valueNumber - passedDaysRatio * (valueNumber + diffNumber))
-      : undefined;
-    const title = exceedingAmount
-      ? `Превышение на ${exceedingAmount}`
-      : undefined;
 
     return (
       <TotalCostCellView
         cost={costString}
-        suffix={diffSum}
+        suffix={costToDiffString(diff)}
         color={color}
         barWidth={spentRatio}
-        title={title}
         tooltip={tooltip}
       />
     );
   }
-
-  const spentRatio = Math.min(-diffNumber / valueNumber, 1);
-  const offset = Math.max(diffNumber / valueNumber + 1, 0);
 
   return (
     <TotalCostCellView
       cost={costString}
-      suffix={`-${diffSum}`}
-      color="red"
-      barWidth={spentRatio}
-      barOffset={offset}
+      suffix={costToDiffString(diff)}
+      color={diff.isNeg() ? "red" : "green"}
+      barOffset={forecastNumber / valueNumber}
+      barWidth={diffNumber / valueNumber}
       tooltip={tooltip}
     />
   );

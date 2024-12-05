@@ -1,6 +1,6 @@
 import React from "react";
 import { type CostCol } from "~/models/Expense";
-import costToString from "~/utils/costToString";
+import { costToString } from "~/utils/costUtils";
 import CostCellView from "./CostCellView";
 
 interface Props {

@@ -8,7 +8,7 @@ import Decimal from "decimal.js";
 import { range } from "lodash";
 import { observer } from "mobx-react";
 import { dataStores } from "~/stores/dataStores";
-import costToString from "~/utils/costToString";
+import { costToString } from "~/utils/costUtils";
 import { decimalSum } from "~/utils/decimalSum";
 
 interface BarDatum {

@@ -119,10 +119,7 @@ class ExpenseModalViewModel {
           `Can't change the expense with id '${expenseModalViewModel.expenseId}'`
         );
       }
-      return await dataStores.expenseStore.modify(
-        newExpense,
-        this.originalComponents
-      );
+      return await dataStores.expenseStore.modify(newExpense);
     } else {
       return await dataStores.expenseStore.add(newExpense);
     }

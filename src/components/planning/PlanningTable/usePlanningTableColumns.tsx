@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { TOTAL_ROW_CATEGORY_ID } from "~/models/Category";
 import { type ForecastTableItem } from "~/stores/ForecastStore/types";
 import type { ForecastSubscriptionsItem } from "~/types/forecast/forecastTypes";
-import costToString from "~/utils/costToString";
+import { costToString } from "~/utils/costUtils";
 import CostCellRenderer from "../CostCellRenderer";
 import LastMonthCellRenderer from "../LastMonthCellRenderer";
 import ThisMonthCellRenderer from "../ThisMonthCellRenderer";

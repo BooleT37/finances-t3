@@ -4,7 +4,7 @@ import type { Dayjs } from "dayjs";
 import Decimal from "decimal.js";
 import React, { useCallback, useEffect, useMemo } from "react";
 import { type ExpenseComponentData } from "~/models/Expense";
-import costToString from "~/utils/costToString";
+import { costToString } from "~/utils/costUtils";
 import { decimalSum } from "~/utils/decimalSum";
 import { getTempId } from "~/utils/tempId";
 import {

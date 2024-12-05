@@ -34,13 +34,15 @@ export const useHandleSumChange = ({
       sum: Decimal,
       row: MRT_Row<ForecastTableItem>
     ) => {
+      const category = dataStores.categoriesStore.getById(categoryId);
+      const sumWithCorrectSign = category.isIncome ? sum : sum.abs().negated();
       if (subcategoryId === null) {
         await dataStores.forecastStore.changeForecastSum(
           dataStores.categoriesStore.getById(categoryId),
           null,
           month,
           year,
-          sum
+          sumWithCorrectSign
         );
         return;
       }
@@ -81,7 +83,7 @@ export const useHandleSumChange = ({
             null,
             month,
             year,
-            siblingsSum.plus(sum)
+            siblingsSum.plus(sumWithCorrectSign)
           );
         }
 
@@ -95,7 +97,7 @@ export const useHandleSumChange = ({
             ),
             month,
             year,
-            sum
+            sumWithCorrectSign
           );
         }
       });

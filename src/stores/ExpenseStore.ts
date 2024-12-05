@@ -1,8 +1,4 @@
-import type {
-  Expense as ApiExpense,
-  CategoryType,
-  ExpenseComponent,
-} from "@prisma/client";
+import type { Expense as ApiExpense, CategoryType } from "@prisma/client";
 import dayjs, { type Dayjs } from "dayjs";
 import Decimal from "decimal.js";
 import { groupBy } from "lodash";
@@ -158,14 +154,11 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
     });
   }
 
-  async modify(
-    expense: Expense,
-    // TODO get original components from original expense??
-    originalComponents: ExpenseComponent[]
-  ): Promise<Expense> {
+  async modify(expense: Expense): Promise<Expense> {
     const foundIndex = this.expenses.findIndex((e) => e.id === expense.id);
     if (foundIndex !== -1) {
       const originalExpense = this.expenses[foundIndex];
+      const originalComponents = originalExpense?.components ?? [];
       this.expenses[foundIndex] = expense;
       const response = await trpc.expense.update.mutate({
         id: expense.id,
@@ -512,19 +505,15 @@ export default class ExpenseStore implements DataLoader<ApiExpense[]> {
   totalPerMonth({
     year,
     month,
-    isIncome,
     excludeTypes = [],
   }: {
     year: number;
     month: number;
-    isIncome: boolean;
     excludeTypes?: CategoryType[];
   }): Decimal {
     const monthExpenses = this.expenses.filter(
       (expense) =>
-        expense.date.month() === month &&
-        expense.date.year() === year &&
-        expense.category.isIncome === isIncome
+        expense.date.month() === month && expense.date.year() === year
     );
 
     return decimalSum(

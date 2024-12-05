@@ -10,7 +10,7 @@ export function adaptExpenseToCreateInput(
 ): Prisma.ExpenseCreateInput {
   return {
     name: expense.name,
-    cost: expense.cost,
+    cost: expense.cost.abs(),
     date: expense.date.toDate(),
     actualDate: expense.actualDate ? expense.actualDate.toDate() : null,
     category: {
@@ -24,9 +24,10 @@ export function adaptExpenseToCreateInput(
     ),
     components: {
       createMany: {
-        data: expense.components.map((component) =>
-          omit(component.asApi, ["expenseId", "id"])
-        ),
+        data: expense.components.map((component) => ({
+          ...omit(component.asApi, ["expenseId", "id"]),
+          cost: component.cost.abs(),
+        })),
       },
     },
     peHash: expense.peHash,
@@ -38,7 +39,7 @@ export function adaptExpenseToCreateManyInput(
 ): Prisma.ExpenseCreateManyInput {
   return {
     name: expense.name,
-    cost: expense.cost,
+    cost: expense.cost.abs(),
     date: expense.date.toDate(),
     actualDate: expense.actualDate ? expense.actualDate.toDate() : null,
     categoryId: expense.category.id,

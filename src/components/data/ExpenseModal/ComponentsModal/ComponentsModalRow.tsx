@@ -12,7 +12,7 @@ import type Decimal from "decimal.js";
 import { runInAction } from "mobx";
 import styled from "styled-components";
 import { dataStores } from "~/stores/dataStores";
-import costToString from "~/utils/costToString";
+import { costToString } from "~/utils/costUtils";
 import {
   parseCategorySubcategoryId,
   type CategorySubcategoryId,

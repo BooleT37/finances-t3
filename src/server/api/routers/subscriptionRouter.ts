@@ -5,6 +5,10 @@ import {
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { connectUser, filterByUser } from "~/server/api/utils/linkCurrentUser";
+import {
+  isDecimalFieldUpdateOperationsInput,
+  isNegative,
+} from "../utils/decimalUtils";
 
 export const subscriptionRouter = createTRPCRouter({
   getAll: protectedProcedure.query(({ ctx }) => {
@@ -16,7 +20,12 @@ export const subscriptionRouter = createTRPCRouter({
       ctx.db.subscription.update({ data: { active }, where: { id } })
     ),
   create: protectedProcedure
-    .input(SubscriptionCreateWithoutUserInputObjectSchema)
+    .input(
+      SubscriptionCreateWithoutUserInputObjectSchema.refine(
+        (data) => !isNegative(data.cost),
+        "Cost cannot be negative"
+      )
+    )
     .mutation(({ ctx, input }) => {
       return ctx.db.subscription.create({
         data: { ...input, ...connectUser(ctx) },
@@ -24,10 +33,18 @@ export const subscriptionRouter = createTRPCRouter({
     }),
   update: protectedProcedure
     .input(
-      z.object({
-        id: z.number(),
-        data: SubscriptionUpdateWithoutUserInputObjectSchema,
-      })
+      z
+        .object({
+          id: z.number(),
+          data: SubscriptionUpdateWithoutUserInputObjectSchema,
+        })
+        .refine(
+          ({ data }) =>
+            data.cost === undefined ||
+            isDecimalFieldUpdateOperationsInput(data.cost) ||
+            !isNegative(data.cost),
+          "Cost cannot be negative"
+        )
     )
     .mutation(({ ctx, input: { data, id } }) =>
       ctx.db.subscription.update({ data, where: { id } })

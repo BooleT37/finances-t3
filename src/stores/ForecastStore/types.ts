@@ -5,7 +5,6 @@ import type { ForecastSubscriptionsItem } from "~/types/forecast/forecastTypes";
 export interface MonthSpendings {
   spendings: Decimal;
   diff: Decimal;
-  isIncome: boolean;
 }
 
 export type ForecastTableItemGroup = "expense" | "savings" | "income" | "total";

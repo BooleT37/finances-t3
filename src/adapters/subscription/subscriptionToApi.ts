@@ -6,7 +6,7 @@ export function adaptSubscriptionToCreateInput(
 ): Prisma.SubscriptionCreateInput {
   return {
     name: subscription.name,
-    cost: subscription.cost,
+    cost: subscription.cost.abs(),
     category: { connect: { id: subscription.category.id } },
     period: subscription.period,
     firstDate: subscription.firstDate.toDate(),
@@ -23,7 +23,7 @@ export function adaptSubscriptionToUpdateInput(
 ): Prisma.SubscriptionUpdateInput {
   return {
     name: subscription.name,
-    cost: subscription.cost,
+    cost: subscription.cost.abs(),
     category: {
       connect: {
         id: subscription.category.id,

@@ -2,7 +2,7 @@ import { MoneyCollectOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import { Tooltip } from "antd";
 import type Decimal from "decimal.js";
 import React from "react";
-import costToString from "~/utils/costToString";
+import { costToString } from "~/utils/costUtils";
 
 interface Props {
   cost: string;

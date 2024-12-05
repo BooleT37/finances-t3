@@ -4,7 +4,7 @@ import {
 } from "ag-charts-community";
 import { AgChartsReact } from "ag-charts-react";
 import Decimal from "decimal.js";
-import costToString from "~/utils/costToString";
+import { costToString } from "~/utils/costUtils";
 
 export interface SubscriptionDatum {
   name: string;

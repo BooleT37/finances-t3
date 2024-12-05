@@ -22,7 +22,7 @@ export const adaptExpenseFromApi = action(
     const category = dataStores.categoriesStore.getById(expense.categoryId);
     return new Expense(
       expense.id,
-      expense.cost,
+      category.isIncome ? expense.cost : expense.cost.negated(),
       expense.components,
       dayjs(expense.date),
       category,

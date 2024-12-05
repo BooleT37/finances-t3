@@ -3,8 +3,9 @@ import Forecast from "~/models/Forecast";
 import { dataStores } from "~/stores/dataStores";
 
 export function adaptForecastFromApi(forecast: ApiForecast): Forecast {
+  const category = dataStores.categoriesStore.getById(forecast.categoryId);
   return new Forecast(
-    dataStores.categoriesStore.getById(forecast.categoryId),
+    category,
     forecast.subcategoryId === null
       ? null
       : dataStores.categoriesStore.getSubcategoryById(
@@ -13,7 +14,7 @@ export function adaptForecastFromApi(forecast: ApiForecast): Forecast {
         ),
     forecast.month,
     forecast.year,
-    forecast.sum,
+    category.isIncome ? forecast.sum : forecast.sum.negated(),
     forecast.comment
   );
 }

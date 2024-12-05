@@ -6,10 +6,11 @@ import { dataStores } from "~/stores/dataStores";
 export function adaptSubscriptionFromApi(
   subscription: ApiSubscription
 ): Subscription {
+  const category = dataStores.categoriesStore.getById(subscription.categoryId);
   return new Subscription(
     subscription.id,
     subscription.name,
-    subscription.cost,
+    category.isIncome ? subscription.cost : subscription.cost.negated(),
     dataStores.categoriesStore.getById(subscription.categoryId),
     subscription.subcategoryId === null
       ? null

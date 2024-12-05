@@ -4,7 +4,7 @@ import { observer } from "mobx-react";
 import Link from "next/link";
 import styled from "styled-components";
 import { dataStores } from "~/stores/dataStores";
-import costToString from "~/utils/costToString";
+import { costToString } from "~/utils/costUtils";
 
 const Wrapper = styled.div`
   position: absolute;

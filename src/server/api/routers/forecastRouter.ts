@@ -22,6 +22,7 @@ export const forecastRouter = createTRPCRouter({
           (data) => data.sum !== undefined || data.comment !== undefined,
           "You need to specify either sum or comment"
         )
+        .refine((data) => !data.sum?.isNegative(), "Sum cannot be negative")
     )
     .mutation(async ({ ctx, input }) => {
       // cannot use upsert because the unique constraint does not support null subcategoryId

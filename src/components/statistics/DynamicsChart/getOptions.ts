@@ -3,7 +3,7 @@ import {
   type AgChartOptions,
 } from "ag-charts-community";
 import type DynamicsData from "~/types/statistics/dynamicsData";
-import costToString from "~/utils/costToString";
+import { costToString } from "~/utils/costUtils";
 import { palette } from "./palette";
 
 const getOptions = (
