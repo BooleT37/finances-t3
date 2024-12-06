@@ -1,7 +1,7 @@
 import {
-  SourceCreateWithoutUserInputObjectSchema,
-  SourceUpdateWithoutUserInputObjectSchema,
-} from "prisma/generated/schemas";
+  SourceCreateWithoutUserInputSchema,
+  SourceUpdateWithoutUserInputSchema,
+} from "prisma/generated/zod";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { connectUser, filterByUser } from "~/server/api/utils/linkCurrentUser";
@@ -11,7 +11,7 @@ export const sourcesRouter = createTRPCRouter({
     return ctx.db.source.findMany(filterByUser(ctx));
   }),
   create: protectedProcedure
-    .input(SourceCreateWithoutUserInputObjectSchema)
+    .input(SourceCreateWithoutUserInputSchema)
     .mutation(({ ctx, input }) =>
       ctx.db.source.create({
         data: {
@@ -24,7 +24,7 @@ export const sourcesRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.number(),
-        data: SourceUpdateWithoutUserInputObjectSchema,
+        data: SourceUpdateWithoutUserInputSchema,
       })
     )
     .mutation(({ ctx, input: { data, id } }) =>

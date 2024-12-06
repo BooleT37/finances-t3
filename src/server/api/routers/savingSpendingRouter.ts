@@ -1,7 +1,7 @@
 import {
-  SavingSpendingCreateWithoutUserInputObjectSchema,
-  SavingSpendingUpdateWithoutUserInputObjectSchema,
-} from "prisma/generated/schemas";
+  SavingSpendingCreateWithoutUserInputSchema,
+  SavingSpendingUpdateWithoutUserInputSchema,
+} from "prisma/generated/zod";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { connectUser, filterByUser } from "~/server/api/utils/linkCurrentUser";
@@ -14,7 +14,7 @@ export const savingSpendingRouter = createTRPCRouter({
     });
   }),
   create: protectedProcedure
-    .input(SavingSpendingCreateWithoutUserInputObjectSchema)
+    .input(SavingSpendingCreateWithoutUserInputSchema)
     .mutation(({ input, ctx }) =>
       ctx.db.savingSpending.create({
         data: {
@@ -28,7 +28,7 @@ export const savingSpendingRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.number(),
-        data: SavingSpendingUpdateWithoutUserInputObjectSchema,
+        data: SavingSpendingUpdateWithoutUserInputSchema,
       })
     )
     .mutation(({ input: { data, id }, ctx }) =>

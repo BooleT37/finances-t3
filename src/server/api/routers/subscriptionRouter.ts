@@ -1,7 +1,7 @@
 import {
-  SubscriptionCreateWithoutUserInputObjectSchema,
-  SubscriptionUpdateWithoutUserInputObjectSchema,
-} from "prisma/generated/schemas";
+  SubscriptionCreateWithoutUserInputSchema,
+  SubscriptionUpdateWithoutUserInputSchema,
+} from "prisma/generated/zod";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { connectUser, filterByUser } from "~/server/api/utils/linkCurrentUser";
@@ -21,7 +21,7 @@ export const subscriptionRouter = createTRPCRouter({
     ),
   create: protectedProcedure
     .input(
-      SubscriptionCreateWithoutUserInputObjectSchema.refine(
+      SubscriptionCreateWithoutUserInputSchema.refine(
         (data) => !isNegative(data.cost),
         "Cost cannot be negative"
       )
@@ -36,7 +36,7 @@ export const subscriptionRouter = createTRPCRouter({
       z
         .object({
           id: z.number(),
-          data: SubscriptionUpdateWithoutUserInputObjectSchema,
+          data: SubscriptionUpdateWithoutUserInputSchema,
         })
         .refine(
           ({ data }) =>

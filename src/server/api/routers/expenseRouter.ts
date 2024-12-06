@@ -1,8 +1,8 @@
 import {
-  ExpenseCreateManyInputObjectSchema,
-  ExpenseCreateWithoutUserInputObjectSchema,
-  ExpenseUpdateWithoutUserInputObjectSchema,
-} from "prisma/generated/schemas";
+  ExpenseCreateManyInputSchema,
+  ExpenseCreateWithoutUserInputSchema,
+  ExpenseUpdateWithoutUserInputSchema,
+} from "prisma/generated/zod";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { connectUser, filterByUser } from "~/server/api/utils/linkCurrentUser";
@@ -20,7 +20,7 @@ export const expenseRouter = createTRPCRouter({
   ),
   create: protectedProcedure
     .input(
-      ExpenseCreateWithoutUserInputObjectSchema.refine(
+      ExpenseCreateWithoutUserInputSchema.refine(
         (data) => !isNegative(data.cost),
         "Cost cannot be negative"
       )
@@ -37,7 +37,7 @@ export const expenseRouter = createTRPCRouter({
   createMany: protectedProcedure
     .input(
       z
-        .array(ExpenseCreateManyInputObjectSchema)
+        .array(ExpenseCreateManyInputSchema)
         .refine(
           (data) => data.every((item) => !isNegative(item.cost)),
           "Cost cannot be negative"
@@ -56,7 +56,7 @@ export const expenseRouter = createTRPCRouter({
       z
         .object({
           id: z.number(),
-          data: ExpenseUpdateWithoutUserInputObjectSchema,
+          data: ExpenseUpdateWithoutUserInputSchema,
         })
         .refine(
           ({ data }) =>

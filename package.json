@@ -11,14 +11,14 @@
     "db:studio": "prisma studio",
     "vercel-build": "npm run db:migrate && npm run build",
     "dev": "next dev -p 3001",
-    "postinstall": "npm i --prefix prisma/prizma-zod-generator && prisma generate",
+    "postinstall": "prisma generate",
     "lint": "next lint",
     "start": "next start",
     "prisma:format": "prisma format",
     "types:watch": "tsc --noEmit -w"
   },
   "dependencies": {
-    "@auth/prisma-adapter": "^1.6.0",
+    "@auth/prisma-adapter": "^2.7.4",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.0",
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
@@ -27,7 +27,7 @@
     "@mui/icons-material": "^5.15.14",
     "@mui/material": "^5.15.14",
     "@mui/x-date-pickers": "^6.19.7",
-    "@prisma/client": "^4.16.2",
+    "@prisma/client": "^6.0.1",
     "@t3-oss/env-nextjs": "^0.10.1",
     "@tanstack/react-query": "^5.53.3",
     "@trpc/client": "^11.0.0-rc.446",
@@ -51,14 +51,14 @@
     "next-connect": "^1.0.0",
     "object-hash": "^3.0.0",
     "pdf-data-parser": "^1.2.15",
-    "prisma-zod-generator": "^0.8.11",
     "rc-menu": "^9.8.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "server-only": "^0.0.1",
     "styled-components": "^6.1.13",
     "superjson": "^2.2.1",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "zod-prisma-types": "^3.2.1"
   },
   "devDependencies": {
     "@types/eslint": "^8.21.1",
@@ -74,7 +74,7 @@
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.8",
     "eslint-plugin-mobx": "^0.0.9",
-    "prisma": "^4.16.2",
+    "prisma": "^6.0.1",
     "typescript": "^5.5.4"
   },
   "ct3aMetadata": {

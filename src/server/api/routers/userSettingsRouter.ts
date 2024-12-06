@@ -1,4 +1,4 @@
-import { UserSettingUpdateInputObjectSchema } from "prisma/generated/schemas";
+import { UserSettingUpdateInputSchema } from "prisma/generated/zod";
 import { z } from "zod";
 import {
   createTRPCRouter,
@@ -29,7 +29,7 @@ export const userSettingsRouter = createTRPCRouter({
       });
     }),
   update: protectedProcedure
-    .input(UserSettingUpdateInputObjectSchema)
+    .input(UserSettingUpdateInputSchema)
     .mutation(({ ctx, input }) => {
       return ctx.db.userSetting.update({
         data: input,

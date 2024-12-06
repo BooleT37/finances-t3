@@ -1,7 +1,7 @@
 import {
-  CategoryCreateWithoutUserInputObjectSchema,
-  CategoryUpdateWithoutUserInputObjectSchema,
-} from "prisma/generated/schemas";
+  CategoryCreateWithoutUserInputSchema,
+  CategoryUpdateWithoutUserInputSchema,
+} from "prisma/generated/zod";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { connectUser, filterByUser } from "~/server/api/utils/linkCurrentUser";
@@ -14,7 +14,7 @@ export const categoriesRouter = createTRPCRouter({
     });
   }),
   create: protectedProcedure
-    .input(CategoryCreateWithoutUserInputObjectSchema)
+    .input(CategoryCreateWithoutUserInputSchema)
     .mutation(({ ctx, input }) => {
       return ctx.db.category.create({
         data: {
@@ -28,7 +28,7 @@ export const categoriesRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.number(),
-        data: CategoryUpdateWithoutUserInputObjectSchema,
+        data: CategoryUpdateWithoutUserInputSchema,
       })
     )
     .mutation(({ ctx, input: { data, id } }) => {

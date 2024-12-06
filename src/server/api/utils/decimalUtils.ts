@@ -1,5 +1,5 @@
 import type { Prisma } from "@prisma/client";
-import type { DecimalJsLike } from "@prisma/client/runtime";
+import type { DecimalJsLike } from "@prisma/client/runtime/library";
 import Decimal from "decimal.js";
 
 function isDecimalJsLike(
