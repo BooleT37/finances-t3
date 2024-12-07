@@ -267,7 +267,6 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
       }
       form.setFieldsValue({
         cost: subscription.cost.toString(),
-        date: subscriptionData.firstDate,
         name: subscriptionData.subscription.name,
         source: subscription.source?.id,
       });
