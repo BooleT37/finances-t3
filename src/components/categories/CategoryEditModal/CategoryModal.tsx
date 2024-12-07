@@ -1,5 +1,4 @@
-import { CategoryType } from "@prisma/client";
-import { Form, Input, Modal, Select, Switch } from "antd";
+import { Form, Input, Modal, Switch } from "antd";
 import { runInAction, toJS } from "mobx";
 import { observer } from "mobx-react";
 import { useEffect } from "react";
@@ -16,7 +15,6 @@ export interface FormValues {
   shortname: string;
   isIncome: boolean;
   isContinuous: boolean;
-  type: CategoryType;
   subcategories: Subcategory[];
 }
 
@@ -36,7 +34,6 @@ const CategoryModal = observer(function CategoryModal() {
             icon: currentCategory.icon,
             isIncome: currentCategory.isIncome,
             isContinuous: currentCategory.isContinuous,
-            type: currentCategory.type ?? undefined,
             subcategories: currentCategory.subcategories.map((subc) =>
               toJS(subc)
             ),
@@ -116,19 +113,6 @@ const CategoryModal = observer(function CategoryModal() {
           valuePropName="checked"
         >
           <Switch />
-        </Form.Item>
-        <Form.Item
-          name="type"
-          label="Тип"
-          hidden={["FROM_SAVINGS", "TO_SAVINGS"].includes(
-            currentCategory?.type ?? ""
-          )}
-        >
-          <Select
-            allowClear
-            placeholder="Нет типа"
-            options={[{ value: CategoryType.RENT, label: "Аренда" }]}
-          />
         </Form.Item>
         <SubcategoriesList />
       </Form>

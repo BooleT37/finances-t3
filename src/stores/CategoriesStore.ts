@@ -91,14 +91,6 @@ export default class CategoriesStore
       );
   }
 
-  get personalExpensesCategories() {
-    return this.expenseCategories.filter((c) => c.isPersonal);
-  }
-
-  get generalExpenseCategories() {
-    return this.expenseCategories.filter((c) => !c.isPersonal && !c.isSavings);
-  }
-
   get expenseCategoriesTreeOptions() {
     return this.expenseCategories.map((c) => c.asTreeOption);
   }

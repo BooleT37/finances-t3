@@ -21,13 +21,13 @@ export const SubscriptionsStep: React.FC = observer(
     const { activeSubscriptions } = dataStores.subscriptionStore;
     const thisYearExpenses = expenses.filter(
       (e) =>
-        (rentShown || e.category.type !== "RENT") &&
+        (rentShown || e.category.name !== "Аренда") &&
         e.date.year() === 2022 &&
         e.subscription != null
     );
 
     const filteredActiveSubscriptions = activeSubscriptions.filter(
-      (s) => rentShown || s.category.type !== "RENT"
+      (s) => rentShown || s.category.name !== "Аренда"
     );
 
     const thisYearDataByCategories: SubscriptionDatum[] = Object.entries(

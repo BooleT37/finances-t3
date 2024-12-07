@@ -7,7 +7,8 @@ import categoryModalViewModel from "./categoryModalViewModel";
 
 export const useHandleCategorySubmit = (form: FormInstance<FormValues>) => {
   const [loading, setLoading] = useState(false);
-  const { categoryId, close } = categoryModalViewModel;
+  const { categoryId, close, currentCategory } = categoryModalViewModel;
+  const currentCategoryType = currentCategory?.type ?? null;
   const handleSubmit = useCallback(async () => {
     try {
       const values = await form.validateFields();
@@ -19,7 +20,7 @@ export const useHandleCategorySubmit = (form: FormInstance<FormValues>) => {
             values.name,
             values.shortname,
             values.icon,
-            values.type,
+            null,
             values.isIncome,
             values.isContinuous,
             values.subcategories
@@ -32,7 +33,7 @@ export const useHandleCategorySubmit = (form: FormInstance<FormValues>) => {
             values.name,
             values.shortname,
             values.icon,
-            values.type,
+            currentCategoryType,
             values.isIncome,
             values.isContinuous,
             values.subcategories
@@ -49,7 +50,7 @@ export const useHandleCategorySubmit = (form: FormInstance<FormValues>) => {
     } finally {
       setLoading(false);
     }
-  }, [categoryId, close, form]);
+  }, [categoryId, close, currentCategoryType, form]);
 
   return { loading, handleSubmit };
 };

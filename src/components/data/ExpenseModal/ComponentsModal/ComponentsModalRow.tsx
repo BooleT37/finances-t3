@@ -8,18 +8,13 @@ import {
   type FormListFieldData,
 } from "antd";
 import type { Dayjs } from "dayjs";
-import type Decimal from "decimal.js";
-import { runInAction } from "mobx";
 import styled from "styled-components";
-import { dataStores } from "~/stores/dataStores";
-import { costToString } from "~/utils/costUtils";
 import {
   parseCategorySubcategoryId,
   type CategorySubcategoryId,
 } from "../../../categories/categorySubcategoryId";
 import { CategorySubcategorySelect } from "../../../categories/CategorySubcategorySelect";
 import type { FormValues } from "./ComponentsModal";
-import { useGetForecastSum } from "./useForecastSum";
 
 interface Props extends FormListFieldData {
   date: Dayjs | undefined;
@@ -68,22 +63,7 @@ export const ComponentsModalRow: React.FC<Props> = ({
   ...restField
 }) => {
   const form = Form.useFormInstance<FormValues>();
-  let personalExpForecastSum: Decimal | undefined;
-  const categorySubcategoryId = Form.useWatch(
-    ["components", name, "categorySubcategoryId"],
-    form
-  );
   const id = Form.useWatch(["components", name, "id"], form);
-  const getForecastSum = useGetForecastSum(date);
-  if (categorySubcategoryId) {
-    const { categoryId } = parseCategorySubcategoryId(categorySubcategoryId);
-    runInAction(() => {
-      const category = dataStores.categoriesStore.getById(categoryId);
-      if (category.isPersonal) {
-        personalExpForecastSum = getForecastSum(categoryId);
-      }
-    });
-  }
   return (
     <SpaceStyled
       align="start"
@@ -107,15 +87,10 @@ export const ComponentsModalRow: React.FC<Props> = ({
       </Form.Item>
       <Form.Item
         {...restField}
-        extra={
-          personalExpForecastSum !== undefined
-            ? `Макс: ${costToString(personalExpForecastSum)}`
-            : undefined
-        }
         rules={[
           { required: true, message: "Выберите категорию" },
           {
-            validator(rule, value) {
+            validator(_rule, value) {
               const { categoryId, subcategoryId } = parseCategorySubcategoryId(
                 value as CategorySubcategoryId
               );

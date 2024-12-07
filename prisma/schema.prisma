@@ -81,7 +81,6 @@ model Subcategory {
 enum CategoryType {
   FROM_SAVINGS
   TO_SAVINGS
-  RENT
 }
 
 model Category {
