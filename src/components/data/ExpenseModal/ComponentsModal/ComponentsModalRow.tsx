@@ -136,6 +136,7 @@ export const ComponentsModalRow: React.FC<Props> = ({
       >
         <CategorySubcategorySelect
           currentSelectedCategoryId={defaultCategoryId}
+          isExpense={true}
         />
       </Form.Item>
       <Button

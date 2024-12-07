@@ -18,7 +18,7 @@ type Props = TreeSelectProps<
   CategoryTreeSelectOption
 > & {
   currentSelectedCategoryId?: number | null;
-  isExpense?: boolean;
+  isExpense: boolean;
 };
 
 export const CategorySubcategorySelect: React.FC<Props> = observer((props) => {
