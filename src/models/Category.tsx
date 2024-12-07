@@ -60,10 +60,6 @@ export default class Category {
     };
   }
 
-  get isPersonal() {
-    return this.type === "PERSONAL_EXPENSE";
-  }
-
   get fromSavings() {
     return this.type === "FROM_SAVINGS";
   }

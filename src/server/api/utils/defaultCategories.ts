@@ -16,13 +16,6 @@ export const defaultCategories: Prisma.CategoryCreateManyInput[] = [
     type: "TO_SAVINGS",
   },
   {
-    name: "Личные расходы",
-    shortname: "Личные",
-    isContinuous: false,
-    isIncome: false,
-    type: "PERSONAL_EXPENSE",
-  },
-  {
     name: "Зарплата",
     shortname: "Зарплата",
     isContinuous: false,

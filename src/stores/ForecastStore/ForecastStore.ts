@@ -12,7 +12,6 @@ import { trpc } from "~/utils/api";
 import { MONTH_DATE_FORMAT } from "~/utils/constants";
 import countUniqueMonths from "~/utils/countUniqueMonths";
 import { decimalSum } from "~/utils/decimalSum";
-import { getPreviousMonth } from "~/utils/getPreviousMonth";
 import { sortAllCategoriesById } from "../categoriesOrder";
 import type { DataLoader } from "../dataStores";
 import { dataStores } from "../dataStores/DataStores";
@@ -597,33 +596,5 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
       comment,
     });
     return adaptForecastFromApi(response);
-  }
-
-  async transferPersonalExpense(
-    categoryId: number,
-    month: number,
-    year: number
-  ): Promise<Forecast | undefined> {
-    const { pePerMonth } = dataStores.userSettingsStore;
-    const category = dataStores.categoriesStore.getById(categoryId);
-    const { month: prevMonth, year: prevYear } = getPreviousMonth(month, year);
-    const prevMonthForecast = this.getCategoryForecast({
-      year: prevYear,
-      month: prevMonth,
-      categoryId: category.id,
-    });
-    if (!prevMonthForecast) {
-      alert("Сначала заполните прогноз за прошлый месяц!");
-      return;
-    }
-    const prevMonthSpends = dataStores.expenseStore.totalPerMonthForCategory({
-      year: prevYear,
-      month: prevMonth,
-      categoryId,
-    });
-    const correctedSum = prevMonthForecast.sum
-      .minus(prevMonthSpends)
-      .plus(pePerMonth ?? new Decimal(0));
-    return this.changeForecastSum(category, null, month, year, correctedSum);
   }
 }

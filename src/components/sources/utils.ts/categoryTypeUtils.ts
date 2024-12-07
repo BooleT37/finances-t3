@@ -7,7 +7,6 @@ export const ALL_CATEGORY_TYPES = [
 
 export const categoryTypeTranslations: Record<CategoryType, string> = {
   FROM_SAVINGS: "Из сбережений",
-  PERSONAL_EXPENSE: "Личные расходы",
   RENT: "Аренда",
   TO_SAVINGS: "В сбережения",
 };

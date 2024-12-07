@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import { type ForecastTableItem } from "~/stores/ForecastStore/types";
 import { costToString } from "~/utils/costUtils";
 
-import { Button, Space, Tooltip } from "antd";
+import { Space, Tooltip } from "antd";
 import type Decimal from "decimal.js";
 import styled from "styled-components";
 import type { ForecastSubscriptionsItem } from "~/types/forecast/forecastTypes";
@@ -26,7 +26,6 @@ interface Props {
     subcategoryId: number | null,
     sum: Decimal
   ) => Promise<void>;
-  transferPersonalExpense: (categoryId: number) => Promise<void>;
 }
 
 // eslint-disable-next-line mobx/missing-observer
@@ -36,7 +35,6 @@ const CostCellRenderer: React.FC<Props> = ({
   data,
   showSubcategoriesTooltip,
   saveSum,
-  transferPersonalExpense,
 }) => {
   const { categoryId, subcategoryId } = data;
   const handleClick = useCallback(
@@ -64,19 +62,6 @@ const CostCellRenderer: React.FC<Props> = ({
         {costToString(cost)}
         {subscriptions.length > 0 && (
           <SubscriptionsTooltip items={subscriptions} onClick={handleClick} />
-        )}
-        {data.categoryType === "PERSONAL_EXPENSE" && (
-          <Button
-            size="small"
-            shape="circle"
-            title="Рассчитать персональные расходы"
-            icon={<TransferPeIcon />}
-            onClick={() => {
-              if (data.categoryId !== null) {
-                void transferPersonalExpense(data.categoryId);
-              }
-            }}
-          />
         )}
       </Space>
     </Tooltip>

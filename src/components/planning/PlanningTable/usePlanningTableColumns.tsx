@@ -29,14 +29,9 @@ interface Params {
     subcategoryId: number | null,
     comment: string
   ) => Promise<void>;
-  transferPersonalExpense: (categoryId: number) => Promise<void>;
 }
 
-const usePlanningTableColumns = ({
-  saveSum,
-  saveComment,
-  transferPersonalExpense,
-}: Params) =>
+const usePlanningTableColumns = ({ saveSum, saveComment }: Params) =>
   useMemo(
     () => [
       columnHelper.accessor((row) => costToString(row.average), {
@@ -74,7 +69,6 @@ const usePlanningTableColumns = ({
               subcategoryId: number | null,
               sum: Decimal
             ) => saveSum(categoryId, subcategoryId, sum, row)}
-            transferPersonalExpense={transferPersonalExpense}
             parentData={cell.row.getParentRow()?.original ?? null}
             showSubcategoriesTooltip={
               (cell.row.depth === 1 &&
@@ -155,7 +149,7 @@ const usePlanningTableColumns = ({
         }),
       }),
     ],
-    [saveComment, saveSum, transferPersonalExpense]
+    [saveComment, saveSum]
   );
 
 export default usePlanningTableColumns;

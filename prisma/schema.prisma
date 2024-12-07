@@ -79,7 +79,6 @@ model Subcategory {
 }
 
 enum CategoryType {
-  PERSONAL_EXPENSE
   FROM_SAVINGS
   TO_SAVINGS
   RENT

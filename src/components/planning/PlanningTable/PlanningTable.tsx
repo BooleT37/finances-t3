@@ -6,7 +6,7 @@ import {
 } from "material-react-table";
 import { MRT_Localization_RU } from "material-react-table/locales/ru";
 import { observer } from "mobx-react";
-import React, { useCallback, useMemo } from "react";
+import React, { useMemo } from "react";
 import { NameWithOptionalIcon } from "~/components/categories/categoryIcons/NameWithOptionalIcon";
 import { dataStores } from "~/stores/dataStores";
 import { useHandleCommentChange } from "./useHandleCommentChange";
@@ -37,20 +37,9 @@ const PlanningTable: React.FC<Props> = observer(function PlanningTable({
 }) {
   const saveSum = useHandleSumChange({ month, year });
   const saveComment = useHandleCommentChange({ month, year });
-  const transferPersonalExpense = useCallback(
-    async (categoryId: number) => {
-      await dataStores.forecastStore.transferPersonalExpense(
-        categoryId,
-        month,
-        year
-      );
-    },
-    [month, year]
-  );
   const columns = usePlanningTableColumns({
     saveSum,
     saveComment,
-    transferPersonalExpense,
   });
   const data = dataStores.forecastStore.tableData({
     month,

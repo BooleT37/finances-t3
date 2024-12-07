@@ -127,13 +127,7 @@ const CategoryModal = observer(function CategoryModal() {
           <Select
             allowClear
             placeholder="Нет типа"
-            options={[
-              {
-                value: CategoryType.PERSONAL_EXPENSE,
-                label: "Личные расходы",
-              },
-              { value: CategoryType.RENT, label: "Аренда" },
-            ]}
+            options={[{ value: CategoryType.RENT, label: "Аренда" }]}
           />
         </Form.Item>
         <SubcategoriesList />
