@@ -19,6 +19,16 @@ import { RowActions } from "./RowActions";
 
 const { Text } = Typography;
 
+function getRowBgColor(depth: number) {
+  if (depth === 0) {
+    return "#e0e0e0";
+  }
+  if (depth === 1) {
+    return "#f0f0f0";
+  }
+  return "transparent";
+}
+
 interface Props {
   data: TableData[];
   currentMonth: number;
@@ -139,6 +149,7 @@ export const DataTable: React.FC<Props> = ({
     muiTableBodyCellProps: ({ row }) => ({
       sx: {
         color: row.original.isUpcomingSubscription ? "darkgray" : undefined,
+        background: getRowBgColor(row.depth),
       },
     }),
   });
