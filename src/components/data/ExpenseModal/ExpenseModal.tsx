@@ -140,9 +140,9 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
             }
           }
 
+          const expense = await insertExpense(values as ValidatedFormValues);
           form.resetFields();
           form.setFieldsValue({ source: values.source });
-          const expense = await insertExpense(values as ValidatedFormValues);
           runInAction(() => {
             if (addMore.value) {
               reset();
