@@ -76,7 +76,6 @@ export default class Expense {
     actualDate: Dayjs | null,
     peHash: string | null
   ) {
-    makeAutoObservable(this, { subcategory: observable }, { autoBind: true });
     this.id = id;
     this.cost = cost;
     this.replaceComponents(components);
@@ -89,6 +88,7 @@ export default class Expense {
     this.savingSpending = savingSpending;
     this.actualDate = actualDate;
     this.peHash = peHash;
+    makeAutoObservable(this, { subcategory: observable }, { autoBind: true });
   }
 
   replaceComponents(newComponents: ExpenseComponentData[]): void {
