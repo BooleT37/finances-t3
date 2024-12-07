@@ -13,6 +13,19 @@ import { useHandleCommentChange } from "./useHandleCommentChange";
 import { useHandleSumChange } from "./useHandleSumChange";
 import usePlanningTableColumns from "./usePlanningTableColumns";
 
+function getRowBgColor(depth: number, hasChildren: boolean) {
+  if (!hasChildren) {
+    return "transparent";
+  }
+  if (depth === 0) {
+    return "#e0e0e0";
+  }
+  if (depth === 1) {
+    return "#f0f0f0";
+  }
+  return "transparent";
+}
+
 interface Props {
   month: number;
   year: number;
@@ -70,7 +83,7 @@ const PlanningTable: React.FC<Props> = observer(function PlanningTable({
     enableColumnActions: false,
     muiTableBodyRowProps: ({ row }) => ({
       sx: {
-        backgroundColor: row.depth === 0 ? "#efefef" : undefined,
+        backgroundColor: getRowBgColor(row.depth, row.getCanExpand()),
       },
     }),
     initialState: {
