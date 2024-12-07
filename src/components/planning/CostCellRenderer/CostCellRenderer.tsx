@@ -1,19 +1,11 @@
-import { RightOutlined } from "@ant-design/icons";
 import { useCallback } from "react";
 import { type ForecastTableItem } from "~/stores/ForecastStore/types";
 import { costToString } from "~/utils/costUtils";
 
 import { Space, Tooltip } from "antd";
 import type Decimal from "decimal.js";
-import styled from "styled-components";
 import type { ForecastSubscriptionsItem } from "~/types/forecast/forecastTypes";
 import SubscriptionsTooltip from "./SubscriptionsTooltip/SubscriptionsTooltip";
-
-const TransferPeIcon = styled(RightOutlined)`
-  font-size: 12px;
-  color: gray;
-  cursor: pointer;
-`;
 
 interface Props {
   cost: Decimal | null;
