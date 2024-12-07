@@ -45,9 +45,9 @@ const settingsItem: ItemType = {
 
 const items: ItemType[] = [
   getItem("Данные", "/data", <TableOutlined />),
+  getItem("Планирование", "/planning", <CalendarOutlined />),
   getItem("Траты из сбережений", "/saving-spendings", <BankOutlined />),
   getItem("Статистика", "/statistics", <LineChartOutlined />),
-  getItem("Планирование", "/planning", <CalendarOutlined />),
   settingsItem,
   {
     key: "divider",
