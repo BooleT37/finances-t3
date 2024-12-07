@@ -116,7 +116,9 @@ export default class SubscriptionStore
           id: subscription.id,
           data: adaptSubscriptionToUpdateInput(subscription),
         })
-        .then(adaptSubscriptionFromApi);
+        .then((subscription) =>
+          runInAction(() => adaptSubscriptionFromApi(subscription))
+        );
     } else {
       throw new Error(`Can't find subscription with id ${subscription.id}`);
     }
