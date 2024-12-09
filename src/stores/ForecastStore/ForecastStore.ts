@@ -534,7 +534,7 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
     month: number,
     year: number,
     sum: Decimal
-  ): Promise<Forecast> {
+  ): Promise<Forecast | undefined> {
     const subcategoryId = subcategory?.id ?? null;
     const forecast = this.getCategoryOrSubcategoryForecast({
       categoryId: category.id,
@@ -547,6 +547,9 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
         forecast.sum = sum;
       }
     } else {
+      if (sum.isZero()) {
+        return;
+      }
       this.allForecasts.push(
         new Forecast(category, subcategory, month, year, sum, "")
       );

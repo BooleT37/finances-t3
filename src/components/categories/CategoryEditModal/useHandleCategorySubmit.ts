@@ -9,6 +9,7 @@ export const useHandleCategorySubmit = (form: FormInstance<FormValues>) => {
   const [loading, setLoading] = useState(false);
   const { categoryId, close, currentCategory } = categoryModalViewModel;
   const currentCategoryType = currentCategory?.type ?? null;
+  // persistExpenseCategoriesOrder(table, row.original.isIncome);
   const handleSubmit = useCallback(async () => {
     try {
       const values = await form.validateFields();
