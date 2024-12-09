@@ -262,7 +262,7 @@ export default class ForecastStore implements DataLoader<ApiForecast[]> {
       name: forecast.subcategory
         ? forecast.subcategory.name
         : forecast.category.shortname,
-      icon: forecast.category.icon,
+      icon: forecast.subcategory ? null : forecast.category.icon,
       categoryId: forecast.category.id,
       categoryType: forecast.category.type,
       subcategoryId: forecast.subcategoryId,
