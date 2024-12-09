@@ -10,6 +10,7 @@ import PlanningTable from "./PlanningTable/PlanningTable";
 export const PLANNING_SCREEN_SPACE_GAP = 16;
 const SpaceStyled = styled(Space)`
   --planning-screen-header-height: 40px;
+  max-width: 100%;
 `;
 
 const HeaderStyled = styled.div`

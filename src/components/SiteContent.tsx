@@ -8,6 +8,7 @@ const SiteContent = styled(Content)`
   padding: var(--site-content-padding);
   background: white;
   position: relative;
+  overflow: auto;
 `;
 
 export default SiteContent;
