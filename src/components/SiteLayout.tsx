@@ -15,9 +15,16 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
+import { styled } from "styled-components";
 import { SpinWrapper } from "./SpinWrapper";
 
 const { Content, Sider } = Layout;
+
+const RootLayoutStyled = styled(Layout)`
+  --site-content-vertical-margin: 24px;
+  --site-content-padding: 24px;
+  --site-header-height: 64px;
+`;
 
 function getItem(
   label: string,
@@ -87,7 +94,7 @@ const SiteLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   }
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
+    <RootLayoutStyled style={{ minHeight: "100vh" }}>
       <Sider
         width={210}
         collapsible
@@ -112,7 +119,7 @@ const SiteLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <Layout className="site-layout">
         <Content>{children}</Content>
       </Layout>
-    </Layout>
+    </RootLayoutStyled>
   );
 };
 

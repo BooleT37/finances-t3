@@ -9,6 +9,7 @@ import { observer } from "mobx-react";
 import React, { useMemo } from "react";
 import { NameWithOptionalIcon } from "~/components/categories/categoryIcons/NameWithOptionalIcon";
 import { dataStores } from "~/stores/dataStores";
+import { PLANNING_SCREEN_SPACE_GAP } from "../PlanningScreen";
 import { useHandleCommentChange } from "./useHandleCommentChange";
 import { useHandleSumChange } from "./useHandleSumChange";
 import usePlanningTableColumns from "./usePlanningTableColumns";
@@ -55,6 +56,14 @@ const PlanningTable: React.FC<Props> = observer(function PlanningTable({
     [data]
   );
 
+  const maxHeight = `calc(100vh - 
+    var(--site-content-vertical-margin) * 2
+    - var(--site-content-padding) * 2
+    - var(--site-header-height)
+    - var(--planning-screen-header-height)
+    - ${PLANNING_SCREEN_SPACE_GAP}px
+  )`;
+
   const table = useMaterialReactTable({
     enableExpandAll: true,
     enableExpanding: true,
@@ -96,7 +105,9 @@ const PlanningTable: React.FC<Props> = observer(function PlanningTable({
         },
       },
     },
+    muiTableContainerProps: { sx: { maxHeight } },
     localization: MRT_Localization_RU,
+    enableStickyHeader: true,
   });
 
   return <MaterialReactTable table={table} />;

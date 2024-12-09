@@ -1,13 +1,13 @@
-import { Button, Space, Typography } from "antd";
+import { Space } from "antd";
 import React, { useState } from "react";
 import styled from "styled-components";
 import { DataFetcher } from "~/components/DataFetcher";
 import SiteContent from "~/components/SiteContent";
+import { SiteHeader } from "~/components/SiteHeader";
 import SiteLayout from "~/components/SiteLayout";
 import ComparisonChart from "~/components/statistics/ComparisonChart";
 import DynamicsChart from "~/components/statistics/DynamicsChart";
 import { YearReview } from "~/components/statistics/YearReview";
-import WhiteHeader from "~/components/WhiteHeader";
 import CategoriesStore from "~/stores/CategoriesStore";
 import { type StoresToInit } from "~/stores/dataStores";
 import ExpenseStore from "~/stores/ExpenseStore";
@@ -23,8 +23,6 @@ const YearReviewCta = styled.div`
   top: 0;
   left: 500px;
 `;
-
-const { Title } = Typography;
 
 const storesToInit: StoresToInit = {
   CategoriesStore,
@@ -45,19 +43,7 @@ const StatisticsScreen: React.FC = () => {
   return (
     <SiteLayout>
       <DataFetcher stores={storesToInit}>
-        <WhiteHeader>
-          <Title>Статистика</Title>
-          <YearReviewCta>
-            Итоги 2022&nbsp;&nbsp;
-            <Button
-              onClick={() => {
-                setYearReviewOpen(true);
-              }}
-            >
-              Посмотреть
-            </Button>
-          </YearReviewCta>
-        </WhiteHeader>
+        <SiteHeader title="Статистика" />
         <SiteContent>
           <Space direction="vertical" size="middle">
             <ComparisonChart />

@@ -1,15 +1,12 @@
-import { Typography } from "antd";
 import React from "react";
 import { DataFetcher } from "~/components/DataFetcher";
 import ExtraSettingsScreen from "~/components/settings/ExtraSettingsScreen";
 import SiteContent from "~/components/SiteContent";
+import { SiteHeader } from "~/components/SiteHeader";
 import SiteLayout from "~/components/SiteLayout";
-import WhiteHeader from "~/components/WhiteHeader";
 import { type StoresToInit } from "~/stores/dataStores";
 import UserSettingsStore from "~/stores/UserSettingsStore";
 import { protectedPageProps } from "~/utils/protectedPageProps";
-
-const { Title } = Typography;
 
 const storesToInit: StoresToInit = {
   UserSettingsStore,
@@ -28,9 +25,7 @@ const ExtraSettingsPage: React.FC = () => {
   return (
     <SiteLayout>
       <DataFetcher stores={storesToInit}>
-        <WhiteHeader>
-          <Title>Прочие настройки</Title>
-        </WhiteHeader>
+        <SiteHeader title="Дополнительные настройки" />
         <SiteContent>
           <ExtraSettingsScreen />
         </SiteContent>

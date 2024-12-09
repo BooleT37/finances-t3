@@ -1,15 +1,12 @@
-import { Typography } from "antd";
 import { DataFetcher } from "~/components/DataFetcher";
 import SiteContent from "~/components/SiteContent";
+import { SiteHeader } from "~/components/SiteHeader";
 import SiteLayout from "~/components/SiteLayout";
 import SourcesScreen from "~/components/sources/SourcesScreen";
-import WhiteHeader from "~/components/WhiteHeader";
 import { type StoresToInit } from "~/stores/dataStores";
 import SourcesStore from "~/stores/SourcesStore";
 import UserSettingsStore from "~/stores/UserSettingsStore";
 import { protectedPageProps } from "~/utils/protectedPageProps";
-
-const { Title } = Typography;
 
 const stores: StoresToInit = {
   UserSettingsStore,
@@ -28,9 +25,7 @@ const SourcesPage: React.FC = () => {
   return (
     <SiteLayout>
       <DataFetcher stores={stores}>
-        <WhiteHeader>
-          <Title>Источники</Title>
-        </WhiteHeader>
+        <SiteHeader title="Источники" />
         <SiteContent>
           <SourcesScreen />
         </SiteContent>

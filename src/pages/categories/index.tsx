@@ -2,8 +2,8 @@ import { Typography } from "antd";
 import CategoriesScreen from "~/components/categories/CategoriesScreen";
 import { DataFetcher } from "~/components/DataFetcher";
 import SiteContent from "~/components/SiteContent";
+import { SiteHeader } from "~/components/SiteHeader";
 import SiteLayout from "~/components/SiteLayout";
-import WhiteHeader from "~/components/WhiteHeader";
 import CategoriesStore from "~/stores/CategoriesStore";
 import { type StoresToInit } from "~/stores/dataStores";
 import UserSettingsStore from "~/stores/UserSettingsStore";
@@ -27,9 +27,7 @@ export const getServerSideProps = protectedPageProps;
 const CategoriesPage: React.FC = () => (
   <SiteLayout>
     <DataFetcher stores={storesToInit}>
-      <WhiteHeader>
-        <Title>Категории</Title>
-      </WhiteHeader>
+      <SiteHeader title="Категории" />
       <SiteContent>
         <CategoriesScreen />
       </SiteContent>

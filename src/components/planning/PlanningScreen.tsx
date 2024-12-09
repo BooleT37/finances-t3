@@ -3,8 +3,18 @@ import { Button, DatePicker, Space, Tooltip } from "antd";
 import dayjs from "dayjs";
 import type Decimal from "decimal.js";
 import React from "react";
+import { styled } from "styled-components";
 import { MONTH_DATE_FORMAT } from "~/utils/constants";
 import PlanningTable from "./PlanningTable/PlanningTable";
+
+export const PLANNING_SCREEN_SPACE_GAP = 16;
+const SpaceStyled = styled(Space)`
+  --planning-screen-header-height: 40px;
+`;
+
+const HeaderStyled = styled.div`
+  height: var(--planning-screen-header-height);
+`;
 
 export interface ForecastTableContext {
   year: number;
@@ -40,8 +50,8 @@ const PlanningScreen = () => {
 
   return (
     <>
-      <Space direction="vertical" size="middle">
-        <div>
+      <SpaceStyled direction="vertical" size={PLANNING_SCREEN_SPACE_GAP}>
+        <HeaderStyled>
           <Tooltip title="Предыдущий месяц">
             <Button
               type="text"
@@ -67,9 +77,9 @@ const PlanningScreen = () => {
               onClick={goToNextMonth}
             />
           </Tooltip>
-        </div>
+        </HeaderStyled>
         {date && <PlanningTable month={date.month()} year={date.year()} />}
-      </Space>
+      </SpaceStyled>
     </>
   );
 };
