@@ -13,6 +13,10 @@ export enum PersonalExpCategoryIdsRename {
   Lena = 50,
 }
 
+export interface OptionWithText extends Option {
+  text: string;
+}
+
 export interface CategoryTableItem {
   id: number;
   name: string;
@@ -36,10 +40,11 @@ export default class Category {
     makeAutoObservable(this);
   }
 
-  get asOption(): Option {
+  get asOption(): OptionWithText {
     return {
       value: this.id,
       label: <NameWithOptionalIcon name={this.name} icon={this.icon} />,
+      text: this.name,
     };
   }
 

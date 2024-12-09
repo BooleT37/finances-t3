@@ -447,6 +447,10 @@ const ExpenseModal: React.FC<Props> = observer(function ExpenseModal({
             placeholder="Выберите категорию"
             style={{ width: 250 }}
             ref={firstFieldRef}
+            showSearch
+            filterOption={(input, option) =>
+              (option?.text ?? "").toLowerCase().includes(input.toLowerCase())
+            }
           />
         </Form.Item>
         <Form.Item
