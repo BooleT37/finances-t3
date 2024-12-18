@@ -53,6 +53,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     res.status(500).json("Error while parsing the file");
   } catch (error: unknown) {
+    console.error(error);
     res
       .status(500)
       .json(error instanceof Error ? error.message : "Unknown error");
