@@ -7,31 +7,30 @@ import setupDayJs from "~/utils/setupDayJs";
 
 import "~/styles/globals.css";
 
+import { QueryClientProvider } from "@tanstack/react-query";
 import "antd/dist/reset.css";
 import Head from "next/head";
 import { api } from "~/utils/api";
-import configureMobx from "~/utils/configureMobx";
+import { queryClient } from "./queryClient";
 
-// eslint-disable-next-line mobx/missing-observer
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps },
-}) => {
-  return (
-    <>
-      <Head>
-        <title>Персональные финансы</title>
-      </Head>
-      <SessionProvider session={session}>
+}) => (
+  <>
+    <Head>
+      <title>Персональные финансы</title>
+    </Head>
+    <SessionProvider session={session}>
+      <QueryClientProvider client={queryClient}>
         <ConfigProvider locale={locale}>
           <Component {...pageProps} />
         </ConfigProvider>
-      </SessionProvider>
-    </>
-  );
-};
+      </QueryClientProvider>
+    </SessionProvider>
+  </>
+);
 
 setupDayJs();
-configureMobx();
 
 export default api.withTRPC(MyApp);

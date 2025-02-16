@@ -12,7 +12,6 @@ const HeaderStyled = styled(Header)`
 
 export const SiteHeader: React.FC<{
   title: string;
-  // eslint-disable-next-line mobx/missing-observer
 }> = ({ title }) => (
   <HeaderStyled>
     <Title style={{ margin: 0 }}>{title}</Title>

@@ -10,7 +10,7 @@ import {
   TableOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Spin } from "antd";
-import type { ItemType } from "antd/es/menu/interface";
+import type { ItemType } from "antd/lib/menu/interface";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -70,7 +70,6 @@ const items: ItemType[] = [
   },
 ];
 
-/* eslint-disable mobx/missing-observer */
 const SiteLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { status } = useSession();
   const [collapsed, setCollapsed] = React.useState(false);

@@ -1,0 +1,10 @@
+---
+description: Tests rules
+globs: .test.tsx
+---
+
+# Tests rules
+
+- We use `mockTrpc` from [mockAllData.ts](mdc:src/utils/tests/mockData/mockAllData.ts) in tests to mock the data
+- We write `afterEach(() => { cleanup(); vitest.clearAllMocks(); queryClient.clear(); });` in every test file to cleanup after every test
+- We mock the mutations from `mockTrpc` right before the mutation is triggeed. It means that if there's a block in the middle of the code that finds a button and presses it triggering the mutation, the mocking happens right before this block, not at the start of the test 

@@ -53,15 +53,12 @@ export const authOptions: NextAuthOptions = {
         id: user.id,
       },
     }),
-    signIn: async ({ user }) => {
-      return (
-        env.ALLOWED_EMAILS === "*" ||
-        (!!user.email &&
-          env.ALLOWED_EMAILS.split(",")
-            .map((e) => e.toLowerCase().trim())
-            .includes(user.email.toLowerCase()))
-      );
-    },
+    signIn: async ({ user }) =>
+      env.ALLOWED_EMAILS === "*" ||
+      (!!user.email &&
+        env.ALLOWED_EMAILS.split(",")
+          .map((e) => e.toLowerCase().trim())
+          .includes(user.email.toLowerCase())),
   },
   adapter: PrismaAdapter(db) as Adapter,
   providers: [
@@ -93,6 +90,4 @@ export const authOptions: NextAuthOptions = {
 export const getServerAuthSession = (ctx: {
   req: GetServerSidePropsContext["req"];
   res: GetServerSidePropsContext["res"];
-}) => {
-  return getServerSession(ctx.req, ctx.res, authOptions);
-};
+}) => getServerSession(ctx.req, ctx.res, authOptions);

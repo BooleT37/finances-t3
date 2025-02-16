@@ -32,7 +32,6 @@ interface Props {
   tooltip?: React.ReactNode;
 }
 
-// eslint-disable-next-line mobx/missing-observer
 const TotalCostCellView: React.FC<Props> = (props) => {
   const { cost, suffix, color, barOffset = 0, barWidth, tooltip } = props;
 

@@ -1,6 +1,6 @@
 import { PdfDataParser } from "pdf-data-parser";
 import type PdfDataParserType from "pdf-data-parser/types/PdfDataParser";
-import type { ParsedExpenseFromApi } from "~/models/ParsedExpense";
+import type { ParsedExpenseFromApi } from "~/features/parsedExpense/api/types";
 import { hash } from "../hash";
 import type { ExpensesParser } from "./ExpensesParser";
 
@@ -18,12 +18,9 @@ const parseAmount = (amount: string): string => {
   return `${matched.groups.sign}${matched.groups.amount?.replaceAll(",", "")}`;
 };
 
-const validRow = (row: string[]): boolean => {
-  return (
-    (row.length === 5 || row.length === 4 || row.length === 3) &&
-    row[0] !== "Booking Date"
-  );
-};
+const validRow = (row: string[]): boolean =>
+  (row.length === 5 || row.length === 4 || row.length === 3) &&
+  row[0] !== "Booking Date";
 
 export class VividPdfExpensesParser implements ExpensesParser {
   private parser: PdfDataParserType;
@@ -48,7 +45,6 @@ export class VividPdfExpensesParser implements ExpensesParser {
         if (!row[0] || !row[1] || !row[2]) {
           throw new Error(`Invalid row: ${row.join(", ")}`);
         }
-        console.log(rows);
         if (row.length === 3 && row[1] === "Transfer between own accounts") {
           const nextRow = array[index + 1];
           // new format

@@ -42,6 +42,7 @@ const config = {
     "rc-picker",
     "rc-notification",
     "rc-tooltip",
+    "rc-input",
   ],
   experimental: {
     outputFileTracingIncludes: {
