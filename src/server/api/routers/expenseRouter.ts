@@ -25,15 +25,15 @@ export const expenseRouter = createTRPCRouter({
         "Cost cannot be negative"
       )
     )
-    .mutation(({ ctx, input }) => {
-      return ctx.db.expense.create({
+    .mutation(({ ctx, input }) =>
+      ctx.db.expense.create({
         data: {
           ...input,
           ...connectUser(ctx),
         },
         include: { components: true },
-      });
-    }),
+      })
+    ),
   createMany: protectedProcedure
     .input(
       z

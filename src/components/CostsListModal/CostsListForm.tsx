@@ -32,7 +32,6 @@ export type CostsListFormInterface = {
 };
 
 const CostsListForm = forwardRef<CostsListFormInterface, Props>(
-  // eslint-disable-next-line mobx/missing-observer
   function CostsListForm(props, ref) {
     const {
       includeComment,

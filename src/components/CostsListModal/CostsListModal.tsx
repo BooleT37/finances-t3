@@ -1,4 +1,4 @@
-import { Modal } from "antd";
+import { Modal, Spin } from "antd";
 import { useRef } from "react";
 import CostsListForm, {
   type CostsListFormInterface,
@@ -18,11 +18,11 @@ interface Props {
   };
   sumPlaceholder?: string;
   hideNameForSingleRow?: boolean;
+  loading?: boolean;
   onClose(): void;
   onFinish(values: FormValues): void;
 }
 
-// eslint-disable-next-line mobx/missing-observer
 const CostsListModal: React.FC<Props> = (props) => {
   const {
     open,
@@ -32,6 +32,7 @@ const CostsListModal: React.FC<Props> = (props) => {
     name,
     sumPlaceholder,
     hideNameForSingleRow,
+    loading,
   } = props;
 
   const form = useRef<CostsListFormInterface>(null);
@@ -49,15 +50,19 @@ const CostsListModal: React.FC<Props> = (props) => {
       onOk={handleOk}
       destroyOnClose
     >
-      <CostsListForm
-        ref={form}
-        includeComment={includeComment}
-        editingValue={editingValue}
-        name={name}
-        sumPlaceholder={sumPlaceholder}
-        hideNameForSingleRow={hideNameForSingleRow}
-        onFinish={(values) => props.onFinish(values)}
-      />
+      {loading ? (
+        <Spin />
+      ) : (
+        <CostsListForm
+          ref={form}
+          includeComment={includeComment}
+          editingValue={editingValue}
+          name={name}
+          sumPlaceholder={sumPlaceholder}
+          hideNameForSingleRow={hideNameForSingleRow}
+          onFinish={(values) => props.onFinish(values)}
+        />
+      )}
     </Modal>
   );
 };

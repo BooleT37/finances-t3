@@ -8,7 +8,7 @@ import minMax from "dayjs/plugin/minMax";
 import quarterOfYear from "dayjs/plugin/quarterOfYear";
 import utc from "dayjs/plugin/utc";
 
-export default function setupDayJs() {
+export default function setupgetToday() {
   dayjs.extend(customParseFormat);
   dayjs.extend(isSameOrAfter);
   dayjs.extend(isSameOrBefore);

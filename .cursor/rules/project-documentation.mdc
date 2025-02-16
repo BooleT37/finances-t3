@@ -1,0 +1,19 @@
+---
+description: Project documentation
+globs: 
+---
+
+# Your rule content
+
+- Docs are stored in the `/docs` folder
+- General project requirements are in [PRD.md](mdc:docs/PRD.md)
+- User-facing description of features is stored in [USER_GUIDE.md](mdc:docs/USER_GUIDE.md)](mdc:docs/USER_GUIDE.md)
+- Technical documentation to all features is stored in `/docs/architecture`:
+    - [Category.md](mdc:docs/architecture/Category.md) for category
+    - [Expense.md](mdc:docs/architecture/Expense.md) for expense
+    - [Forecast.md](mdc:docs/architecture/Forecast.md) for forecast
+    - [SavingSpending.md](mdc:docs/architecture/SavingSpending.md) for saving spending
+    - [Source.md](mdc:docs/architecture/Source.md) for source
+    - [Subscription.md](mdc:docs/architecture/Subscription.md) for subscription
+    - [User.md](mdc:docs/architecture/User.md) for user
+- Project structure is described in [PROJECT_STRUCTURE.md](mdc:docs/PROJECT_STRUCTURE.md)

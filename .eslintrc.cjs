@@ -4,12 +4,11 @@ const config = {
   parserOptions: {
     project: true,
   },
-  plugins: ["@typescript-eslint", "mobx"],
+  plugins: ["@typescript-eslint", "testing-library"],
   extends: [
     "next/core-web-vitals",
     "plugin:@typescript-eslint/recommended-type-checked",
     "plugin:@typescript-eslint/stylistic-type-checked",
-    "plugin:mobx/recommended",
   ],
   rules: {
     "@typescript-eslint/array-type": "off",
@@ -29,7 +28,6 @@ const config = {
       },
     ],
     "@typescript-eslint/unbound-method": "off",
-    "mobx/exhaustive-make-observable": "off",
     "@typescript-eslint/require-await": "off",
     "@typescript-eslint/no-misused-promises": [
       "error",
@@ -48,6 +46,11 @@ const config = {
         allowNullableBoolean: true,
       },
     ],
+    "arrow-body-style": "warn",
+    "testing-library/await-async-queries": "error",
+    "testing-library/no-await-sync-queries": "error",
+    "testing-library/no-debugging-utils": "warn",
+    "testing-library/no-dom-import": "off",
   },
 };
 module.exports = config;

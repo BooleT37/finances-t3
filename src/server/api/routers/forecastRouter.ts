@@ -4,9 +4,9 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { connectUser, filterByUser } from "~/server/api/utils/linkCurrentUser";
 
 export const forecastRouter = createTRPCRouter({
-  getAll: protectedProcedure.query(({ ctx }) => {
-    return ctx.db.forecast.findMany(filterByUser(ctx));
-  }),
+  getAll: protectedProcedure.query(({ ctx }) =>
+    ctx.db.forecast.findMany(filterByUser(ctx))
+  ),
   upsert: protectedProcedure
     .input(
       z
