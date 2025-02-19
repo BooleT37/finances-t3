@@ -20,7 +20,7 @@ const parseAmount = (amount: string): string => {
 
 const validRow = (row: string[]): boolean =>
   (row.length === 5 || row.length === 4 || row.length === 3) &&
-  row[0] !== "Booking Date";
+  !row[0]?.startsWith("Booking Date");
 
 export class VividPdfExpensesParser implements ExpensesParser {
   private parser: PdfDataParserType;
