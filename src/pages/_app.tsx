@@ -10,6 +10,7 @@ import "~/styles/globals.css";
 import { QueryClientProvider } from "@tanstack/react-query";
 import "antd/dist/reset.css";
 import Head from "next/head";
+import RouteChangeLoader from "~/components/RouteChangeLoader";
 import { api } from "~/utils/api";
 import { queryClient } from "../features/shared/queryClient";
 
@@ -24,6 +25,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
     <SessionProvider session={session}>
       <QueryClientProvider client={queryClient}>
         <ConfigProvider locale={locale}>
+          <RouteChangeLoader />
           <Component {...pageProps} />
         </ConfigProvider>
       </QueryClientProvider>
