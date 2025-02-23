@@ -1,9 +1,12 @@
-import { Space, Switch, Tooltip } from "antd";
+import { Skeleton, Space, Switch, Tooltip } from "antd";
 import React from "react";
 import { DATE_FORMAT } from "~/utils/constants";
 
-import { useDeleteSubscription } from "~/features/subscription/api/subscriptionsApi";
-import { useGetSubscriptionsByCategory } from "~/features/subscription/facets/subscriptionsByCategory";
+import {
+  useDeleteSubscription,
+  useSetSubscriptionActive,
+} from "~/features/subscription/api/subscriptionsApi";
+import { useSubscriptionsByCategory } from "~/features/subscription/facets/subscriptionsByCategory";
 import SubscriptionItem from "./SubscriptionItem";
 import { SubscriptionCategoryName } from "./SubscriptionsList.styled";
 
@@ -12,8 +15,14 @@ interface Props {
 }
 
 const SubscriptionsList: React.FC<Props> = ({ onEditClick }) => {
-  const subscriptions = useGetSubscriptionsByCategory();
+  const subscriptions = useSubscriptionsByCategory();
   const deleteSubscription = useDeleteSubscription();
+  const setSubscriptionActive = useSetSubscriptionActive();
+
+  if (!subscriptions) {
+    return <Skeleton active style={{ marginTop: 10 }} />;
+  }
+
   return (
     <div>
       {Object.keys(subscriptions)
@@ -33,7 +42,10 @@ const SubscriptionsList: React.FC<Props> = ({ onEditClick }) => {
                     <Switch
                       checked={subscription.active}
                       onChange={(checked) =>
-                        void subscription.setActive(checked)
+                        void setSubscriptionActive.mutate({
+                          id: subscription.id,
+                          active: checked,
+                        })
                       }
                     />
                   </Tooltip>

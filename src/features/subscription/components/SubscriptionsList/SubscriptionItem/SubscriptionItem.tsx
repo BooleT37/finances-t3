@@ -18,13 +18,13 @@ interface Props {
   onDelete(id: number): void;
 }
 
-const Container = styled.div<{ active: boolean }>`
-  color: ${(props) => (props.active ? undefined : "gray")};
+const Container = styled.div<{ $active: boolean }>`
+  color: ${(props) => (props.$active ? undefined : "gray")};
 `;
 
 const SubscriptionsItem: React.FC<Props> = function SubscriptionsItem(props) {
   return (
-    <Container active={props.active}>
+    <Container $active={props.active}>
       <SubscriptionName>{props.name}</SubscriptionName>
       <SubscriptionCost>{props.costString}</SubscriptionCost>
       <Tooltip title="Следующая дата списания">

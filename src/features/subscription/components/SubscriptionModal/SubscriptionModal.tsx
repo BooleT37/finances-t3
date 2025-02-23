@@ -38,15 +38,15 @@ interface ValidatedFormValues extends Omit<FormValues, "date" | "categoryId"> {
 function useFormValuesToSubscription() {
   const categoryById = useGetCategoryById();
   const sourceById = useSourceById();
-  if (!categoryById.loaded || !sourceById.loaded) {
-    throw new Error("Category or source not loaded");
-  }
   return (
     id: number | null,
     values: ValidatedFormValues,
     active: boolean
-  ): Subscription =>
-    new Subscription(
+  ): Subscription => {
+    if (!categoryById.loaded || !sourceById.loaded) {
+      throw new Error("Category or source not loaded");
+    }
+    return new Subscription(
       id ?? NEW_SUBSCRIPTION_ID,
       values.name,
       new Decimal(values.cost),
@@ -57,6 +57,7 @@ function useFormValuesToSubscription() {
       active,
       values.source !== null ? sourceById.getSourceById(values.source) : null
     );
+  };
 }
 
 const today = getToday();

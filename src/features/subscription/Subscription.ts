@@ -1,6 +1,5 @@
 import { type Dayjs } from "dayjs";
 import type Decimal from "decimal.js";
-import { trpc } from "~/utils/api";
 import { costToString } from "~/utils/costUtils";
 import { getToday } from "~/utils/today";
 import type Category from "../category/Category";
@@ -97,12 +96,6 @@ export default class Subscription {
 
   get costPerMonth(): Decimal {
     return this.cost.div(this.period);
-  }
-
-  async setActive(active: boolean) {
-    this.active = active;
-
-    await trpc.sub.toggle.mutate({ active, id: this.id });
   }
 
   isInMonth(month: number, year: number): boolean {

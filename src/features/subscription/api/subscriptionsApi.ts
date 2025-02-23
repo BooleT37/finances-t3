@@ -91,3 +91,49 @@ export const useDeleteSubscription = () => {
     },
   });
 };
+
+interface SubscriptionData {
+  id: number;
+  active: boolean;
+  [key: string]: unknown;
+}
+
+export const useSetSubscriptionActive = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, active }: { id: number; active: boolean }) =>
+      trpc.sub.update.mutate({
+        id,
+        data: { active },
+      }),
+    onMutate: async ({ id, active }) => {
+      await queryClient.cancelQueries({ queryKey: subscriptionKeys.all });
+
+      const previousSubscriptions = queryClient.getQueryData<
+        SubscriptionData[]
+      >(subscriptionKeys.all);
+
+      queryClient.setQueryData<SubscriptionData[]>(
+        subscriptionKeys.all,
+        (old) => {
+          if (!old) return old;
+          return old.map((sub) => (sub.id === id ? { ...sub, active } : sub));
+        }
+      );
+
+      return { previousSubscriptions };
+    },
+    onError: (_, __, context) => {
+      if (context?.previousSubscriptions) {
+        queryClient.setQueryData(
+          subscriptionKeys.all,
+          context.previousSubscriptions
+        );
+      }
+    },
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: subscriptionKeys.all });
+    },
+  });
+};
