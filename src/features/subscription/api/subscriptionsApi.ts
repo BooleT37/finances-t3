@@ -2,6 +2,7 @@ import type { Prisma } from "@prisma/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { trpc } from "~/utils/api";
 import type Subscription from "../Subscription";
+import { type ApiSubscription } from "./types";
 
 export const subscriptionKeys = {
   all: ["subscriptions"] as const,
@@ -39,8 +40,14 @@ export const useAddSubscription = () => {
         adaptSubscriptionToCreateInput(subscription)
       );
     },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: subscriptionKeys.all });
+    onSuccess: (newSubscription) => {
+      queryClient.setQueryData<ApiSubscription[]>(
+        subscriptionKeys.all,
+        (old) => {
+          if (!old) return old;
+          return [...old, newSubscription];
+        }
+      );
     },
   });
 };
@@ -85,7 +92,30 @@ export const useDeleteSubscription = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => trpc.sub.delete.mutate({ id }),
+    mutationFn: async (id: number) => {
+      await trpc.sub.delete.mutate({ id });
+    },
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: subscriptionKeys.all });
+
+      const previousSubscriptions = queryClient.getQueryData<ApiSubscription[]>(
+        subscriptionKeys.all
+      );
+
+      queryClient.setQueryData<ApiSubscription[]>(subscriptionKeys.all, (old) =>
+        old?.filter((sub) => sub.id !== id)
+      );
+
+      return { previousSubscriptions };
+    },
+    onError: (_, __, context) => {
+      if (context?.previousSubscriptions) {
+        queryClient.setQueryData(
+          subscriptionKeys.all,
+          context.previousSubscriptions
+        );
+      }
+    },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: subscriptionKeys.all });
     },

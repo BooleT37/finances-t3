@@ -131,7 +131,6 @@ const SubscriptionModal: React.FC<Props> = ({
     }
     if (open) {
       if (subscriptionId === null) {
-        form.setFieldsValue(INITIAL_VALUES);
         setActive(true);
       } else {
         form.setFieldsValue(getSubscriptionFormValuesById(subscriptionId));
@@ -174,7 +173,12 @@ const SubscriptionModal: React.FC<Props> = ({
         <Button key="cancel" onClick={onClose}>
           Отмена
         </Button>,
-        <Button key="submit" type="primary" onClick={handleSubmit}>
+        <Button
+          key="submit"
+          loading={addSubscription.isPending}
+          type="primary"
+          onClick={handleSubmit}
+        >
           {subscriptionId === null ? "Добавить" : "Сохранить"}
         </Button>,
       ]}
