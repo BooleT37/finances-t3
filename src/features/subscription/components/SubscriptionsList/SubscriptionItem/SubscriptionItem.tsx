@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { Button, Tooltip } from "antd";
+import { Button, Modal, Tooltip } from "antd";
 import React from "react";
 import styled from "styled-components";
 import {
@@ -23,6 +23,18 @@ const Container = styled.div<{ $active: boolean }>`
 `;
 
 const SubscriptionsItem: React.FC<Props> = function SubscriptionsItem(props) {
+  const handleDelete = () => {
+    Modal.confirm({
+      title: "Удаление подписки",
+      content: "Вы уверены, что хотите удалить эту подписку?",
+      okText: "Удалить",
+      cancelText: "Отмена",
+      onOk: () => {
+        props.onDelete(props.id);
+      },
+    });
+  };
+
   return (
     <Container $active={props.active}>
       <SubscriptionName>{props.name}</SubscriptionName>
@@ -40,13 +52,7 @@ const SubscriptionsItem: React.FC<Props> = function SubscriptionsItem(props) {
         />
       </Tooltip>
       <Tooltip title="Удалить">
-        <Button
-          type="text"
-          icon={<DeleteOutlined />}
-          onClick={() => {
-            props.onDelete(props.id);
-          }}
-        />
+        <Button type="text" icon={<DeleteOutlined />} onClick={handleDelete} />
       </Tooltip>
     </Container>
   );
