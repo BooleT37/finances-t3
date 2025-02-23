@@ -1,14 +1,25 @@
 ---
-description: Project documentation
+description: Documentation and architecture
 globs: 
 ---
 
-# Your rule content
+## General app architecture
+
+### Next.js
+
+The app uses Next.js, and pages router. The app is NOT using App Router.
+
+### Data fetching with React Query
+
+We use React Query to fetch and mutate data. Then we transform the data to domain objects, like Expense.ts. We DO NOT mutate/fetch data from domain objects. If we do, somewhere, it's an artifact of migration from Mobx, and should be removed.
+
+## Documentation
 
 - Docs are stored in the `/docs` folder
 - General project requirements are in [PRD.md](mdc:docs/PRD.md)
 - User-facing description of features is stored in [USER_GUIDE.md](mdc:docs/USER_GUIDE.md)](mdc:docs/USER_GUIDE.md)
 - Technical documentation to all features is stored in `/docs/architecture`:
+    - [General.md](mdc:docs/architecture/General.md) for general app-wide documentation.
     - [Category.md](mdc:docs/architecture/Category.md) for category
     - [Expense.md](mdc:docs/architecture/Expense.md) for expense
     - [Forecast.md](mdc:docs/architecture/Forecast.md) for forecast
