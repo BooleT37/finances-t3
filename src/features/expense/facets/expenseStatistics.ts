@@ -1,6 +1,7 @@
 import { type Dayjs } from "dayjs";
 import Decimal from "decimal.js";
 import { useCallback } from "react";
+import { useGetCategoryById } from "~/features/category/facets/categoryById";
 import countUniqueMonths from "~/utils/countUniqueMonths";
 import { useExpenses } from "./allExpenses";
 
@@ -15,9 +16,11 @@ export const useTotalMonths = () => {
 
 export const useGetComparisonData = () => {
   const { data: expenses } = useExpenses();
+  const { loaded: categoryLoaded, getCategoryById } = useGetCategoryById();
+
   return useCallback(
     (from: Dayjs, to: Dayjs, granularity: "month" | "quarter" | "year") => {
-      if (!expenses) return [];
+      if (!expenses || !categoryLoaded) return [];
 
       const expensesFrom = expenses.filter(
         (e) =>
@@ -36,34 +39,38 @@ export const useGetComparisonData = () => {
 
       expensesFrom.forEach((e) => {
         if (e.cost !== null) {
+          // sign is not important in comparison,
+          // we always compare income with income and expenses with expenses
+          const cost = e.cost.abs();
           const categoryId = String(e.category.id);
           const categoryCosts = map[categoryId];
           if (categoryCosts === undefined) {
-            map[categoryId] = { from: e.cost, to: new Decimal(0) };
+            map[categoryId] = { from: cost, to: new Decimal(0) };
           } else {
-            categoryCosts.from = categoryCosts.from.add(e.cost);
+            categoryCosts.from = categoryCosts.from.add(cost);
           }
         }
       });
 
       expensesTo.forEach((e) => {
         if (e.cost !== null) {
+          const cost = e.cost.abs();
           const categoryId = String(e.category.id);
           const categoryCosts = map[categoryId];
           if (categoryCosts === undefined) {
-            map[categoryId] = { from: new Decimal(0), to: e.cost };
+            map[categoryId] = { from: new Decimal(0), to: cost };
           } else {
-            categoryCosts.to = categoryCosts.to.add(e.cost);
+            categoryCosts.to = categoryCosts.to.add(cost);
           }
         }
       });
 
-      return Object.entries(map).map(([category, costs]) => ({
-        category: category,
+      return Object.entries(map).map(([categoryId, costs]) => ({
+        category: getCategoryById(Number(categoryId)).shortname,
         period1: costs.from.toNumber(),
         period2: costs.to.toNumber(),
       }));
     },
-    [expenses]
+    [categoryLoaded, expenses, getCategoryById]
   );
 };
