@@ -26,13 +26,13 @@ const tableColumnsForSingleCategory: ColumnType<RecordType>[] = [
     title: "План",
     dataIndex: "forecast",
     key: "forecast",
-    render: costToString,
+    render: (value: Decimal) => costToString(value),
   },
   {
     title: "Факт",
     dataIndex: "expenses",
     key: "expenses",
-    render: costToString,
+    render: (value: Decimal) => costToString(value),
   },
 ];
 
