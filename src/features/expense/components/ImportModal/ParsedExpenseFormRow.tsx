@@ -5,7 +5,7 @@ import {
   Input,
   type FormListFieldData,
 } from "antd";
-import Decimal from "decimal.js";
+import { useEffect } from "react";
 import { CategorySubcategorySelect } from "~/features/category/components/CategorySubcategorySelect";
 import { DATE_FORMAT } from "~/utils/constants";
 import type { ParsedExpensesFormValues } from "./ParsedExpensesModal";
@@ -14,8 +14,20 @@ export const ParsedExpenseFormRow: React.FC<FormListFieldData> = (props) => {
   const { name, ...restField } = props;
   const form = Form.useFormInstance<ParsedExpensesFormValues>();
   const amount = Form.useWatch(["expenses", name, "amount"], form);
-  const amountIsNegative = !!amount && new Decimal(amount).isNegative();
+  const parsedAmount = parseFloat(amount ?? "0");
+  const amountIsNegative = !isNaN(parsedAmount) && parsedAmount < 0;
   const selected = Form.useWatch(["expenses", name, "selected"], form);
+
+  useEffect(() => {
+    form.setFields([
+      {
+        name: ["expenses", name, "categorySubcategoryId"],
+        value: undefined,
+      },
+    ]);
+    // resetting the categorySubcategoryId if amount sign changes
+  }, [amountIsNegative, form, name]);
+
   return (
     <>
       <div style={{ textAlign: "right" }}>
