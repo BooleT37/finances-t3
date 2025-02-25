@@ -7,12 +7,10 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { connectUser, filterByUser } from "~/server/api/utils/linkCurrentUser";
 
 export const savingSpendingRouter = createTRPCRouter({
-  getAll: protectedProcedure.query(({ ctx }) => {
-    return ctx.db.savingSpending.findMany({
+  getAll: protectedProcedure.query(({ ctx }) => ctx.db.savingSpending.findMany({
       ...filterByUser(ctx),
       include: { categories: true },
-    });
-  }),
+    })),
   create: protectedProcedure
     .input(SavingSpendingCreateWithoutUserInputSchema)
     .mutation(({ input, ctx }) =>

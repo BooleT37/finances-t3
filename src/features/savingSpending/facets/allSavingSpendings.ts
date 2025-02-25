@@ -23,12 +23,10 @@ export function adaptSavingSpendingFromApi(
   );
 }
 
-export const useSavingSpendings = () => {
-  return useQuery({
+export const useSavingSpendings = () => useQuery({
     ...savingSpendingQueryParams,
     queryFn: async () => {
       const data = await savingSpendingQueryParams.queryFn();
       return data.map(adaptSavingSpendingFromApi);
     },
   });
-};

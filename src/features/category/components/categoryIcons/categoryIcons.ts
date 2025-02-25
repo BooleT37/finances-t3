@@ -21,11 +21,9 @@ export interface CategoryIcon {
   icon: IconDefinition;
 }
 
-export const getIconByValue = (value: string) => {
-  return categoryIconsGroups
+export const getIconByValue = (value: string) => categoryIconsGroups
     .flatMap((group) => group.icons)
     .find((icon) => icon.value === value)?.icon;
-};
 
 export const categoryIconsGroups = [
   { group: "Бизнес", icons: categoryIconsBusiness },

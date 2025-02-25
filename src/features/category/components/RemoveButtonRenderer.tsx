@@ -33,7 +33,7 @@ const RemoveButtonRenderer: React.FC<Props> = ({ id, disabled }) => {
         }
       },
     });
-  }, [id]);
+  }, [deleteCategory, id]);
 
   return (
     <Tooltip

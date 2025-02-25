@@ -21,9 +21,7 @@ function adaptCategoryFromApi(
   );
 }
 
-export const useCategories = () => {
-  return useQuery({
+export const useCategories = () => useQuery({
     ...categoriesQueryParams,
     select: (data) => data.map(adaptCategoryFromApi),
   });
-};

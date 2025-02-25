@@ -9,8 +9,7 @@ interface Props {
 export const HeaderWithTooltip: React.FC<Props> = ({
   headerName,
   tooltipText,
-}) => {
-  return (
+}) => (
     <Space>
       {headerName}
       <Tooltip title={tooltipText} overlayInnerStyle={{ width: "400px" }}>
@@ -18,4 +17,3 @@ export const HeaderWithTooltip: React.FC<Props> = ({
       </Tooltip>
     </Space>
   );
-};

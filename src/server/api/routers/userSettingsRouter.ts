@@ -7,18 +7,15 @@ import {
 } from "~/server/api/trpc";
 
 export const userSettingsRouter = createTRPCRouter({
-  get: protectedProcedure.query(({ ctx }) => {
-    return ctx.db.userSetting.findFirst({
+  get: protectedProcedure.query(({ ctx }) => ctx.db.userSetting.findFirst({
       where: {
         userId: ctx.session.user.id,
       },
-    });
-  }),
+    })),
   // TODO any way to make it protected and call after login?
   createIfNotExist: publicProcedure
     .input(z.object({ userId: z.string() }))
-    .mutation(({ ctx, input: { userId } }) => {
-      return ctx.db.userSetting.upsert({
+    .mutation(({ ctx, input: { userId } }) => ctx.db.userSetting.upsert({
         create: {
           userId,
         },
@@ -26,16 +23,13 @@ export const userSettingsRouter = createTRPCRouter({
         where: {
           userId,
         },
-      });
-    }),
+      })),
   update: protectedProcedure
     .input(UserSettingUpdateInputSchema)
-    .mutation(({ ctx, input }) => {
-      return ctx.db.userSetting.update({
+    .mutation(({ ctx, input }) => ctx.db.userSetting.update({
         data: input,
         where: {
           userId: ctx.session.user.id,
         },
-      });
-    }),
+      })),
 });

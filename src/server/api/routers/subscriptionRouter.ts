@@ -11,9 +11,7 @@ import {
 } from "../utils/decimalUtils";
 
 export const subscriptionRouter = createTRPCRouter({
-  getAll: protectedProcedure.query(({ ctx }) => {
-    return ctx.db.subscription.findMany(filterByUser(ctx));
-  }),
+  getAll: protectedProcedure.query(({ ctx }) => ctx.db.subscription.findMany(filterByUser(ctx))),
   toggle: protectedProcedure
     .input(z.object({ id: z.number(), active: z.boolean() }))
     .mutation(({ ctx, input: { active, id } }) =>
@@ -26,11 +24,9 @@ export const subscriptionRouter = createTRPCRouter({
         "Cost cannot be negative"
       )
     )
-    .mutation(({ ctx, input }) => {
-      return ctx.db.subscription.create({
+    .mutation(({ ctx, input }) => ctx.db.subscription.create({
         data: { ...input, ...connectUser(ctx) },
-      });
-    }),
+      })),
   update: protectedProcedure
     .input(
       z

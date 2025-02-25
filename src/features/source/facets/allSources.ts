@@ -7,9 +7,7 @@ function adaptSourceFromApi(source: ApiSource): Source {
   return new Source(source.id, source.name, source.parser);
 }
 
-export const useSources = () => {
-  return useQuery({
+export const useSources = () => useQuery({
     ...sourcesQueryParams,
     select: (data) => data.map(adaptSourceFromApi),
   });
-};

@@ -7,9 +7,7 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { connectUser, filterByUser } from "~/server/api/utils/linkCurrentUser";
 
 export const sourcesRouter = createTRPCRouter({
-  getAll: protectedProcedure.query(({ ctx }) => {
-    return ctx.db.source.findMany(filterByUser(ctx));
-  }),
+  getAll: protectedProcedure.query(({ ctx }) => ctx.db.source.findMany(filterByUser(ctx))),
   create: protectedProcedure
     .input(SourceCreateWithoutUserInputSchema)
     .mutation(({ ctx, input }) =>

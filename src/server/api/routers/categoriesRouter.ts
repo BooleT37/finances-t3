@@ -7,23 +7,19 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { connectUser, filterByUser } from "~/server/api/utils/linkCurrentUser";
 
 export const categoriesRouter = createTRPCRouter({
-  getAll: protectedProcedure.query(({ ctx }) => {
-    return ctx.db.category.findMany({
+  getAll: protectedProcedure.query(({ ctx }) => ctx.db.category.findMany({
       include: { subcategories: true },
       ...filterByUser(ctx),
-    });
-  }),
+    })),
   create: protectedProcedure
     .input(CategoryCreateWithoutUserInputSchema)
-    .mutation(({ ctx, input }) => {
-      return ctx.db.category.create({
+    .mutation(({ ctx, input }) => ctx.db.category.create({
         data: {
           ...input,
           ...connectUser(ctx),
         },
         include: { subcategories: true },
-      });
-    }),
+      })),
   update: protectedProcedure
     .input(
       z.object({
@@ -31,12 +27,10 @@ export const categoriesRouter = createTRPCRouter({
         data: CategoryUpdateWithoutUserInputSchema,
       })
     )
-    .mutation(({ ctx, input: { data, id } }) => {
-      return ctx.db.category.update({
+    .mutation(({ ctx, input: { data, id } }) => ctx.db.category.update({
         data,
         where: { id },
-      });
-    }),
+      })),
   delete: protectedProcedure
     .input(
       z.object({
