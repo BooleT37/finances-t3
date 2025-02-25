@@ -11,7 +11,7 @@ export const useGetExistingExpense = () => {
           e.peHash === parsedExpense.hash ||
           ((e.date.isSame(parsedExpense.date, "day") ||
             e.actualDate?.isSame(parsedExpense.date, "day")) &&
-            e.cost.eq(parsedExpense.amount.negated()))
+            e.cost.eq(parsedExpense.amount))
       ),
     [expenses]
   );
