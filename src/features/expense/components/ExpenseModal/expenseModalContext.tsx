@@ -6,6 +6,8 @@ import {
   useMemo,
   useState,
 } from "react";
+import { useGetCategoryById } from "~/features/category/facets/categoryById";
+import { useSubcategoryById } from "~/features/category/facets/subcategoryById";
 import {
   useAddExpense,
   useUpdateExpense,
@@ -67,6 +69,8 @@ export function ExpenseModalContextProvider({
   const { mutateAsync: updateExpense } = useUpdateExpense();
   const adaptExpenseFromFormValues = useAdaptExpenseFromFormValues();
   const { data: expenses } = useExpenses();
+  const subcategoryById = useSubcategoryById();
+  const categoryById = useGetCategoryById();
 
   const currentExpense =
     expenseId !== null && expenseById.loaded
@@ -125,17 +129,31 @@ export function ExpenseModalContextProvider({
       const expense = adaptExpenseFromFormValues(values);
 
       if (currentComponents.length > 0) {
-        const components = currentComponents.map(
-          (c) =>
-            new ExpenseComponent(
-              c.id,
-              c.name,
-              new Decimal(c.cost),
-              expense.category,
-              expense.subcategory,
-              expense
-            )
-        );
+        if (!categoryById.loaded || !subcategoryById.loaded) {
+          throw new Error(
+            "Cannot create components: categories or subcategories not loaded"
+          );
+        }
+
+        const components = currentComponents.map((c) => {
+          const componentSubcategory =
+            c.subcategoryId !== null
+              ? subcategoryById.getSubcategoryById(
+                  c.categoryId,
+                  c.subcategoryId
+                )
+              : null;
+
+          return new ExpenseComponent(
+            c.id,
+            c.name,
+            new Decimal(c.cost),
+            categoryById.getCategoryById(c.categoryId),
+            componentSubcategory,
+            expense
+          );
+        });
+
         expense.setComponents(components);
       }
 
@@ -157,6 +175,8 @@ export function ExpenseModalContextProvider({
       adaptExpenseFromFormValues,
       currentComponents,
       expenses,
+      subcategoryById,
+      categoryById,
     ]
   );
 
