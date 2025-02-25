@@ -7,17 +7,16 @@ import { costToString } from "~/utils/costUtils";
 import { palette } from "./palette";
 
 const getOptions = (
-  categories: string[],
-  categoriesNames: string[],
+  categories: { id: number; shortname: string; isIncome: boolean }[],
   data: DynamicsData
 ): AgChartOptions => ({
   height: 500,
   width: 1200,
   data,
-  series: categories.map((s, i) => ({
+  series: categories.map((category) => ({
     xKey: "month",
-    yKey: s,
-    yName: categoriesNames[i],
+    yKey: category.id.toString(),
+    yName: category.shortname,
     highlightStyle: {
       series: {
         dimOpacity: 0.2,
@@ -29,7 +28,9 @@ const getOptions = (
         xValue,
         yValue,
       }: AgCartesianSeriesTooltipRendererParams) => ({
-        content: `${xValue as string}: ${costToString(yValue as number)}`,
+        content: `${xValue as string}: ${costToString(
+          category.isIncome ? (yValue as number) : -yValue
+        )}`,
       }),
     },
   })),

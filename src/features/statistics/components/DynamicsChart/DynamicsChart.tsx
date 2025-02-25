@@ -1,15 +1,15 @@
 import { type AgChartOptions } from "ag-charts-community";
 import { AgChartsReact } from "ag-charts-react";
 import { DatePicker, Select, Space, Typography } from "antd";
-import dayjs from "dayjs";
+import type dayjs from "dayjs";
 import React from "react";
 import styled from "styled-components";
 import { useCategories } from "~/features/category/facets/allCategories";
 import { useCategoriesOptions } from "~/features/category/facets/categoriesOptions";
 import { useGetDynamicsData } from "~/features/expense/facets/expenseDynamics";
 import { MONTH_DATE_FORMAT } from "~/utils/constants";
-import getOptions from "./getOptions";
 import { getToday } from "~/utils/today";
+import getOptions from "./getOptions";
 
 const { RangePicker } = DatePicker;
 const { Title } = Typography;
@@ -44,8 +44,11 @@ const DynamicsChart = () => {
       datesAreSame
         ? ([] as AgChartOptions)
         : getOptions(
-            filteredCategories.map((c) => c.id.toString()),
-            filteredCategories.map((c) => c.shortname),
+            filteredCategories.map((c) => ({
+              id: c.id,
+              shortname: c.shortname,
+              isIncome: c.isIncome,
+            })),
             getDynamicsData(startDate, endDate, categoriesIds)
           ),
     [
