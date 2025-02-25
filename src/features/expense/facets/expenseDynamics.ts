@@ -26,20 +26,21 @@ export const useGetDynamicsData = () => {
 
       filteredExpenses.forEach((e) => {
         if (e.cost === null) return;
+        const cost = e.cost.abs();
 
         const month = e.date.format("YYYY-MM");
         const monthEntry = dict[month];
         if (monthEntry !== undefined) {
           const monthEntryForCategory = monthEntry[e.category.id];
           if (monthEntryForCategory !== undefined) {
-            monthEntry[e.category.id] = monthEntryForCategory.add(e.cost);
+            monthEntry[e.category.id] = monthEntryForCategory.add(cost);
           } else {
-            monthEntry[e.category.id] = e.cost;
+            monthEntry[e.category.id] = cost;
           }
         } else {
           dict[month] = {
             date: e.date,
-            [e.category.id.toString()]: e.cost,
+            [e.category.id.toString()]: cost,
           } as MonthEntry;
         }
       });

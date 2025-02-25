@@ -1,9 +1,12 @@
 import Decimal from "decimal.js";
 
-export function costToString(value: Decimal | number): string {
+export function costToString(
+  value: Decimal | number,
+  params: { addPlus: boolean } = { addPlus: false }
+): string {
   const parsedValue = typeof value === "number" ? new Decimal(value) : value;
   return parsedValue.isPos() || parsedValue.isZero()
-    ? `€${parsedValue.toFixed(2)}`
+    ? `${params.addPlus ? "+" : ""}€${parsedValue.toFixed(2)}`
     : `-€${parsedValue.neg().toFixed(2)}`;
 }
 

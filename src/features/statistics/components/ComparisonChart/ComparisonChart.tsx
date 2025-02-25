@@ -1,6 +1,6 @@
 import { type AgChartOptions } from "ag-charts-community";
 import { AgChartsReact } from "ag-charts-react";
-import { DatePicker, Select, Space, Typography } from "antd";
+import { DatePicker, Select, Space, Switch, Typography } from "antd";
 import type dayjs from "dayjs";
 import React from "react";
 import { useGetComparisonData } from "~/features/expense/facets/expenseStatistics";
@@ -9,7 +9,7 @@ import { getToday } from "~/utils/today";
 import getOptions from "./getOptions";
 
 const { Option } = Select;
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 const thisMonth = getToday().date(1);
 const lastMonth = thisMonth.clone().subtract(1, "month");
@@ -42,6 +42,7 @@ const ComparisonChart = function ComparisonChart() {
   const [startDate, setStartDate] = React.useState<dayjs.Dayjs>(lastMonth);
   const [endDate, setEndDate] = React.useState<dayjs.Dayjs>(thisMonth);
   const [granularity, setGranularity] = React.useState<Granularity>("month");
+  const [showIncome, setShowIncome] = React.useState(false);
 
   const datesAreSame = startDate.isSame(endDate, granularity);
   const format = dateFormat(startDate, endDate, granularity);
@@ -52,7 +53,7 @@ const ComparisonChart = function ComparisonChart() {
     : getOptions(
         startDate.format(format),
         endDate.format(format),
-        getComparisonData(startDate, endDate, granularity)
+        getComparisonData(startDate, endDate, granularity, showIncome)
       );
 
   return (
@@ -83,6 +84,10 @@ const ComparisonChart = function ComparisonChart() {
           <Option value="quarter">Квартал</Option>
           <Option value="year">Год</Option>
         </Select>
+        <Space align="center">
+          <Switch checked={showIncome} onChange={setShowIncome} />
+          <Text>{showIncome ? "Включая доходы" : "Только расходы"}</Text>
+        </Space>
       </Space>
       {datesAreSame ? (
         "Пожалуйста, выберите различные периоды в виджете сверху"

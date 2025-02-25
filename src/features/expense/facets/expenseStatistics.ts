@@ -2,6 +2,7 @@ import { type Dayjs } from "dayjs";
 import Decimal from "decimal.js";
 import { useCallback } from "react";
 import { useGetCategoryById } from "~/features/category/facets/categoryById";
+import type { ComparisonData } from "~/features/statistics/components/ComparisonChart/models";
 import countUniqueMonths from "~/utils/countUniqueMonths";
 import { useExpenses } from "./allExpenses";
 
@@ -19,19 +20,24 @@ export const useGetComparisonData = () => {
   const { loaded: categoryLoaded, getCategoryById } = useGetCategoryById();
 
   return useCallback(
-    (from: Dayjs, to: Dayjs, granularity: "month" | "quarter" | "year") => {
+    (
+      from: Dayjs,
+      to: Dayjs,
+      granularity: "month" | "quarter" | "year",
+      showIncome = false
+    ): ComparisonData => {
       if (!expenses || !categoryLoaded) return [];
 
       const expensesFrom = expenses.filter(
         (e) =>
-          !e.category.isIncome &&
           !e.category.toSavings &&
+          (showIncome || !e.category.isIncome) &&
           e.date.isSame(from, granularity)
       );
       const expensesTo = expenses.filter(
         (e) =>
-          !e.category.isIncome &&
           !e.category.toSavings &&
+          (showIncome || !e.category.isIncome) &&
           e.date.isSame(to, granularity)
       );
 
@@ -65,11 +71,15 @@ export const useGetComparisonData = () => {
         }
       });
 
-      return Object.entries(map).map(([categoryId, costs]) => ({
-        category: getCategoryById(Number(categoryId)).shortname,
-        period1: costs.from.toNumber(),
-        period2: costs.to.toNumber(),
-      }));
+      return Object.entries(map).map(([categoryId, costs]) => {
+        const category = getCategoryById(Number(categoryId));
+        return {
+          category: category?.shortname ?? "Неизвестная категория",
+          isIncome: category?.isIncome ?? false,
+          period1: costs.from.toNumber(),
+          period2: costs.to.toNumber(),
+        };
+      });
     },
     [categoryLoaded, expenses, getCategoryById]
   );
