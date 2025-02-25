@@ -11,7 +11,7 @@ export function useSpendingCategoriesTableRecords(spending: SavingSpending) {
           (e) =>
             e.savingSpending && e.savingSpending.category.id === category.id
         )
-        .map((e) => e.cost ?? 0)
+        .map((e) => e.cost.abs())
     );
     return {
       id: String(category.id),
