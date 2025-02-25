@@ -3,6 +3,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -82,26 +83,26 @@ export function ExpenseModalContextProvider({
       : undefined;
   const isNewExpense = !currentExpense;
 
-  const open = useCallback(
-    (newExpenseId: number | null) => {
-      setExpenseId(newExpenseId);
-      setVisible(true);
-      if (currentExpense) {
-        setCurrentComponents(
-          currentExpense.components.map((c) => ({
-            id: c.id,
-            name: c.name,
-            cost: c.cost,
-            categoryId: c.category.id,
-            subcategoryId: c.subcategory?.id ?? null,
-          }))
-        );
-      } else {
-        setCurrentComponents([]);
-      }
-    },
-    [currentExpense]
-  );
+  const open = useCallback((newExpenseId: number | null) => {
+    setExpenseId(newExpenseId);
+    setVisible(true);
+  }, []);
+
+  useEffect(() => {
+    if (currentExpense) {
+      setCurrentComponents(
+        currentExpense.components.map((c) => ({
+          id: c.id,
+          name: c.name,
+          cost: c.cost,
+          categoryId: c.category.id,
+          subcategoryId: c.subcategory?.id ?? null,
+        }))
+      );
+    } else {
+      setCurrentComponents([]);
+    }
+  }, [currentExpense]);
 
   const close = useCallback((source: number | undefined) => {
     setExpenseId(null);
