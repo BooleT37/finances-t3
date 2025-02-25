@@ -12,7 +12,7 @@ import { isTempId } from "~/utils/tempId";
 export function useSaveSavingSpending() {
   const addSpending = useAddSavingSpending();
   const editSpending = useUpdateSavingSpending();
-  return (
+  return async (
     id: number,
     values: FormValues,
     originalCategories: SavingSpendingCategory[]
@@ -43,9 +43,9 @@ export function useSaveSavingSpending() {
       }
     }
     if (id === -1) {
-      addSpending.mutate(spending);
+      await addSpending.mutateAsync(spending);
     } else {
-      editSpending.mutate(spending);
+      await editSpending.mutateAsync(spending);
     }
   };
 }

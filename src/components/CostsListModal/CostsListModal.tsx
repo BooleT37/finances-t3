@@ -19,6 +19,7 @@ interface Props {
   sumPlaceholder?: string;
   hideNameForSingleRow?: boolean;
   loading?: boolean;
+  saving?: boolean;
   onClose(): void;
   onFinish(values: FormValues): void;
 }
@@ -33,6 +34,7 @@ const CostsListModal: React.FC<Props> = (props) => {
     sumPlaceholder,
     hideNameForSingleRow,
     loading,
+    saving,
   } = props;
 
   const form = useRef<CostsListFormInterface>(null);
@@ -48,6 +50,7 @@ const CostsListModal: React.FC<Props> = (props) => {
       onCancel={() => props.onClose()}
       okText={editingValue ? "Сохранить" : "Добавить"}
       onOk={handleOk}
+      confirmLoading={saving}
       destroyOnClose
     >
       {loading ? (

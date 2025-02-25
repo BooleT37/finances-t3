@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import CostsListModal from "~/components/CostsListModal";
 import { type FormValues } from "~/components/CostsListModal/CostsListForm";
 import { useSavingSpendingById } from "~/features/savingSpending/facets/savingSpendingById";
@@ -18,18 +18,21 @@ const SavingSpendingModal: React.FC<Props> = ({
 }) => {
   const savingSpendingById = useSavingSpendingById();
   const saveSavingSpending = useSaveSavingSpending();
+  const [isSaving, setIsSaving] = useState(false);
   const editedSpending =
     !savingSpendingById.loaded || editedSpendingId === -1
       ? null
       : savingSpendingById.getSavingSpendingById(editedSpendingId);
 
-  const handleFinish = (values: FormValues) => {
-    saveSavingSpending(
+  const handleFinish = async (values: FormValues): Promise<void> => {
+    setIsSaving(true);
+    await saveSavingSpending(
       editedSpendingId,
       values,
       editedSpending?.categories ?? []
     );
     onClose();
+    setIsSaving(false);
   };
 
   const editingValue: FormValues | undefined = useMemo(
@@ -57,6 +60,7 @@ const SavingSpendingModal: React.FC<Props> = ({
       loading={!savingSpendingById.loaded}
       onClose={onClose}
       onFinish={handleFinish}
+      saving={isSaving}
     />
   );
 };
