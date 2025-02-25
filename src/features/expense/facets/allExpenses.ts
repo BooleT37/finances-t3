@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
+import { useCallback } from "react";
 import type Category from "~/features/category/Category";
 import { useGetCategoryById } from "~/features/category/facets/categoryById";
 import { useSubcategoryById } from "~/features/category/facets/subcategoryById";
@@ -54,74 +55,83 @@ export const useExpenses = () => {
 
   return useQuery({
     ...expensesQueryParams,
-    select: (data) => {
-      if (
-        !categoryById.loaded ||
-        !sourceById.loaded ||
-        !subscriptionById.loaded ||
-        !savingSpendingByCategoryId.loaded ||
-        !subcategoryById.loaded
-      ) {
-        return;
-      }
-      return data.map((expense) => {
-        const category = categoryById.getCategoryById(expense.categoryId);
-        const subcategory =
-          expense.subcategoryId === null
-            ? null
-            : subcategoryById.getSubcategoryById(
-                expense.categoryId,
-                expense.subcategoryId
-              );
-        const source =
-          expense.sourceId === null
-            ? null
-            : sourceById.getSourceById(expense.sourceId);
-        const subscription =
-          expense.subscriptionId === null
-            ? null
-            : subscriptionById.getSubscriptionById(expense.subscriptionId);
-        const savingSpending =
-          expense.savingSpendingCategoryId === null
-            ? null
-            : savingSpendingByCategoryId.getSavingSpendingByCategoryId(
-                expense.savingSpendingCategoryId
-              );
-        const expenseDomainObject = adaptExpenseFromApi(
-          expense,
-          category,
-          [],
-          subcategory,
-          source,
-          subscription,
-          savingSpending
-        );
-
-        const components = expense.components.map((component) => {
-          const componentCategory = categoryById.getCategoryById(
-            component.categoryId
-          );
-          const componentSubcategory =
-            component.subcategoryId === null
+    select: useCallback(
+      (data: ExpenseFromApi[]) => {
+        if (
+          !categoryById.loaded ||
+          !sourceById.loaded ||
+          !subscriptionById.loaded ||
+          !savingSpendingByCategoryId.loaded ||
+          !subcategoryById.loaded
+        ) {
+          return;
+        }
+        return data.map((expense) => {
+          const category = categoryById.getCategoryById(expense.categoryId);
+          const subcategory =
+            expense.subcategoryId === null
               ? null
               : subcategoryById.getSubcategoryById(
-                  component.categoryId,
-                  component.subcategoryId
+                  expense.categoryId,
+                  expense.subcategoryId
                 );
-          return new ExpenseComponent(
-            component.id,
-            component.name,
-            adaptCostFromApi(component.cost, componentCategory),
-            componentCategory,
-            componentSubcategory,
-            expenseDomainObject
+          const source =
+            expense.sourceId === null
+              ? null
+              : sourceById.getSourceById(expense.sourceId);
+          const subscription =
+            expense.subscriptionId === null
+              ? null
+              : subscriptionById.getSubscriptionById(expense.subscriptionId);
+          const savingSpending =
+            expense.savingSpendingCategoryId === null
+              ? null
+              : savingSpendingByCategoryId.getSavingSpendingByCategoryId(
+                  expense.savingSpendingCategoryId
+                );
+          const expenseDomainObject = adaptExpenseFromApi(
+            expense,
+            category,
+            [],
+            subcategory,
+            source,
+            subscription,
+            savingSpending
           );
+
+          const components = expense.components.map((component) => {
+            const componentCategory = categoryById.getCategoryById(
+              component.categoryId
+            );
+            const componentSubcategory =
+              component.subcategoryId === null
+                ? null
+                : subcategoryById.getSubcategoryById(
+                    component.categoryId,
+                    component.subcategoryId
+                  );
+            return new ExpenseComponent(
+              component.id,
+              component.name,
+              adaptCostFromApi(component.cost, componentCategory),
+              componentCategory,
+              componentSubcategory,
+              expenseDomainObject
+            );
+          });
+
+          expenseDomainObject.setComponents(components);
+
+          return expenseDomainObject;
         });
-
-        expenseDomainObject.setComponents(components);
-
-        return expenseDomainObject;
-      });
-    },
+      },
+      [
+        categoryById,
+        sourceById,
+        subscriptionById,
+        savingSpendingByCategoryId,
+        subcategoryById,
+      ]
+    ),
   });
 };

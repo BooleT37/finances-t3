@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
 import { savingSpendingQueryParams } from "../api/savingSpendingApi";
 import type { SavingSpendingFromApi } from "../api/types";
 import SavingSpending from "../SavingSpending";
@@ -23,10 +24,11 @@ export function adaptSavingSpendingFromApi(
   );
 }
 
-export const useSavingSpendings = () => useQuery({
+export const useSavingSpendings = () =>
+  useQuery({
     ...savingSpendingQueryParams,
-    queryFn: async () => {
-      const data = await savingSpendingQueryParams.queryFn();
-      return data.map(adaptSavingSpendingFromApi);
-    },
+    select: useCallback(
+      (data: SavingSpendingFromApi[]) => data.map(adaptSavingSpendingFromApi),
+      []
+    ),
   });

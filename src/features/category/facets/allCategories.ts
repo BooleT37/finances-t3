@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
 import Category from "../Category";
 import Subcategory from "../Subcategory";
 import { categoriesQueryParams } from "../api/categoriesApi";
@@ -21,7 +22,11 @@ function adaptCategoryFromApi(
   );
 }
 
-export const useCategories = () => useQuery({
+export const useCategories = () =>
+  useQuery({
     ...categoriesQueryParams,
-    select: (data) => data.map(adaptCategoryFromApi),
+    select: useCallback(
+      (data: ApiCategoryWithSubcategories[]) => data.map(adaptCategoryFromApi),
+      []
+    ),
   });

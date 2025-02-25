@@ -297,7 +297,11 @@ const DataScreen = () => {
         onSubmit={handleModalSubmit}
       />
       <ImportModal />
-      <ParsedExpensesModal />
+      {importModalContext.parsedExpenses && (
+        <ParsedExpensesModal
+          parsedExpenses={importModalContext.parsedExpenses}
+        />
+      )}
     </>
   );
 };

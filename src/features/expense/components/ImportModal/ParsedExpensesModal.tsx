@@ -1,5 +1,5 @@
 import { Checkbox, Form, Modal } from "antd";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import styled from "styled-components";
 
 import {
@@ -46,9 +46,12 @@ const HeaderStyled = styled.div`
   font-weight: bold;
 `;
 
-export const ParsedExpensesModal: React.FC = () => {
-  const { parsedExpenses, removeParsedExpenses, selectedSource } =
-    useImportModalContext();
+interface Props {
+  parsedExpenses: ParsedExpense[];
+}
+
+export const ParsedExpensesModal: React.FC<Props> = ({ parsedExpenses }) => {
+  const { removeParsedExpenses, selectedSource } = useImportModalContext();
   const [form] = Form.useForm<ParsedExpensesFormValues>();
   const [submitting, setSubmitting] = useState(false);
   const addManyExpenses = useAddManyExpenses();
@@ -56,9 +59,9 @@ export const ParsedExpensesModal: React.FC = () => {
   const subcategoryById = useSubcategoryById();
   const getExistingExpense = useGetExistingExpense();
 
-  useEffect(() => {
-    form.setFieldsValue({
-      expenses: parsedExpenses?.map((e): ParsedExpenseFormValue => {
+  const initialValues = useMemo(
+    () => ({
+      expenses: parsedExpenses.map((e): ParsedExpenseFormValue => {
         const existingExpense = getExistingExpense(e);
         return {
           ...e,
@@ -72,8 +75,10 @@ export const ParsedExpensesModal: React.FC = () => {
             : undefined,
         };
       }),
-    });
-  }, [form, getExistingExpense, parsedExpenses]);
+    }),
+    [parsedExpenses, getExistingExpense]
+  );
+
   const handleOkClick = () => {
     form.submit();
   };
@@ -142,8 +147,8 @@ export const ParsedExpensesModal: React.FC = () => {
 
   return (
     <Modal
+      open
       width={1300}
-      open={!!parsedExpenses}
       title="Импортировать расходы"
       onClose={closeModal}
       onCancel={closeModal}
@@ -154,7 +159,11 @@ export const ParsedExpensesModal: React.FC = () => {
         disabled: expenses.every((e) => !e.selected),
       }}
     >
-      <Form<ParsedExpensesFormValues> form={form} onFinish={handleSubmit}>
+      <Form<ParsedExpensesFormValues>
+        form={form}
+        onFinish={handleSubmit}
+        initialValues={initialValues}
+      >
         <Form.List name="expenses">
           {(fields) => (
             <GridStyled>
