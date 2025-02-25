@@ -5,7 +5,7 @@ import { hash } from "../hash";
 import type { ExpensesParser } from "./ExpensesParser";
 
 const ROWS_TO_SKIP_AT_START = 6;
-const ROWS_TO_SKIP_AT_END = 4;
+const ROWS_TO_SKIP_AT_END = 3;
 
 const matchAmount = (amount: string) =>
   /(?<sign>-?)EUR(?<amount>\d+(?:,\d+)?\.\d+)/.exec(amount);
@@ -85,16 +85,38 @@ export class VividPdfExpensesParser implements ExpensesParser {
         if (!row[3]) {
           throw new Error(`Invalid row: ${row.join(", ")}`);
         }
-        const expense: Omit<ParsedExpenseFromApi, "hash"> = {
-          date: row[0],
-          type: row[1],
-          description: row[2],
-          amount: parseAmount(row[3]),
-        };
-        return {
-          ...expense,
-          hash: hash(expense),
-        };
+        const datePlusTypeRegEx =
+          /^(?<date>\w+\s+\d{1,2},\s+\d{4})(?<type>(?:\w|\s)+)$/;
+        const matched = datePlusTypeRegEx.exec(row[0]);
+        // if the first row includes the date and type together
+        if (matched) {
+          const type = matched.groups?.type?.trim();
+          const date = matched.groups?.date?.trim();
+          if (!type || !date) {
+            throw new Error(`Invalid row: ${row.join(", ")}`);
+          }
+          const expense: Omit<ParsedExpenseFromApi, "hash"> = {
+            date,
+            type,
+            description: row[1],
+            amount: parseAmount(row[2]),
+          };
+          return {
+            ...expense,
+            hash: hash(expense),
+          };
+        } else {
+          const expense: Omit<ParsedExpenseFromApi, "hash"> = {
+            date: row[0],
+            type: row[1],
+            description: row[2],
+            amount: parseAmount(row[3]),
+          };
+          return {
+            ...expense,
+            hash: hash(expense),
+          };
+        }
       })
       .filter((row) => row !== null);
   }
