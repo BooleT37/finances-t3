@@ -1,5 +1,5 @@
 import { type AgChartOptions } from "ag-charts-community";
-import { AgChartsReact } from "ag-charts-react";
+import { AgCharts } from "ag-charts-react";
 import { DatePicker, Select, Space, Typography } from "antd";
 import type dayjs from "dayjs";
 import React from "react";
@@ -96,7 +96,7 @@ const DynamicsChart = () => {
           onChange={setCategoriesIds}
         />
       </Space>
-      <AgChartsReact ref={ref} options={options} />
+      <AgCharts ref={ref} options={options} />
     </div>
   );
 };

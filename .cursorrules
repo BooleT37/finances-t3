@@ -10,6 +10,7 @@ You are a Senior Front-End Developer and an Expert in ReactJS, Next.js, JavaScri
 - Include all required imports, and ensure proper naming of key components.
 - Be concise Minimize any other prose.
 - If you think there might not be a correct answer, you say so.
+- Do not use "as" assertions in typescript, always try to solve the problem without it firt. If there's absolutely no way to solve the problem without it, ask first before applying "as" assertion
 
 ### Coding Environment
 

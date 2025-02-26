@@ -1,8 +1,9 @@
 import {
-  type AgCartesianSeriesTooltipRendererParams,
+  type AgChartLabelFormatterParams,
   type AgChartOptions,
+  type AgSeriesTooltipRendererParams,
 } from "ag-charts-community";
-import { AgChartsReact } from "ag-charts-react";
+import { AgCharts } from "ag-charts-react";
 import { Spin } from "antd";
 import { groupBy } from "lodash";
 import { useFromSavingsCategory } from "~/features/category/facets/savingsCategories";
@@ -51,17 +52,15 @@ export const SavingsSpendingsEventsChart: React.FC = () => {
         yKey: "total",
         yName: "Потрачено",
         tooltip: {
-          renderer: ({
-            xValue,
-            yValue,
-          }: AgCartesianSeriesTooltipRendererParams) => ({
-            title: xValue as string,
-            content: costToString(yValue as number),
+          renderer: ({ datum }: AgSeriesTooltipRendererParams<BarDatum>) => ({
+            title: datum.event,
+            content: costToString(datum.total),
           }),
         },
         label: {
-          formatter: (params) => costToString(params.value),
-          placement: "outside",
+          formatter: (params: AgChartLabelFormatterParams<BarDatum>) =>
+            costToString(params.datum.total),
+          placement: "outside-start",
         },
       },
     ],
@@ -69,7 +68,7 @@ export const SavingsSpendingsEventsChart: React.FC = () => {
 
   return (
     <div>
-      <AgChartsReact options={options}></AgChartsReact>
+      <AgCharts options={options} />
     </div>
   );
 };

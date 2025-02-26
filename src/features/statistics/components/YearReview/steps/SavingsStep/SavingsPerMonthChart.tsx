@@ -1,8 +1,8 @@
 import {
-  type AgCartesianSeriesTooltipRendererParams,
   type AgChartOptions,
+  type AgSeriesTooltipRendererParams,
 } from "ag-charts-community";
-import { AgChartsReact } from "ag-charts-react";
+import { AgCharts } from "ag-charts-react";
 import { Spin } from "antd";
 import Decimal from "decimal.js";
 import { range } from "lodash";
@@ -61,32 +61,26 @@ export const SavingsPerMonthChart: React.FC = () => {
     data,
     series: [
       {
-        type: "column",
+        type: "bar",
         xKey: "month",
         yKey: "saved",
         yName: "Отложено",
         tooltip: {
-          renderer: ({
-            yValue,
-            yName,
-          }: AgCartesianSeriesTooltipRendererParams) => ({
-            title: yName,
-            content: `${costToString(yValue as number)}`,
+          renderer: ({ datum }: AgSeriesTooltipRendererParams<BarDatum>) => ({
+            title: "Отложено",
+            content: `${costToString(datum.saved)}`,
           }),
         },
       },
       {
-        type: "column",
+        type: "bar",
         xKey: "month",
         yKey: "spent",
         yName: "Потрачено",
         tooltip: {
-          renderer: ({
-            yValue,
-            yName,
-          }: AgCartesianSeriesTooltipRendererParams) => ({
-            title: yName,
-            content: `${costToString(yValue as number)}`,
+          renderer: ({ datum }: AgSeriesTooltipRendererParams<BarDatum>) => ({
+            title: "Потрачено",
+            content: `${costToString(datum.spent)}`,
           }),
         },
       },
@@ -95,7 +89,7 @@ export const SavingsPerMonthChart: React.FC = () => {
 
   return (
     <div>
-      <AgChartsReact options={options}></AgChartsReact>
+      <AgCharts options={options} />
     </div>
   );
 };

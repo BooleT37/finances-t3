@@ -1,47 +1,52 @@
-import type { AgChartOptions } from "ag-charts-community";
+import {
+  type AgCartesianChartOptions,
+  type AgSeriesTooltipRendererParams,
+  type AgTooltipRendererResult,
+} from "ag-charts-community";
 import { costToString } from "~/utils/costUtils";
 import type { ComparisonData } from "./models";
 import type { ComparisonDataCategory } from "./models/comparisonData";
 
-const tooltip = {
+const getTooltip = (yKey: "period1" | "period2") => ({
   renderer: ({
-    xValue,
-    yValue,
     datum,
-  }: {
-    xValue?: string;
-    yValue?: number;
-    datum: ComparisonDataCategory;
-  }) => {
-    if (yValue === undefined) return "";
-    const cost = datum.isIncome ? yValue : -yValue;
+    title,
+  }: AgSeriesTooltipRendererParams<ComparisonDataCategory>): AgTooltipRendererResult => {
+    const value = datum[yKey];
+
+    const cost = datum.isIncome ? value : -value;
     return {
-      content: `${xValue}: ${costToString(cost)}`,
+      title,
+      data: [
+        {
+          label: "Всего:",
+          value: costToString(cost),
+        },
+      ],
     };
   },
-};
+});
 
 const getOptions = (
   period1: string,
   period2: string,
   data: ComparisonData
-): AgChartOptions => ({
-  autoSize: true,
+): AgCartesianChartOptions => ({
   data,
   series: [
     {
-      type: "column",
+      type: "bar",
       xKey: "category",
       yKey: "period1",
       yName: period1,
-      tooltip,
+      tooltip: getTooltip("period1"),
     },
     {
-      type: "column",
+      type: "bar",
       xKey: "category",
       yKey: "period2",
       yName: period2,
-      tooltip,
+      tooltip: getTooltip("period2"),
     },
   ],
   axes: [

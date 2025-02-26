@@ -1,8 +1,8 @@
 import {
-  type AgCartesianSeriesTooltipRendererParams,
   type AgChartOptions,
+  type AgSeriesTooltipRendererParams,
 } from "ag-charts-community";
-import { AgChartsReact } from "ag-charts-react";
+import { AgCharts } from "ag-charts-react";
 import { Checkbox } from "antd";
 import { maxBy, range } from "lodash";
 import { useState } from "react";
@@ -58,50 +58,41 @@ export const MonthsDataStep: React.FC = () => {
     data,
     series: [
       {
-        type: "column",
+        type: "bar",
         xKey: "month",
         yKey: "spent",
         yName: "Потрачено",
         fill: "orangered",
         tooltip: {
-          renderer: ({
-            yValue,
-            yName,
-          }: AgCartesianSeriesTooltipRendererParams) => ({
-            title: yName,
-            content: `${costToString(yValue as number)}`,
+          renderer: ({ datum }: AgSeriesTooltipRendererParams<Datum>) => ({
+            title: "Потрачено",
+            content: `${costToString(datum.spent)}`,
           }),
         },
       },
       {
-        type: "column",
+        type: "bar",
         xKey: "month",
         yKey: "earned",
         yName: "Заработано",
         fill: "#50C878",
         tooltip: {
-          renderer: ({
-            yValue,
-            yName,
-          }: AgCartesianSeriesTooltipRendererParams) => ({
-            title: yName,
-            content: `${costToString(yValue as number)}`,
+          renderer: ({ datum }: AgSeriesTooltipRendererParams<Datum>) => ({
+            title: "Заработано",
+            content: `${costToString(datum.earned)}`,
           }),
         },
       },
       {
-        type: "column",
+        type: "bar",
         xKey: "month",
         yKey: "saved",
         yName: "Отложено",
         fill: "dodgerblue",
         tooltip: {
-          renderer: ({
-            yValue,
-            yName,
-          }: AgCartesianSeriesTooltipRendererParams) => ({
-            title: yName,
-            content: `${costToString(yValue as number)}`,
+          renderer: ({ datum }: AgSeriesTooltipRendererParams<Datum>) => ({
+            title: "Отложено",
+            content: `${costToString(datum.saved)}`,
           }),
         },
       },
@@ -123,7 +114,7 @@ export const MonthsDataStep: React.FC = () => {
       >
         Учитывать траты из сбережений
       </Checkbox>
-      <AgChartsReact options={options}></AgChartsReact>
+      <AgCharts options={options} />
       {mostExpensiveMonth && (
         <div>
           <div>

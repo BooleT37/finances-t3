@@ -1,8 +1,9 @@
 import {
-  type AgCartesianSeriesTooltipRendererParams,
+  type AgChartLabelFormatterParams,
   type AgChartOptions,
+  type AgSeriesTooltipRendererParams,
 } from "ag-charts-community";
-import { AgChartsReact } from "ag-charts-react";
+import { AgCharts } from "ag-charts-react";
 import { Button } from "antd";
 import { useState } from "react";
 import { useGetCategoryById } from "~/features/category/facets/categoryById";
@@ -48,26 +49,24 @@ export const MostSpendingsStep: React.FC = () => {
     data,
     series: [
       {
-        type: "column",
+        type: "bar",
         xKey: "category",
         yKey: "spent",
         yName: "Потрачено",
         tooltip: {
-          renderer: ({
-            xValue,
-            yValue,
-          }: AgCartesianSeriesTooltipRendererParams) => ({
-            title: xValue as string,
-            content: `${costToString(
-              yValue as number
-            )} (в среднем ${costToString(yValue / 12)}/мес)`,
+          renderer: ({ datum }: AgSeriesTooltipRendererParams<BarDatum>) => ({
+            title: datum.category,
+            content: `${costToString(datum.spent)} (в среднем ${costToString(
+              datum.spent / 12
+            )}/мес)`,
           }),
         },
         label: allCategoriesShown
           ? undefined
           : {
-              formatter: (params) => costToString(params.value),
-              placement: "outside",
+              formatter: (params: AgChartLabelFormatterParams<BarDatum>) =>
+                costToString(params.datum.spent),
+              placement: "outside-start",
             },
       },
     ],
@@ -75,7 +74,7 @@ export const MostSpendingsStep: React.FC = () => {
 
   return (
     <div>
-      <AgChartsReact options={options}></AgChartsReact>
+      <AgCharts options={options} />
       <Button
         type="link"
         onClick={() => {

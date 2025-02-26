@@ -1,5 +1,6 @@
+import { WarningFilled } from "@ant-design/icons";
 import { type AgChartOptions } from "ag-charts-community";
-import { AgChartsReact } from "ag-charts-react";
+import { AgCharts } from "ag-charts-react";
 import { DatePicker, Select, Space, Switch, Typography } from "antd";
 import type dayjs from "dayjs";
 import React from "react";
@@ -9,7 +10,7 @@ import { getToday } from "~/utils/today";
 import getOptions from "./getOptions";
 
 const { Option } = Select;
-const { Title, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 
 const thisMonth = getToday().date(1);
 const lastMonth = thisMonth.clone().subtract(1, "month");
@@ -90,9 +91,12 @@ const ComparisonChart = function ComparisonChart() {
         </Space>
       </Space>
       {datesAreSame ? (
-        "Пожалуйста, выберите различные периоды в виджете сверху"
+        <Paragraph style={{ marginTop: 8 }} type="warning">
+          <WarningFilled /> Пожалуйста, выберите различные периоды в виджете
+          сверху
+        </Paragraph>
       ) : (
-        <AgChartsReact options={options} />
+        <AgCharts options={options} />
       )}
     </div>
   );

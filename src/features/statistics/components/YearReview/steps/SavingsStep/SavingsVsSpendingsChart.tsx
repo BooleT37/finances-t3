@@ -1,8 +1,9 @@
 import {
-  type AgCartesianSeriesTooltipRendererParams,
+  type AgChartLabelFormatterParams,
   type AgChartOptions,
+  type AgSeriesTooltipRendererParams,
 } from "ag-charts-community";
-import { AgChartsReact } from "ag-charts-react";
+import { AgCharts } from "ag-charts-react";
 import { Spin } from "antd";
 import {
   useFromSavingsCategory,
@@ -59,19 +60,17 @@ export const SavingsVsSpendingsChart: React.FC = () => {
         yKey: "total",
         yName: "Сумма",
         tooltip: {
-          renderer: ({
-            xValue,
-            yValue,
-          }: AgCartesianSeriesTooltipRendererParams) => ({
-            title: xValue as string,
-            content: `${costToString(
-              yValue as number
-            )} (в среднем ${costToString(yValue / 12)}/мес)`,
+          renderer: ({ datum }: AgSeriesTooltipRendererParams<BarDatum>) => ({
+            title: datum.category,
+            content: `${costToString(datum.total)} (в среднем ${costToString(
+              datum.total / 12
+            )}/мес)`,
           }),
         },
         label: {
-          formatter: (params) => costToString(params.value),
-          placement: "outside",
+          formatter: (params: AgChartLabelFormatterParams<BarDatum>) =>
+            costToString(params.datum.total),
+          placement: "outside-start",
         },
       },
     ],
@@ -79,7 +78,7 @@ export const SavingsVsSpendingsChart: React.FC = () => {
 
   return (
     <div>
-      <AgChartsReact options={options}></AgChartsReact>
+      <AgCharts options={options} />
       <div>
         Всего мы за год сохранили{" "}
         <b>{costToString(totalSavings - totalSpendings)}</b>

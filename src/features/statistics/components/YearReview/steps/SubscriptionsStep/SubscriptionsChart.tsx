@@ -1,8 +1,9 @@
 import {
-  type AgCartesianSeriesTooltipRendererParams,
+  type AgChartLabelFormatterParams,
   type AgChartOptions,
+  type AgSeriesTooltipRendererParams,
 } from "ag-charts-community";
-import { AgChartsReact } from "ag-charts-react";
+import { AgCharts } from "ag-charts-react";
 import Decimal from "decimal.js";
 import { costToString } from "~/utils/costUtils";
 
@@ -33,18 +34,18 @@ export const SubscriptionsChart: React.FC<Props> = (props) => {
         yName,
         tooltip: {
           renderer: ({
-            yValue,
             datum,
-          }: AgCartesianSeriesTooltipRendererParams) => ({
-            title: (datum as { name: string }).name,
-            content: `${costToString(yValue as number)} (${costToString(
-              new Decimal(yValue as number).div(12)
+          }: AgSeriesTooltipRendererParams<SubscriptionDatum>) => ({
+            title: datum.name,
+            content: `${costToString(datum.spent)} (${costToString(
+              new Decimal(datum.spent).div(12)
             )}/мес)`,
           }),
         },
         label: {
-          formatter: (params) => costToString(params.value),
-          placement: "outside",
+          formatter: (params: AgChartLabelFormatterParams<SubscriptionDatum>) =>
+            costToString(params.datum.spent),
+          placement: "outside-start",
         },
       },
     ],
@@ -52,7 +53,7 @@ export const SubscriptionsChart: React.FC<Props> = (props) => {
 
   return (
     <div>
-      <AgChartsReact options={options}></AgChartsReact>
+      <AgCharts options={options} />
     </div>
   );
 };

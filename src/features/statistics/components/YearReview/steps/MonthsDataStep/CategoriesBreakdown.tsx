@@ -1,8 +1,9 @@
 import {
-  type AgCartesianSeriesTooltipRendererParams,
+  type AgChartLabelFormatterParams,
   type AgChartOptions,
+  type AgSeriesTooltipRendererParams,
 } from "ag-charts-community";
-import { AgChartsReact } from "ag-charts-react";
+import { AgCharts } from "ag-charts-react";
 import { useGetCategoryById } from "~/features/category/facets/categoryById";
 import { useGetExpensesByCategoryIdForYear } from "~/features/expense/facets/expensesByCategory";
 import { costToString } from "~/utils/costUtils";
@@ -23,7 +24,6 @@ export const CategoriesBreakdown: React.FC<Props> = ({
   showFromSavings,
 }) => {
   const getExpensesByCategoryIdForYear = useGetExpensesByCategoryIdForYear();
-
   const expenses = getExpensesByCategoryIdForYear(2022);
   const categoryById = useGetCategoryById();
 
@@ -32,7 +32,9 @@ export const CategoriesBreakdown: React.FC<Props> = ({
         .filter(([categoryId]) => {
           const category = categoryById.getCategoryById(parseInt(categoryId));
           return (
-            (showFromSavings || !category.fromSavings) && !category.isIncome
+            !category.isIncome &&
+            !category.toSavings &&
+            (showFromSavings || !category.fromSavings)
           );
         })
         .map(([categoryId, expenses]): [string, number] => [
@@ -43,8 +45,9 @@ export const CategoriesBreakdown: React.FC<Props> = ({
               .map((e) => e.cost ?? 0)
           ).toNumber(),
         ])
+        .filter(([_, spent]) => spent > 0)
         .sort((e1, e2) => e2[1] - e1[1])
-        .slice(0, 3)
+        .slice(0, 5)
         .map(
           ([categoryId, spent]): BarDatum => ({
             category: categoryById.getCategoryById(parseInt(categoryId)).name,
@@ -65,17 +68,15 @@ export const CategoriesBreakdown: React.FC<Props> = ({
         yKey: "spent",
         yName: "Потрачено",
         tooltip: {
-          renderer: ({
-            xValue,
-            yValue,
-          }: AgCartesianSeriesTooltipRendererParams) => ({
-            title: xValue as string,
-            content: costToString(yValue as number),
+          renderer: ({ datum }: AgSeriesTooltipRendererParams<BarDatum>) => ({
+            title: datum.category,
+            content: costToString(datum.spent),
           }),
         },
         label: {
-          formatter: (params: { value: number }) => costToString(params.value),
-          placement: "outside",
+          formatter: (params: AgChartLabelFormatterParams<BarDatum>) =>
+            costToString(params.datum.spent),
+          placement: "outside-start",
         },
       },
     ],
@@ -83,7 +84,7 @@ export const CategoriesBreakdown: React.FC<Props> = ({
 
   return (
     <div>
-      <AgChartsReact options={options}></AgChartsReact>
+      <AgCharts options={options} />
     </div>
   );
 };
