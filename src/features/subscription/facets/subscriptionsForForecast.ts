@@ -8,6 +8,7 @@ const subscriptionToItem = (
 ): ForecastSubscriptionsItem => ({
   cost: subscription.cost,
   name: subscription.name,
+  sourceName: subscription.source?.name,
 });
 
 export const useGetSubscriptionsForForecast = () => {

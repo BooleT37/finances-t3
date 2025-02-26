@@ -5,7 +5,10 @@ import { Space, Tooltip } from "antd";
 import type Decimal from "decimal.js";
 import type { ForecastTableItem } from "~/features/forecast/types";
 import type { ForecastSubscriptionsItem } from "~/features/forecast/types/forecastTypes";
-import SubscriptionsTooltip from "./SubscriptionsTooltip/SubscriptionsTooltip";
+import {
+  FooterSubscriptionsTooltip,
+  SubscriptionsTooltip,
+} from "./SubscriptionsTooltip";
 
 interface Props {
   cost: Decimal | null;
@@ -27,7 +30,9 @@ const CostCellRenderer: React.FC<Props> = ({
   showSubcategoriesTooltip,
   saveSum,
 }) => {
-  const { categoryId, subcategoryId } = data;
+  const { categoryId, subcategoryId, group } = data;
+  const isFooterRow = categoryId === null && group === "total";
+
   const handleClick = useCallback(
     async (totalCost: Decimal) => {
       if (categoryId === null) {
@@ -37,6 +42,7 @@ const CostCellRenderer: React.FC<Props> = ({
     },
     [categoryId, saveSum, subcategoryId]
   );
+
   if (cost === null) {
     return <>-</>;
   }
@@ -51,9 +57,15 @@ const CostCellRenderer: React.FC<Props> = ({
     >
       <Space>
         {costToString(cost)}
-        {subscriptions.length > 0 && (
-          <SubscriptionsTooltip items={subscriptions} onClick={handleClick} />
-        )}
+        {subscriptions.length > 0 &&
+          (isFooterRow ? (
+            <FooterSubscriptionsTooltip
+              items={subscriptions}
+              onClick={handleClick}
+            />
+          ) : (
+            <SubscriptionsTooltip items={subscriptions} onClick={handleClick} />
+          ))}
       </Space>
     </Tooltip>
   );
