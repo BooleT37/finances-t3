@@ -16,8 +16,8 @@ import type Expense from "~/features/expense/Expense";
 import type { ExpenseTableData } from "~/features/expense/Expense";
 import { useBoundaryDates } from "~/features/expense/facets/expenseBoundaries";
 import { useGetExpenseTableData } from "~/features/expense/facets/expenseTableData";
+import { useDateStore } from "~/stores/dateStore";
 import { DATE_FORMAT, MONTH_DATE_FORMAT } from "~/utils/constants";
-import { getToday } from "~/utils/today";
 import { DataTable } from "./DataTable/DataTable";
 import ExpenseModal from "./ExpenseModal";
 import {
@@ -34,8 +34,6 @@ import { ParsedExpensesModal } from "./ImportModal/ParsedExpensesModal";
 const { RangePicker } = DatePicker;
 const { Search } = Input;
 
-const today = getToday();
-
 const DateTypeButton = styled(Button)`
   padding-left: 0;
 `;
@@ -47,13 +45,19 @@ const SearchStyled = styled(Search)`
 `;
 
 const DataScreen = () => {
-  const [rangeStart, setRangeStart] = React.useState<Dayjs | null>(
-    today.startOf("day").date(1)
-  );
-  const [rangeEnd, setRangeEnd] = React.useState<Dayjs | null>(
-    today.endOf("day").add(1, "month").date(1).subtract(1, "day")
-  );
-  const [isRangePicker, setIsRangePicker] = React.useState(false);
+  const {
+    selectedDate,
+    rangeEnd,
+    isRangePicker,
+    setSelectedDate,
+    setRangeEnd,
+    setIsRangePicker,
+    goToPrevMonth,
+    goToNextMonth,
+    setDateRange,
+    setRangeAcrossAllTime: setStoreRangeAcrossAllTime,
+  } = useDateStore();
+
   const [search, setSearch] = React.useState("");
   const [upcSubscriptionsShown, setUpcSubscriptionsShown] =
     React.useState(false);
@@ -66,17 +70,21 @@ const DataScreen = () => {
     _dates: [Dayjs | null, Dayjs | null] | null,
     dateStrings: [string, string] | null
   ) => {
-    setRangeStart(dateStrings?.[0] ? dayjs(dateStrings[0], DATE_FORMAT) : null);
-    setRangeEnd(
-      dateStrings?.[1] ? dayjs(dateStrings[1], DATE_FORMAT).endOf("day") : null
-    );
+    const start = dateStrings?.[0] ? dayjs(dateStrings[0], DATE_FORMAT) : null;
+    const end = dateStrings?.[1]
+      ? dayjs(dateStrings[1], DATE_FORMAT).endOf("day")
+      : null;
+
+    if (start && end) {
+      setDateRange(start, end);
+    }
   };
 
   const handleMonthChange = (date: Dayjs | null) => {
-    setRangeStart(date ? date.startOf("day").date(1) : null);
-    setRangeEnd(
-      date ? date.endOf("day").add(1, "month").subtract(1, "day") : null
-    );
+    if (date !== null) {
+      setSelectedDate(date.startOf("day").date(1));
+      setRangeEnd(date.endOf("day").add(1, "month").date(1).subtract(1, "day"));
+    }
   };
 
   const handleAdd = () => {
@@ -87,42 +95,13 @@ const DataScreen = () => {
     importModalContext.open();
   };
 
-  const goToPrevMonth = () => {
-    setRangeStart((d) => {
-      if (!d) {
-        return d;
-      }
-      return d.clone().subtract(1, "month");
-    });
-    setRangeEnd((d) => {
-      if (!d) {
-        return d;
-      }
-      return d.clone().set("date", 1).subtract(1, "day");
-    });
-  };
-
-  const goToNextMonth = () => {
-    setRangeStart((d) => {
-      if (!d) {
-        return d;
-      }
-      return d.clone().add(1, "month");
-    });
-    setRangeEnd((d) => {
-      if (!d) {
-        return d;
-      }
-      return d.clone().add(2, "month").set("date", 1).subtract(1, "day");
-    });
-  };
-
   const boundaryDates = useBoundaryDates();
 
   const setRangeAcrossAllTime = useCallback(() => {
-    setRangeStart(boundaryDates[0]);
-    setRangeEnd(boundaryDates[1]);
-  }, [boundaryDates]);
+    if (boundaryDates[0] && boundaryDates[1]) {
+      setStoreRangeAcrossAllTime(boundaryDates[0], boundaryDates[1]);
+    }
+  }, [boundaryDates, setStoreRangeAcrossAllTime]);
 
   const tableInstanceRef = useRef<MRT_TableInstance<ExpenseTableData> | null>(
     null
@@ -163,14 +142,15 @@ const DataScreen = () => {
   );
 
   const handleDateTypeButtonClick = useCallback(() => {
-    if (isRangePicker && rangeEnd) {
+    if (isRangePicker) {
+      setIsRangePicker(false);
       setRangeEnd(
-        rangeEnd.clone().add(1, "month").set("date", 1).subtract(1, "day")
+        selectedDate.clone().add(1, "month").set("date", 1).subtract(1, "day")
       );
-      setRangeStart(rangeEnd.clone().set("date", 1));
+    } else {
+      setIsRangePicker(true);
     }
-    setIsRangePicker((value) => !value);
-  }, [isRangePicker, rangeEnd]);
+  }, [isRangePicker, selectedDate, setIsRangePicker, setRangeEnd]);
 
   return (
     <>
@@ -199,7 +179,7 @@ const DataScreen = () => {
             {isRangePicker ? (
               <RangePicker
                 format={DATE_FORMAT}
-                value={[rangeStart, rangeEnd]}
+                value={[selectedDate, rangeEnd]}
                 onChange={handleRangeChange}
                 allowClear={false}
               />
@@ -213,7 +193,7 @@ const DataScreen = () => {
                   />
                 </Tooltip>
                 <DatePicker
-                  value={rangeStart}
+                  value={selectedDate}
                   picker="month"
                   onChange={handleMonthChange}
                   format={MONTH_DATE_FORMAT}
@@ -275,24 +255,22 @@ const DataScreen = () => {
             Сгруппировать по подкатегориям
           </Checkbox>
         </Space>
-        {rangeStart && rangeEnd && (
-          <DataTable
-            tableInstanceRef={tableInstanceRef}
-            data={getExpenseTableData({
-              startDate: rangeStart,
-              endDate: rangeEnd,
-              searchString: search,
-              includeUpcomingSubscriptions: upcSubscriptionsShown,
-            })}
-            groupBySubcategories={groupBySubcategories}
-            currentMonth={rangeStart.month()}
-            currentYear={rangeStart.year()}
-            isRangePicker={isRangePicker}
-          />
-        )}
+        <DataTable
+          tableInstanceRef={tableInstanceRef}
+          data={getExpenseTableData({
+            startDate: selectedDate,
+            endDate: rangeEnd,
+            searchString: search,
+            includeUpcomingSubscriptions: upcSubscriptionsShown,
+          })}
+          groupBySubcategories={groupBySubcategories}
+          currentMonth={selectedDate.month()}
+          currentYear={selectedDate.year()}
+          isRangePicker={isRangePicker}
+        />
       </Space>
       <ExpenseModal
-        startDate={rangeStart}
+        startDate={selectedDate}
         endDate={rangeEnd}
         onSubmit={handleModalSubmit}
       />

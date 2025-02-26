@@ -1,12 +1,10 @@
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import { Button, DatePicker, Space, Tooltip } from "antd";
-import type dayjs from "dayjs";
 import type Decimal from "decimal.js";
-import React from "react";
 import { styled } from "styled-components";
+import { useDateStore } from "~/stores/dateStore";
 import { MONTH_DATE_FORMAT } from "~/utils/constants";
 import PlanningTable from "./PlanningTable/PlanningTable";
-import { getToday } from "~/utils/today";
 
 export const PLANNING_SCREEN_SPACE_GAP = 16;
 const SpaceStyled = styled(Space)`
@@ -29,25 +27,8 @@ export interface ForecastMainTableContext extends ForecastTableContext {
 }
 
 const PlanningScreen = () => {
-  const [date, setDate] = React.useState<dayjs.Dayjs | null>(getToday());
-
-  const goToPrevMonth = () => {
-    setDate((d) => {
-      if (!d) {
-        return d;
-      }
-      return d.clone().subtract(1, "month");
-    });
-  };
-
-  const goToNextMonth = () => {
-    setDate((d) => {
-      if (!d) {
-        return d;
-      }
-      return d.clone().add(1, "month");
-    });
-  };
+  const { selectedDate, setSelectedDate, goToPrevMonth, goToNextMonth } =
+    useDateStore();
 
   return (
     <>
@@ -62,9 +43,9 @@ const PlanningScreen = () => {
             />
           </Tooltip>
           <DatePicker
-            value={date}
+            value={selectedDate}
             picker="month"
-            onChange={(date) => setDate(date)}
+            onChange={(date) => setSelectedDate(date ?? selectedDate)}
             format={MONTH_DATE_FORMAT}
             allowClear={false}
             style={{ width: 160 }}
@@ -79,7 +60,10 @@ const PlanningScreen = () => {
             />
           </Tooltip>
         </HeaderStyled>
-        {date && <PlanningTable month={date.month()} year={date.year()} />}
+        <PlanningTable
+          month={selectedDate.month()}
+          year={selectedDate.year()}
+        />
       </SpaceStyled>
     </>
   );
