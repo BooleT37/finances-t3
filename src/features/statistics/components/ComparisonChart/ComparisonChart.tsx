@@ -22,6 +22,13 @@ const pickerFormat: Record<Granularity, string> = {
   year: "YYYY",
 };
 
+type SortOption = "category" | "period1" | "period2";
+const sortOptionLabels: Record<SortOption, string> = {
+  category: "По категории",
+  period1: "По первому периоду",
+  period2: "По второму периоду",
+};
+
 function dateFormat(
   date1: dayjs.Dayjs,
   date2: dayjs.Dayjs,
@@ -44,6 +51,7 @@ const ComparisonChart = function ComparisonChart() {
   const [endDate, setEndDate] = React.useState<dayjs.Dayjs>(thisMonth);
   const [granularity, setGranularity] = React.useState<Granularity>("month");
   const [showIncome, setShowIncome] = React.useState(false);
+  const [sortBy, setSortBy] = React.useState<SortOption>("category");
 
   const datesAreSame = startDate.isSame(endDate, granularity);
   const format = dateFormat(startDate, endDate, granularity);
@@ -54,7 +62,7 @@ const ComparisonChart = function ComparisonChart() {
     : getOptions(
         startDate.format(format),
         endDate.format(format),
-        getComparisonData(startDate, endDate, granularity, showIncome)
+        getComparisonData(startDate, endDate, granularity, showIncome, sortBy)
       );
 
   return (
@@ -84,6 +92,14 @@ const ComparisonChart = function ComparisonChart() {
           <Option value="month">Месяц</Option>
           <Option value="quarter">Квартал</Option>
           <Option value="year">Год</Option>
+        </Select>
+        Сортировать:
+        <Select value={sortBy} onChange={setSortBy} style={{ width: 180 }}>
+          {Object.entries(sortOptionLabels).map(([value, label]) => (
+            <Option key={value} value={value}>
+              {label}
+            </Option>
+          ))}
         </Select>
         <Space align="center">
           <Switch checked={showIncome} onChange={setShowIncome} />
