@@ -15,6 +15,17 @@ const ThisMonthCellRenderer: React.FC<Props> = ({ value: col }) => {
   const forecastNumber = forecast.toNumber();
   const color = col.diff.isNeg() ? "red" : "green";
 
+  if (col.spendings.isNeg() !== forecast.isNeg()) {
+    return (
+      <TotalCostCellView
+        cost={costToString(col.spendings)}
+        suffix={costToDiffString(col.diff)}
+        color={color}
+        barWidth={1}
+      />
+    );
+  }
+
   if (col.spendings.abs().lessThanOrEqualTo(forecast.abs())) {
     return (
       <TotalCostCellView
