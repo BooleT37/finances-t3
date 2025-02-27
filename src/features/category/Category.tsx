@@ -4,8 +4,6 @@ import { NameWithOptionalIcon } from "~/features/category/components/categoryIco
 import type { Option } from "~/types";
 import type Subcategory from "./Subcategory";
 
-export const TOTAL_ROW_CATEGORY_ID = -1;
-
 export enum PersonalExpCategoryIdsRename {
   Alexey = 0,
   Lena = 50,

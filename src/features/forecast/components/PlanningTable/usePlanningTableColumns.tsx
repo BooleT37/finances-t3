@@ -1,14 +1,12 @@
 import Decimal from "decimal.js";
 import { createMRTColumnHelper, type MRT_Row } from "material-react-table";
 import { useMemo } from "react";
-import { TOTAL_ROW_CATEGORY_ID } from "~/features/category/Category";
 import type { ForecastTableItem } from "~/features/forecast/types";
 import type { ForecastSubscriptionsItem } from "~/features/forecast/types/forecastTypes";
 import { costToString } from "~/utils/costUtils";
 import CostCellRenderer from "../CostCellRenderer";
 import LastMonthCellRenderer from "../LastMonthCellRenderer";
 import ThisMonthCellRenderer from "../ThisMonthCellRenderer";
-import { getValueFromTotalRow } from "./getValueFromTotalRow";
 
 const columnHelper = createMRTColumnHelper<ForecastTableItem>();
 
@@ -51,10 +49,6 @@ const usePlanningTableColumns = ({ saveSum, saveComment }: Params) =>
           rowA.original.lastMonth.spendings.comparedTo(
             rowB.original.lastMonth.spendings
           ),
-        aggregationFn: getValueFromTotalRow,
-        AggregatedCell: ({ cell }) => (
-          <LastMonthCellRenderer value={cell.getValue()} />
-        ),
       }),
       columnHelper.accessor("sum", {
         header: "План",
@@ -81,7 +75,6 @@ const usePlanningTableColumns = ({ saveSum, saveComment }: Params) =>
         ),
         enableEditing: ({ original, depth }) =>
           depth > 0 &&
-          original.categoryId !== TOTAL_ROW_CATEGORY_ID &&
           original.categoryType !== "FROM_SAVINGS" &&
           (!original.subRows ||
             original.subRows
@@ -122,19 +115,13 @@ const usePlanningTableColumns = ({ saveSum, saveComment }: Params) =>
           rowA.original.thisMonth.spendings.comparedTo(
             rowB.original.thisMonth.spendings
           ),
-        aggregationFn: getValueFromTotalRow,
-        AggregatedCell: ({ cell }) => (
-          <ThisMonthCellRenderer value={cell.getValue()} />
-        ),
       }),
       columnHelper.accessor("comment", {
         header: "Комментарий",
         enableSorting: false,
         size: 200,
         enableEditing: ({ original, depth }) =>
-          depth > 0 &&
-          original?.categoryId !== TOTAL_ROW_CATEGORY_ID &&
-          !original?.isRestRow,
+          depth > 0 && !original?.isRestRow,
         muiEditTextFieldProps: ({ row }) => ({
           onBlur: (event) => {
             const { value } = event.target;
