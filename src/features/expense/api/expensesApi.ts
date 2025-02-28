@@ -187,8 +187,16 @@ export const useUpdateExpense = () => {
         ),
       });
     },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: expensesKeys.all });
+    onSuccess: (updatedExpense) => {
+      queryClient.setQueryData(
+        expensesKeys.all,
+        produce((expenses: ExpenseFromApi[]) => {
+          const index = expenses.findIndex((e) => e.id === updatedExpense.id);
+          if (index !== -1) {
+            expenses[index] = updatedExpense;
+          }
+        })
+      );
     },
   });
 };

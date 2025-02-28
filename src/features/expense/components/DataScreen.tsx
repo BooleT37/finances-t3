@@ -12,12 +12,13 @@ import dayjs, { type Dayjs } from "dayjs";
 import { type MRT_TableInstance } from "material-react-table";
 import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
-import type Expense from "~/features/expense/Expense";
+import { useGetCategoryById } from "~/features/category/facets/categoryById";
 import type { ExpenseTableData } from "~/features/expense/Expense";
 import { useBoundaryDates } from "~/features/expense/facets/expenseBoundaries";
 import { useGetExpenseTableData } from "~/features/expense/facets/expenseTableData";
 import { useDateStore } from "~/stores/dateStore";
 import { DATE_FORMAT, MONTH_DATE_FORMAT } from "~/utils/constants";
+import type { ExpenseFromApi } from "../api/types";
 import { DataTable } from "./DataTable/DataTable";
 import ExpenseModal from "./ExpenseModal";
 import {
@@ -65,6 +66,7 @@ const DataScreen = () => {
   const importModalContext = useImportModalContext();
   const expenseModalContext = useExpenseModalContext();
   const getExpenseTableData = useGetExpenseTableData();
+  const getCategoryById = useGetCategoryById();
 
   const handleRangeChange = (
     _dates: [Dayjs | null, Dayjs | null] | null,
@@ -135,10 +137,14 @@ const DataScreen = () => {
   };
 
   const handleModalSubmit = useCallback(
-    (expense: Expense) => {
-      expandCategory(expense.category.name);
+    (expense: ExpenseFromApi) => {
+      if (!getCategoryById.loaded) {
+        return;
+      }
+      const category = getCategoryById.getCategoryById(expense.categoryId);
+      expandCategory(category.name);
     },
-    [expandCategory]
+    [expandCategory, getCategoryById]
   );
 
   const handleDateTypeButtonClick = useCallback(() => {

@@ -16,8 +16,8 @@ import {
 import type Expense from "~/features/expense/Expense";
 import type { ExpenseComponentData } from "~/features/expense/Expense";
 import { ExpenseComponent } from "~/features/expense/ExpenseComponent";
-import { useExpenses } from "~/features/expense/facets/allExpenses";
 import { useExpenseById } from "~/features/expense/facets/expenseById";
+import type { ExpenseFromApi } from "../../api/types";
 import { useAdaptExpenseFromFormValues } from "./expenseModalUtils";
 import type { ValidatedFormValues } from "./models";
 
@@ -33,15 +33,17 @@ interface ExpenseModalContextType {
   currentExpense: Expense | undefined;
   lastExpense: Expense | undefined;
   isNewExpense: boolean;
+  addMore: boolean;
   open: (expenseId: number | null) => void;
   close: (source: number | undefined) => void;
   reset: () => void;
   setLastExpenseId: (expenseId: number) => void;
-  insertExpense: (values: ValidatedFormValues) => Promise<Expense>;
+  insertExpense: (values: ValidatedFormValues) => Promise<ExpenseFromApi>;
   setCurrentComponents: (components: ExpenseComponentData[]) => void;
   setComponentsModalOpen: (open: boolean) => void;
   highlightComponentInModal: (id: number) => void;
   setActualDateShown: (shown: boolean) => void;
+  setAddMore: (addMore: boolean) => void;
 }
 
 const ExpenseModalContext = createContext<ExpenseModalContextType | undefined>(
@@ -64,12 +66,12 @@ export function ExpenseModalContextProvider({
   const [componentsModalIdHighlighted, setComponentsModalIdHighlighted] =
     useState<number | null>(null);
   const [actualDateShown, setActualDateShown] = useState(false);
+  const [addMore, setAddMore] = useState(true);
 
   const expenseById = useExpenseById();
   const { mutateAsync: addExpense } = useAddExpense();
   const { mutateAsync: updateExpense } = useUpdateExpense();
   const adaptExpenseFromFormValues = useAdaptExpenseFromFormValues();
-  const { data: expenses } = useExpenses();
   const subcategoryById = useSubcategoryById();
   const categoryById = useGetCategoryById();
 
@@ -126,7 +128,7 @@ export function ExpenseModalContextProvider({
   }, []);
 
   const insertExpense = useCallback(
-    async (values: ValidatedFormValues): Promise<Expense> => {
+    async (values: ValidatedFormValues): Promise<ExpenseFromApi> => {
       const expense = adaptExpenseFromFormValues(values);
 
       if (currentComponents.length > 0) {
@@ -160,13 +162,9 @@ export function ExpenseModalContextProvider({
 
       if (expenseId !== null) {
         expense.id = expenseId;
-        await updateExpense(expense);
-        // Return the updated expense from the cache
-        return expenses?.find((e) => e.id === expenseId) ?? expense;
+        return updateExpense(expense);
       } else {
-        await addExpense(expense);
-        // Return the latest expense from the cache
-        return expenses?.[expenses.length - 1] ?? expense;
+        return addExpense(expense);
       }
     },
     [
@@ -175,7 +173,6 @@ export function ExpenseModalContextProvider({
       updateExpense,
       adaptExpenseFromFormValues,
       currentComponents,
-      expenses,
       subcategoryById,
       categoryById,
     ]
@@ -194,6 +191,7 @@ export function ExpenseModalContextProvider({
       currentExpense,
       lastExpense,
       isNewExpense,
+      addMore,
       open,
       close,
       reset,
@@ -203,6 +201,7 @@ export function ExpenseModalContextProvider({
       setComponentsModalOpen,
       highlightComponentInModal,
       setActualDateShown,
+      setAddMore,
     }),
     [
       visible,
@@ -216,6 +215,7 @@ export function ExpenseModalContextProvider({
       currentExpense,
       lastExpense,
       isNewExpense,
+      addMore,
       open,
       close,
       reset,
