@@ -100,9 +100,7 @@ const DataScreen = () => {
   const boundaryDates = useBoundaryDates();
 
   const setRangeAcrossAllTime = useCallback(() => {
-    if (boundaryDates[0] && boundaryDates[1]) {
-      setStoreRangeAcrossAllTime(boundaryDates[0], boundaryDates[1]);
-    }
+    setStoreRangeAcrossAllTime(boundaryDates[0], boundaryDates[1]);
   }, [boundaryDates, setStoreRangeAcrossAllTime]);
 
   const tableInstanceRef = useRef<MRT_TableInstance<ExpenseTableData> | null>(

@@ -38,15 +38,18 @@ export const useDateStore = create<DateState>((set) => ({
   setIsRangePicker: (isRange) => set({ isRangePicker: isRange }),
 
   goToPrevMonth: () =>
-    set((state) => ({
-      selectedDate: state.selectedDate.clone().subtract(1, "month"),
-      rangeEnd: state.selectedDate
-        .clone()
-        .add(1, "month")
-        .date(1)
-        .subtract(1, "day"),
-      isRangePicker: false,
-    })),
+    set((state) => {
+      const selectedDate = state.selectedDate.clone().subtract(1, "month");
+      return {
+        selectedDate,
+        rangeEnd: selectedDate
+          .clone()
+          .add(1, "month")
+          .date(1)
+          .subtract(1, "day"),
+        isRangePicker: false,
+      };
+    }),
 
   goToNextMonth: () =>
     set((state) => ({
