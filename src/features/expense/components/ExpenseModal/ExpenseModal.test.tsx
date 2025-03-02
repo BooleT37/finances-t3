@@ -1,3 +1,4 @@
+import type { Prisma } from "@prisma/client";
 import userEvent from "@testing-library/user-event";
 import { Decimal } from "decimal.js";
 import { useEffect } from "react";
@@ -45,7 +46,7 @@ const sampleExpense: ExpenseFromApi = {
 
 // #region: helper functions
 // Wrapper component that opens the modal using useEffect
-const ModalWrapper: React.FC = () => {
+const ModalWrapper: React.FC<{ expenseId?: number }> = ({ expenseId }) => {
   const { open } = useExpenseModalContext();
   const onSubmit = vi.fn();
 
@@ -54,19 +55,19 @@ const ModalWrapper: React.FC = () => {
   const endDate = today.endOf("month");
 
   useEffect(() => {
-    // Open the modal with no expense (create new)
-    open(null);
-  }, [open]);
+    // Open the modal with expenseId for editing or null for creating new
+    open(expenseId ?? null);
+  }, [open, expenseId]);
 
   return (
     <ExpenseModal startDate={startDate} endDate={endDate} onSubmit={onSubmit} />
   );
 };
 
-const renderExpenseModal = () => {
+const renderExpenseModal = (expenseId?: number) => {
   const result = render(
     <ExpenseModalContextProvider>
-      <ModalWrapper />
+      <ModalWrapper expenseId={expenseId} />
     </ExpenseModalContextProvider>
   );
 
@@ -143,6 +144,7 @@ const verifySelectValue = (
   const select = within(modal).getByRole("combobox", {
     name: selectName,
   });
+  expect(select).toBeInTheDocument();
   assert(
     select.parentElement?.parentElement,
     "Select parent element not found"
@@ -157,12 +159,8 @@ const verifySelectValue = (
 describe("ExpenseModal", () => {
   beforeEach(() => {
     mockAllData();
-
     // Clear any existing data in the query client to ensure clean state
     queryClient.clear();
-
-    // Initialize the expense query data with an empty array
-    queryClient.setQueryData(["expense", "getAll"], []);
   });
 
   afterEach(() => {
@@ -325,5 +323,91 @@ describe("ExpenseModal", () => {
         })
       );
     });
+  });
+
+  it("should populate form fields when opened in edit mode", async () => {
+    // Use an existing mock expense from mockExpenses.ts (ID 2 - Такси)
+    const expenseId = 2; // ID for the "Такси" expense in mockExpenses.ts
+
+    // Create a spy for the update mutation
+    // mockTrpc.expense.update.mutate.mockResolvedValue(
+    //   mockExpenses.find((e) => e.id === expenseId)
+    // );
+
+    // Render the modal in edit mode by passing the expense ID
+    // Утечка памяти, когда модальное окно открывается на реактирование, пофикить
+    renderExpenseModal(expenseId);
+
+    // Wait for the modal to appear
+    const modal = await screen.findByRole("dialog");
+    // Check if the modal title indicates edit mode
+    expect(screen.getByText("Редактирование траты")).toBeInTheDocument();
+
+    await waitFor(
+      () => {
+        // Check name field
+        const nameInput = within(modal).getByRole("textbox", {
+          name: /Коментарий/i,
+        });
+        expect(nameInput.getAttribute("value")).toBe("Такси");
+      },
+      { timeout: 1000 }
+    );
+    // Check cost field
+    const costInput = within(modal).getByRole("textbox", { name: /сумма/i });
+    expect(costInput.getAttribute("value")).toBe("-15.3");
+
+    // Check category field
+    verifySelectValue(modal, "Категория", "Транспорт");
+
+    // Check subcategory field
+    verifySelectValue(modal, "Подкатегория", "Такси");
+
+    // Now let's test submitting the edited form
+    // Update the expense name
+    const nameInput = within(modal).getByRole("textbox", {
+      name: "Коментарий",
+    });
+    await userEvent.clear(nameInput);
+    await userEvent.type(nameInput, "Updated такси expense");
+
+    // Find and click the submit button (which should say "Save" or equivalent in Russian for edit mode)
+    const submitButton = within(modal).getByRole("button", {
+      name: /сохранить|добавить/i,
+    });
+
+    mockTrpc.expense.update.mutate.mockResolvedValue({
+      actualDate: null,
+      categoryId: 5,
+      components: [],
+      cost: new Decimal(15.3),
+      date: new Date(),
+      id: expenseId,
+      name: "Updated такси expense",
+      peHash: null,
+      sourceId: 1,
+      subcategoryId: 6,
+      subscriptionId: null,
+      userId: "1",
+      savingSpendingCategoryId: null,
+    } satisfies ExpenseFromApi);
+
+    await userEvent.click(submitButton);
+
+    // Verify the update API was called with correct data
+    await waitFor(
+      () => {
+        expect(mockTrpc.expense.update.mutate).toHaveBeenCalledWith({
+          id: expenseId,
+          data: expect.objectContaining({
+            cost: new Decimal(15.3),
+            name: "Updated такси expense",
+            category: { connect: { id: 5 } }, // Транспорт
+            subcategory: { connect: { id: 6 } }, // Такси
+          }) as Prisma.ExpenseUpdateWithoutUserInput,
+        });
+      },
+      { timeout: 1000 }
+    );
   });
 });
