@@ -10,7 +10,10 @@ import React, { useCallback } from "react";
 import { useUpdateCategoryField } from "~/features/category/api/categoriesApi";
 import { useCategoryTableItems } from "~/features/category/facets/categoryTableItems";
 import CategoryModal from "./CategoryEditModal/CategoryModal";
-import { useCategoryModalContext } from "./CategoryEditModal/categoryModalContext";
+import {
+  CategoryModalContextProvider,
+  useCategoryModalContext,
+} from "./CategoryEditModal/categoryModalContext";
 import { NameWithOptionalIcon } from "./categoryIcons/NameWithOptionalIcon";
 import { usePersistCategoriesOrder } from "./hooks/usePersistCategoriesOrder";
 import { RowActions } from "./RowActions";
@@ -144,4 +147,10 @@ const CategoriesScreen: React.FC = () => {
   );
 };
 
-export default CategoriesScreen;
+const CategoriesScreenWithProvider = () => (
+  <CategoryModalContextProvider>
+    <CategoriesScreen />
+  </CategoryModalContextProvider>
+);
+
+export default CategoriesScreenWithProvider;

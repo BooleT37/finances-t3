@@ -1,10 +1,7 @@
 import { Form, Input, Modal, Switch } from "antd";
 import { useEffect } from "react";
 import type Subcategory from "~/features/category/Subcategory";
-import {
-  CategoryModalContextProvider,
-  useCategoryModalContext,
-} from "./categoryModalContext";
+import { useCategoryModalContext } from "./categoryModalContext";
 import { IconSelect } from "./IconSelect";
 import { isContinuousTooltip } from "./isContinuousTooltip";
 import { SubcategoriesList } from "./SubcategoriesList";
@@ -117,10 +114,6 @@ const CategoryModal = () => {
   );
 };
 
-const CategoryModalWithProvider = () => (
-  <CategoryModalContextProvider>
-    <CategoryModal />
-  </CategoryModalContextProvider>
-);
+const CategoryModalWithProvider = () => <CategoryModal />;
 
 export default CategoryModalWithProvider;
