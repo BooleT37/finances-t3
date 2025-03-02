@@ -7,7 +7,15 @@ import {
   RightOutlined,
   SwapOutlined,
 } from "@ant-design/icons";
-import { Button, Checkbox, DatePicker, Input, Space, Tooltip } from "antd";
+import {
+  Button,
+  Checkbox,
+  DatePicker,
+  Input,
+  Space,
+  Spin,
+  Tooltip,
+} from "antd";
 import dayjs, { type Dayjs } from "dayjs";
 import { type MRT_TableInstance } from "material-react-table";
 import React, { useCallback, useRef } from "react";
@@ -16,6 +24,7 @@ import { useGetCategoryById } from "~/features/category/facets/categoryById";
 import type { ExpenseTableData } from "~/features/expense/Expense";
 import { useBoundaryDates } from "~/features/expense/facets/expenseBoundaries";
 import { useGetExpenseTableData } from "~/features/expense/facets/expenseTableData";
+import { useUserSettings } from "~/features/userSettings/facets/allUserSettings";
 import { useDateStore } from "~/stores/dateStore";
 import { DATE_FORMAT, MONTH_DATE_FORMAT } from "~/utils/constants";
 import type { ExpenseFromApi } from "../api/types";
@@ -156,6 +165,8 @@ const DataScreen = () => {
     }
   }, [isRangePicker, selectedDate, setIsRangePicker, setRangeEnd]);
 
+  const { isSuccess: userSettingsLoaded } = useUserSettings();
+
   return (
     <>
       <SearchStyled
@@ -259,19 +270,26 @@ const DataScreen = () => {
             Сгруппировать по подкатегориям
           </Checkbox>
         </Space>
-        <DataTable
-          tableInstanceRef={tableInstanceRef}
-          data={getExpenseTableData({
-            startDate: selectedDate,
-            endDate: rangeEnd,
-            searchString: search,
-            includeUpcomingSubscriptions: upcSubscriptionsShown,
-          })}
-          groupBySubcategories={groupBySubcategories}
-          currentMonth={selectedDate.month()}
-          currentYear={selectedDate.year()}
-          isRangePicker={isRangePicker}
-        />
+        {/* 
+          // we need to fetch all the orders from user settings
+          // before we render the table, otherwise ordering won't work */}
+        {userSettingsLoaded ? (
+          <DataTable
+            tableInstanceRef={tableInstanceRef}
+            data={getExpenseTableData({
+              startDate: selectedDate,
+              endDate: rangeEnd,
+              searchString: search,
+              includeUpcomingSubscriptions: upcSubscriptionsShown,
+            })}
+            groupBySubcategories={groupBySubcategories}
+            currentMonth={selectedDate.month()}
+            currentYear={selectedDate.year()}
+            isRangePicker={isRangePicker}
+          />
+        ) : (
+          <Spin />
+        )}
       </Space>
       <ExpenseModal
         startDate={selectedDate}
