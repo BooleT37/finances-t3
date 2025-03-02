@@ -28,13 +28,15 @@ export const useGetExpenseTableData = () => {
     }): ExpenseTableData[] | undefined => {
       if (!expenses) return undefined;
 
-      const filteredRows = expenses.filter(
-        (e: Expense) =>
-          e.date.isSameOrAfter(startDate) &&
-          e.date.isSameOrBefore(endDate) &&
-          (!searchString ||
-            e.name?.toLowerCase().includes(searchString.toLowerCase()))
-      );
+      const filteredRows = expenses
+        .filter(
+          (e: Expense) =>
+            e.date.isSameOrAfter(startDate) &&
+            e.date.isSameOrBefore(endDate) &&
+            (!searchString ||
+              e.name?.toLowerCase().includes(searchString.toLowerCase()))
+        )
+        .sort((a, b) => (a.date.isBefore(b.date) ? -1 : 1));
 
       const rows = filteredRows.map((ex: Expense) => ex.asTableData);
       const components = filteredRows.flatMap((e: Expense) =>
