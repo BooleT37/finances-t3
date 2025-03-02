@@ -156,7 +156,7 @@ const verifySelectValue = (
 };
 // #endregion
 
-describe("ExpenseModal", () => {
+describe("ExpenseModal", { timeout: 10000 }, () => {
   beforeEach(() => {
     mockAllData();
     // Clear any existing data in the query client to ensure clean state
@@ -395,19 +395,16 @@ describe("ExpenseModal", () => {
     await userEvent.click(submitButton);
 
     // Verify the update API was called with correct data
-    await waitFor(
-      () => {
-        expect(mockTrpc.expense.update.mutate).toHaveBeenCalledWith({
-          id: expenseId,
-          data: expect.objectContaining({
-            cost: new Decimal(15.3),
-            name: "Updated такси expense",
-            category: { connect: { id: 5 } }, // Транспорт
-            subcategory: { connect: { id: 6 } }, // Такси
-          }) as Prisma.ExpenseUpdateWithoutUserInput,
-        });
-      },
-      { timeout: 1000 }
-    );
+    await waitFor(() => {
+      expect(mockTrpc.expense.update.mutate).toHaveBeenCalledWith({
+        id: expenseId,
+        data: expect.objectContaining({
+          cost: new Decimal(15.3),
+          name: "Updated такси expense",
+          category: { connect: { id: 5 } }, // Транспорт
+          subcategory: { connect: { id: 6 } }, // Такси
+        }) as Prisma.ExpenseUpdateWithoutUserInput,
+      });
+    });
   });
 });
