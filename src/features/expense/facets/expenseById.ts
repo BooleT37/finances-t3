@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useExpenses } from "./allExpenses";
 
 export const useExpenseById = () => {
@@ -13,8 +13,10 @@ export const useExpenseById = () => {
     },
     [expenses]
   );
-  if (!isSuccess) {
-    return { loaded: false as const };
-  }
-  return { loaded: true as const, getExpenseById };
+  return useMemo(() => {
+    if (!isSuccess) {
+      return { loaded: false as const };
+    }
+    return { loaded: true as const, getExpenseById };
+  }, [isSuccess, getExpenseById]);
 };

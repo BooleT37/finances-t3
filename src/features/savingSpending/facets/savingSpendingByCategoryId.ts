@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import type SavingSpending from "../SavingSpending";
 import type SavingSpendingCategory from "../SavingSpendingCategory";
 import { useSavingSpendings } from "./allSavingSpendings";
@@ -24,8 +24,11 @@ export const useSavingSpendingByCategoryId = () => {
     },
     [savingSpendings]
   );
-  if (!isSuccess) {
-    return { loaded: false as const };
-  }
-  return { loaded: true as const, getSavingSpendingByCategoryId };
+
+  return useMemo(() => {
+    if (!isSuccess) {
+      return { loaded: false as const };
+    }
+    return { loaded: true as const, getSavingSpendingByCategoryId };
+  }, [isSuccess, getSavingSpendingByCategoryId]);
 };

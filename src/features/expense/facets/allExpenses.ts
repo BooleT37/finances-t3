@@ -18,6 +18,8 @@ import type { ExpenseFromApi } from "../api/types";
 import Expense from "../Expense";
 import { ExpenseComponent } from "../ExpenseComponent";
 
+// setUseWhatChange(true);
+
 function adaptExpenseFromApi(
   expense: ExpenseFromApi,
   category: Category,

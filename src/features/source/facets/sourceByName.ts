@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useSources } from "./allSources";
 
 export const useSourceByName = () => {
@@ -13,8 +13,10 @@ export const useSourceByName = () => {
     },
     [sources]
   );
-  if (!isSuccess) {
-    return { loaded: false as const };
-  }
-  return { loaded: true as const, getSourceByName };
+  return useMemo(() => {
+    if (!isSuccess) {
+      return { loaded: false as const };
+    }
+    return { loaded: true as const, getSourceByName };
+  }, [isSuccess, getSourceByName]);
 };

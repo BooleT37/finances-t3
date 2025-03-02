@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useCategories } from "./allCategories";
 
 export const useGetCategoryById = () => {
@@ -13,8 +13,10 @@ export const useGetCategoryById = () => {
     },
     [categories]
   );
-  if (!isSuccess) {
-    return { loaded: false as const };
-  }
-  return { loaded: true as const, getCategoryById };
+  return useMemo(() => {
+    if (!isSuccess) {
+      return { loaded: false as const };
+    }
+    return { loaded: true as const, getCategoryById };
+  }, [isSuccess, getCategoryById]);
 };

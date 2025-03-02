@@ -75,14 +75,20 @@ export function ExpenseModalContextProvider({
   const subcategoryById = useSubcategoryById();
   const categoryById = useGetCategoryById();
 
-  const currentExpense =
-    expenseId !== null && expenseById.loaded
-      ? expenseById.getExpenseById(expenseId)
-      : undefined;
-  const lastExpense =
-    lastExpenseId !== null && expenseById.loaded
-      ? expenseById.getExpenseById(lastExpenseId)
-      : undefined;
+  const currentExpense = useMemo(
+    () =>
+      expenseId !== null && expenseById.loaded
+        ? expenseById.getExpenseById(expenseId)
+        : undefined,
+    [expenseId, expenseById]
+  );
+  const lastExpense = useMemo(
+    () =>
+      lastExpenseId !== null && expenseById.loaded
+        ? expenseById.getExpenseById(lastExpenseId)
+        : undefined,
+    [lastExpenseId, expenseById]
+  );
   const isNewExpense = !currentExpense;
 
   const open = useCallback((newExpenseId: number | null) => {
@@ -91,6 +97,7 @@ export function ExpenseModalContextProvider({
   }, []);
 
   useEffect(() => {
+    // console.log("currentExpense", currentExpense);
     if (currentExpense) {
       setCurrentComponents(
         currentExpense.components.map((c) => ({

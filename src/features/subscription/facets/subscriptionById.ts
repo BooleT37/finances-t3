@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useSubscriptions } from "./allSubscriptions";
 
 export const useSubscriptionById = () => {
@@ -13,8 +13,10 @@ export const useSubscriptionById = () => {
     },
     [subscriptions]
   );
-  if (!isSuccess) {
-    return { loaded: false as const };
-  }
-  return { loaded: true as const, getSubscriptionById };
+  return useMemo(() => {
+    if (!isSuccess) {
+      return { loaded: false as const };
+    }
+    return { loaded: true as const, getSubscriptionById };
+  }, [isSuccess, getSubscriptionById]);
 };
