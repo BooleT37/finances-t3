@@ -20,7 +20,7 @@ export const useGetAvailableSubscriptions = () => {
         return [];
       }
       const allSubscriptions = category
-        ? subscriptions.filter((s) => s.category.name === category.name)
+        ? subscriptions.filter((s) => s.category.id === category.id)
         : subscriptions;
 
       let subscriptionsForPeriod = allSubscriptions

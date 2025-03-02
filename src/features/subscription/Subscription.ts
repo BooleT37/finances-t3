@@ -108,11 +108,12 @@ export default class Subscription {
   }
 
   firstDateInInterval(startDate: Dayjs, endDate: Dayjs): Dayjs | null {
+    const endDateFixed = endDate.endOf("day");
     let iDate = this.firstDate.clone();
     while (iDate.isBefore(startDate, "day")) {
       iDate = iDate.add(this.period, "months");
     }
-    if (iDate.isBetween(startDate, endDate, "day", "[]")) {
+    if (iDate.isBetween(startDate, endDateFixed, "day", "[]")) {
       return iDate;
     }
     return null;
