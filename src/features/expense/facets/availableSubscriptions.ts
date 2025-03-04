@@ -24,6 +24,7 @@ export const useGetAvailableSubscriptions = () => {
         : subscriptions;
 
       let subscriptionsForPeriod = allSubscriptions
+        .filter((s) => s.active)
         .map((subscription): SubscriptionForPeriod | null => {
           const firstDate = subscription.firstDateInInterval(
             startDate,
