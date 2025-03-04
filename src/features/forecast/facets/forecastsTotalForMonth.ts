@@ -1,9 +1,9 @@
 import Decimal from "decimal.js";
 import { useCallback } from "react";
-import { useGetForecastsForMonth } from "./forecastsForMonth";
+import { useGetCategoriesForecastsForMonth } from "./categoriesForecastsForMonth";
 
 export const useGetForecastsTotalForMonth = () => {
-  const getForecastsForMonth = useGetForecastsForMonth();
+  const getForecastsForMonth = useGetCategoriesForecastsForMonth();
   return useCallback(
     (year: number, month: number) =>
       getForecastsForMonth(year, month)
