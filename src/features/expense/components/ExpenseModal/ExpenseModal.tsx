@@ -86,6 +86,7 @@ const ExpenseModal: React.FC<Props> = ({
           {isNewExpense ? "Добавить" : "Сохранить"}
         </Button>,
       ]}
+      destroyOnClose
     >
       <ExpenseModalForm
         form={form}
