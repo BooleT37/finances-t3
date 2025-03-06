@@ -31,8 +31,8 @@ export const useGetExpenseTableData = () => {
       const filteredRows = expenses
         .filter(
           (e: Expense) =>
-            e.date.isSameOrAfter(startDate) &&
-            e.date.isSameOrBefore(endDate) &&
+            e.date.isSameOrAfter(startDate.startOf("day")) &&
+            e.date.isSameOrBefore(endDate.endOf("day")) &&
             (!searchString ||
               e.name?.toLowerCase().includes(searchString.toLowerCase()))
         )
