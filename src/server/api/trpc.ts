@@ -13,9 +13,9 @@ import Decimal from "decimal.js";
 import { type Session } from "next-auth";
 import superjson from "superjson";
 import { ZodError } from "zod";
-
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
+import { posthog } from "../posthog";
 
 /**
  * 1. CONTEXT
@@ -40,9 +40,9 @@ interface CreateContextOptions {
  * @see https://create.t3.gg/en/usage/trpc#-serverapitrpcts
  */
 const createInnerTRPCContext = (opts: CreateContextOptions) => ({
-    session: opts.session,
-    db,
-  });
+  session: opts.session,
+  db,
+});
 
 /**
  * This is the actual context you will use in your router. It will be used to process every request
@@ -147,6 +147,43 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
 });
 
 /**
+ * Middleware for tracking mutations via PostHog
+ */
+const trackingMiddleware = t.middleware(
+  async ({ path, type, next, ctx, getRawInput }) => {
+    // Only track mutations, not queries
+    const shouldTrack = type === "mutation";
+
+    const input = await getRawInput();
+    const result = await next();
+
+    if (shouldTrack && posthog) {
+      try {
+        const userId = ctx.session?.user?.id ?? "anonymous";
+        const eventName = `trpc_${path.replace(/\./g, "_")}`;
+
+        posthog.capture({
+          distinctId: userId,
+          event: eventName,
+          properties: {
+            path,
+            input: input ?? null,
+            timestamp: new Date().toISOString(),
+            success: true,
+            userEmail: ctx.session?.user?.email,
+          },
+        });
+      } catch (error) {
+        // Don't let tracking errors affect the operation
+        console.error("Failed to track event:", error);
+      }
+    }
+
+    return result;
+  }
+);
+
+/**
  * Public (unauthenticated) procedure
  *
  * This is the base piece you use to build new queries and mutations on your tRPC API. It does not
@@ -176,4 +213,5 @@ export const protectedProcedure = t.procedure
         session: { ...ctx.session, user: ctx.session.user },
       },
     });
-  });
+  })
+  .use(trackingMiddleware);
