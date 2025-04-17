@@ -11,7 +11,7 @@ import { useGetAvailableSubscriptions } from "./availableSubscriptions";
  * Includes expense components and optionally upcoming subscriptions.
  */
 export const useGetExpenseTableData = () => {
-  const { data: expenses } = useExpenses();
+  const { data: expenses, error } = useExpenses();
   const getAvailableSubscriptions = useGetAvailableSubscriptions();
 
   return useCallback(
@@ -26,6 +26,10 @@ export const useGetExpenseTableData = () => {
       searchString: string;
       includeUpcomingSubscriptions: boolean;
     }): ExpenseTableData[] | undefined => {
+      if (error) {
+        console.error("Error fetching expenses:", error);
+        return undefined;
+      }
       if (!expenses) return undefined;
 
       const filteredRows = expenses
