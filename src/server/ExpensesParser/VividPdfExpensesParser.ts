@@ -45,7 +45,10 @@ export class VividPdfExpensesParser implements ExpensesParser {
         if (!row[0] || !row[1] || !row[2]) {
           throw new Error(`Invalid row: ${row.join(", ")}`);
         }
-        if (row.length === 3 && row[1] === "Transfer between own accounts") {
+        if (
+          (row.length === 3 || row.length === 4) &&
+          row[1] === "Transfer between own accounts"
+        ) {
           const nextRow = array[index + 1];
           // new format
           if (
